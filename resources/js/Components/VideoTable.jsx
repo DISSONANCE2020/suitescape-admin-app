@@ -11,11 +11,16 @@ const VideoTable = ({ videos }) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentVideos = videos.slice(startIndex, startIndex + itemsPerPage);
 
+    const handleRowClick = (video) => {
+        console.log("Selected Video:", video);
+        // Example: Navigate to a new page or open a modal
+    };
+
     return (
         <div className="rounded-lg pt-2 h-[70vh]  flex flex-col w-full max-w-full">
             {/* Scrollable table container */}
             <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full border border-gray-300 min-w-[600px]">
+                <table className="w-full table-fixed border border-gray-300 min-w-[600px]">
                     <thead>
                         <tr className="text-center">
                             <th className="p-2 border border-gray-300 w-[150px]">
@@ -36,7 +41,8 @@ const VideoTable = ({ videos }) => {
                         {currentVideos.map((video, index) => (
                             <tr
                                 key={index}
-                                className="border border-gray-300 text-center odd:bg-gray-100"
+                                className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
+                                onClick={() => handleRowClick(video)}
                             >
                                 <td className="p-2 w-[150px]">{video.id}</td>
                                 <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
@@ -49,7 +55,7 @@ const VideoTable = ({ videos }) => {
                                 </td>
                                 <td className="p-2 w-[180px]">
                                     <span
-                                        className={`px-3 py-1 text-white rounded-md ${
+                                        className={`px-3 py-1 text-white font-bold rounded-md ${
                                             video.is_approved === null
                                                 ? "bg-blue-500"
                                                 : video.is_approved === 1
