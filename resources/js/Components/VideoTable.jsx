@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const VideoTable = ({ videos }) => {
+const VideoTable = ({ videos, onRowClick }) => {
     const itemsPerPage = 9;
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -11,9 +11,12 @@ const VideoTable = ({ videos }) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentVideos = videos.slice(startIndex, startIndex + itemsPerPage);
 
+    // Debugging: Log the selected video when a row is clicked
     const handleRowClick = (video) => {
-        console.log("Selected Video:", video);
-        // Example: Navigate to a new page or open a modal
+        console.log("Video selected: ", video); // Log the video data to the console
+        if (onRowClick) {
+            onRowClick(video); // Call the onRowClick function passed from the parent
+        }
     };
 
     return (
@@ -42,7 +45,7 @@ const VideoTable = ({ videos }) => {
                             <tr
                                 key={index}
                                 className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
-                                onClick={() => handleRowClick(video)}
+                                onClick={() => handleRowClick(video)} // Use the handleRowClick function to log and call onRowClick
                             >
                                 <td className="p-2 w-[150px]">{video.id}</td>
                                 <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
@@ -104,6 +107,11 @@ const VideoTable = ({ videos }) => {
             </div>
         </div>
     );
+};
+
+// Default prop for onRowClick
+VideoTable.defaultProps = {
+    onRowClick: () => {},
 };
 
 export default VideoTable;
