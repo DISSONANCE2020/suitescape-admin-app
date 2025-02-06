@@ -1,13 +1,11 @@
 import React from "react";
+import logo from "../../assets/images/logo.png";
 
 const Sidebar = () => {
     return (
         <div className="w-64 bg-white border-r border-gray-300 min-h-screen p-4 flex flex-col">
             {/* Placeholder Logo */}
-            <div className="bg-red-500 h-16 w-full mb-4 flex items-center justify-center">
-                <span className="text-white font-bold">LOGO</span>
-            </div>
-
+            <img src={logo} alt="Logo" className="w-48 mx-auto"/>
             {/* Navigation Menu */}
             <div className="flex-grow">
                 <h2 className="text-sm font-semibold text-gray-400 uppercase mb-2">

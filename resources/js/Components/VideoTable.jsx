@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const VideoTable = ({ videos }) => {
-    const itemsPerPage = 10;
+    const itemsPerPage = 9;
     const [currentPage, setCurrentPage] = useState(1);
 
     // Calculate total pages
@@ -12,7 +12,7 @@ const VideoTable = ({ videos }) => {
     const currentVideos = videos.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div className="rounded-lg h-[490px] flex flex-col w-full max-w-full">
+        <div className="rounded-lg pt-2 h-[70vh]  flex flex-col w-full max-w-full">
             {/* Scrollable table container */}
             <div className="overflow-x-auto w-full max-w-full">
                 <table className="w-full border border-gray-300 min-w-[600px]">

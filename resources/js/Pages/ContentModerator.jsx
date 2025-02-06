@@ -11,7 +11,7 @@ const ContentModerator = () => {
     return (
         <div className="flex bg-gray-100">
             <Sidebar />
-            <div className="flex-1 pb-6 pl-6 pr-6">
+            <div className="flex-1 pl-6 pr-6">
                 {/* Page Header Component */}
                 <PageHeader 
                     breadcrumb="Content Management / Videos"
