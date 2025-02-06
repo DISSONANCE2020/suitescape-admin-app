@@ -4,12 +4,20 @@ const VideoTable = ({ videos, onRowClick }) => {
     const itemsPerPage = 9;
     const [currentPage, setCurrentPage] = useState(1);
 
+    // Sort videos by created_at in descending order (latest video first)
+    const sortedVideos = [...videos].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
     // Calculate total pages
-    const totalPages = Math.ceil(videos.length / itemsPerPage);
+    const totalPages = Math.ceil(sortedVideos.length / itemsPerPage);
 
     // Get videos for the current page
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentVideos = videos.slice(startIndex, startIndex + itemsPerPage);
+    const currentVideos = sortedVideos.slice(
+        startIndex,
+        startIndex + itemsPerPage
+    );
 
     // Debugging: Log the selected video when a row is clicked
     const handleRowClick = (video) => {
@@ -20,7 +28,7 @@ const VideoTable = ({ videos, onRowClick }) => {
     };
 
     return (
-        <div className="rounded-lg pt-2 h-[70vh]  flex flex-col w-full max-w-full">
+        <div className="rounded-lg pt-2 h-[70vh] flex flex-col w-full max-w-full">
             {/* Scrollable table container */}
             <div className="overflow-x-auto w-full max-w-full">
                 <table className="w-full table-fixed border border-gray-300 min-w-[600px]">

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import VideoTable from "./VideoTable";
 import VideoDetails from "./VideoDetails";
-import ContentCard from "./ContentCard";
 
 const VideoManagement = ({ videos }) => {
     const [selectedVideo, setSelectedVideo] = useState(null);
@@ -22,7 +21,7 @@ const VideoManagement = ({ videos }) => {
             {selectedVideo ? (
                 <VideoDetails
                     video={selectedVideo}
-                    onBack={() => setSelectedVideo(null)}
+                    onBack={() => setSelectedVideo(null)} // Call onBack to reset selectedVideo
                 />
             ) : (
                 <VideoTable videos={videos} onRowClick={handleRowClick} />
