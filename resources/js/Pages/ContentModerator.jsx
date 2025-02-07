@@ -3,22 +3,33 @@ import { usePage } from "@inertiajs/react";
 import Sidebar from "../Components/Sidebar";
 import ContentCard from "../Components/ContentCard";
 import VideoManagement from "../Components/VideoManagement";
-import PageHeader from "../Components/PageHeader"
+import PageHeader from "../Components/PageHeader";
 
 const ContentModerator = () => {
-    const { videos } = usePage().props;
+    // Get videos, users, and listings from Inertia props
+    const { videos = [], users = [], listings = [] } = usePage().props;
+
+    // Debugging: Check if listings data is received
+    console.log("Listings from Inertia:", listings);
+    if (!listings || !Array.isArray(listings)) {
+        console.error("❌ Error: listings data is missing or not an array.");
+    }
 
     return (
-        <div className="flex bg-gray-100">
+        <div className="flex bg-gray-100 min-h-screen">
             <Sidebar />
             <div className="flex-1 pb-2 pl-6 pr-6">
                 <PageHeader
                     breadcrumb="Content Management / Videos"
                     user={{ name: "Andrew", role: "Admin account" }}
                 />
-                {/* Only render ContentCard with VideoManagement */}
+                {/* Content Card for Video Management */}
                 <ContentCard title="Videos">
-                    <VideoManagement videos={videos} />
+                    <VideoManagement
+                        videos={videos}
+                        users={users}
+                        listings={listings}
+                    />
                 </ContentCard>
             </div>
         </div>

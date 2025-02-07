@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 
-const VideoTable = ({ videos, onRowClick }) => {
-    const itemsPerPage = 9;
+const VideoTable = ({ videos, users, listings, onRowClick }) => {
+    console.log("Listings Array:", listings);
+
+    const itemsPerPage = 7;
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Sort videos by created_at in descending order (latest video first)
-    const sortedVideos = [...videos].sort(
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
+    const sortedVideos = Array.isArray(videos)
+        ? [...videos]
+              .filter((v) => v.created_at)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        : [];
 
     // Calculate total pages
     const totalPages = Math.ceil(sortedVideos.length / itemsPerPage);
@@ -21,9 +24,9 @@ const VideoTable = ({ videos, onRowClick }) => {
 
     // Debugging: Log the selected video when a row is clicked
     const handleRowClick = (video) => {
-        console.log("Video selected: ", video); // Log the video data to the console
+        console.log("Video selected: ", video);
         if (onRowClick) {
-            onRowClick(video); // Call the onRowClick function passed from the parent
+            onRowClick(video);
         }
     };
 
@@ -35,13 +38,13 @@ const VideoTable = ({ videos, onRowClick }) => {
                     <thead>
                         <tr className="text-center">
                             <th className="p-2 border border-gray-300 w-[150px]">
-                                Video ID
-                            </th>
-                            <th className="p-2 border border-gray-300 w-[150px]">
-                                File Name
+                                Video Title
                             </th>
                             <th className="p-2 border border-gray-300 w-[150px]">
                                 Upload Date
+                            </th>
+                            <th className="p-2 border border-gray-300 w-[150px]">
+                                Host
                             </th>
                             <th className="p-2 border border-gray-300 w-[180px]">
                                 Status
@@ -49,40 +52,69 @@ const VideoTable = ({ videos, onRowClick }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentVideos.map((video, index) => (
-                            <tr
-                                key={index}
-                                className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
-                                onClick={() => handleRowClick(video)} // Use the handleRowClick function to log and call onRowClick
-                            >
-                                <td className="p-2 w-[150px]">{video.id}</td>
-                                <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                    {video.filename.length > 20
-                                        ? `${video.filename.slice(0, 20)}...`
-                                        : video.filename}
-                                </td>
-                                <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                    {video.created_at.slice(0, 10)}
-                                </td>
-                                <td className="p-2 w-[180px]">
-                                    <span
-                                        className={`px-3 py-1 text-white font-bold rounded-md ${
-                                            video.is_approved === null
-                                                ? "bg-blue-500"
+                        {currentVideos.map((video, index) => {
+                            const listing = listings?.find(
+                                (listing) => listing.id === video.listing_id
+                            );
+
+                            console.log("Checking Listing Match:", {
+                                videoListingId: String(video.listing_id),
+                                availableListings: listings.map((l) =>
+                                    String(l.id)
+                                ),
+                                matchedListing: listing || "No Match Found",
+                            });
+
+                            const host = users?.find(
+                                (user) => user.id === listing?.user_id
+                            );
+
+                            console.log("Checking Host Match:", {
+                                listingUserId: listing?.user_id,
+                                availableUsers: users.map((u) => u.id),
+                                matchedHost: host,
+                            });
+
+                            return (
+                                <tr
+                                    key={index}
+                                    className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
+                                    onClick={() => handleRowClick(video)}
+                                >
+                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                        {listing?.name.length > 20
+                                            ? `${listing.name.slice(0, 20)}...`
+                                            : listing?.name}
+                                    </td>
+                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                        {video.created_at.slice(0, 10)}
+                                    </td>
+                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                    <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">                                            {host
+                                                ? `${host.firstname} ${host.lastname}`
+                                                : "Unknown"}
+                                        </span>
+                                    </td>
+                                    <td className="p-2 w-[180px]">
+                                        <span
+                                            className={`px-3 py-1 text-white w-[200px] font-bold block mx-auto rounded-md ${
+                                                video.is_approved === null
+                                                    ? "bg-blue-500"
+                                                    : video.is_approved === 1
+                                                    ? "bg-green-500"
+                                                    : "bg-red-500"
+                                            }`}
+                                        >
+                                            {video.is_approved === null
+                                                ? "PENDING APPROVAL"
                                                 : video.is_approved === 1
-                                                ? "bg-green-500"
-                                                : "bg-red-500"
-                                        }`}
-                                    >
-                                        {video.is_approved === null
-                                            ? "PENDING APPROVAL"
-                                            : video.is_approved === 1
-                                            ? "VIDEO APPROVED"
-                                            : "VIDEO REJECTED"}
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
+                                                ? "VIDEO APPROVED"
+                                                : "VIDEO REJECTED"}
+                                        </span>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

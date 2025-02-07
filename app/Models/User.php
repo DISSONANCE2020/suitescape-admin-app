@@ -2,47 +2,40 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    
+    public $incrementing = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
+    // Cast the id field to a string
+    protected $casts = [
+        'id' => 'string',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // Define the table name if it's different from the plural form of the model name
+    protected $table = 'users';
+
+    // Define only the fields you want to be mass assignable
+    protected $fillable = [
+        'id', 'firstname', 'lastname', // Only these fields
+    ];
+
+    // Optionally, you can define hidden attributes if you don't want certain fields serialized
     protected $hidden = [
         'password',
-        'remember_token',
+        'remember_token', 
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // Optionally, specify the data types for casting
     protected function casts(): array
+    
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // Define any casting as needed, like timestamps or booleans
         ];
     }
 }

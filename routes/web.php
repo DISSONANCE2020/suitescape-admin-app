@@ -8,8 +8,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+// Fetch ALL necessary data in one controller
 Route::get('/content-moderator', [VideoController::class, 'index'])->name('content.moderator');
-//MAKE SURE TO CHECK IF TAMA ANG ROUTES
-
 
 

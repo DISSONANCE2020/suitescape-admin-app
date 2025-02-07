@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
 use App\Models\Video;
+use App\Models\Listing;
+use App\Models\User;
 
 class VideoController extends Controller
 {
-    public function index(): Response
+    public function index()
     {
-        // Fetch video data from the database
-        $videos = Video::all(); 
-
-        // Pass videos to Inertia
         return Inertia::render('ContentModerator', [
-            'videos' => $videos
+            'videos' => Video::all(),
+            'listings' => Listing::all(),
+            'users' => User::all(),
         ]);
     }
+    
 }
+

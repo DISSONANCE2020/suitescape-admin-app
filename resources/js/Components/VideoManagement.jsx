@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import VideoTable from "./VideoTable";
 import VideoDetails from "./VideoDetails";
 
-const VideoManagement = ({ videos }) => {
+const VideoManagement = ({ videos, users, listings }) => {
+
     const [selectedVideo, setSelectedVideo] = useState(null);
 
     useEffect(() => {
-        console.log("selectedVideo state updated:", selectedVideo); // Log when selectedVideo changes
     }, [selectedVideo]);
 
     const handleRowClick = (video) => {
-        console.log("Video selected in VideoManagement:", video);
         setSelectedVideo(video);
     };
-
-    console.log("Current selectedVideo in VideoManagement:", selectedVideo);
 
     return (
         <div>
@@ -24,7 +21,12 @@ const VideoManagement = ({ videos }) => {
                     onBack={() => setSelectedVideo(null)} // Call onBack to reset selectedVideo
                 />
             ) : (
-                <VideoTable videos={videos} onRowClick={handleRowClick} />
+                <VideoTable
+                    videos={videos}
+                    users={users}
+                    listings={listings}
+                    onRowClick={handleRowClick}
+                />
             )}
         </div>
     );
