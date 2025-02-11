@@ -16,7 +16,7 @@ const ContentModerator = () => {
     }
 
     return (
-        <div className="flex bg-gray-100 min-h-screen">
+        <div className="flex min-h-screen bg-gray-100">
             <Sidebar />
             <div className="flex-1 pb-2 pl-6 pr-6">
                 <PageHeader

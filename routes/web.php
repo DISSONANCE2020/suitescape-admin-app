@@ -21,3 +21,7 @@ Route::get('/content-moderator', [VideoController::class, 'index'])->name('conte
 Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 
 
+Route::get('/financial-administration', function () {
+    return Inertia::render('FinancialAdministration');
+});
+
