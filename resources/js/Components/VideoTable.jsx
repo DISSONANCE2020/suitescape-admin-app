@@ -1,38 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const VideoTable = ({ videos, users, listings, onRowClick }) => {
-    console.log("Listings Array:", listings);
-
+const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
+    const [filteredVideos, setFilteredVideos] = useState([]);
     const itemsPerPage = 7;
     const [currentPage, setCurrentPage] = useState(1);
 
-    const sortedVideos = Array.isArray(videos)
-        ? [...videos]
-              .filter((v) => v.created_at)
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        : [];
+    useEffect(() => {
+        if (!Array.isArray(videos)) return;
 
-    // Calculate total pages
-    const totalPages = Math.ceil(sortedVideos.length / itemsPerPage);
+        let filtered = [...videos];
 
-    // Get videos for the current page
+        switch (sortFilter) {
+            case "VIDEO APPROVED":
+                filtered = filtered.filter((video) => video.is_approved === 1);
+                break;
+            case "VIDEO REJECTED":
+                filtered = filtered.filter((video) => video.is_approved === 0);
+                break;
+            case "PENDING APPROVAL":
+                filtered = filtered.filter(
+                    (video) => video.is_approved === null
+                );
+                break;
+            default:
+                break; // "ALL" will show everything
+        }
+
+        // Sort by latest updated/created date
+        filtered.sort(
+            (a, b) =>
+                new Date(b.updated_at || b.created_at) -
+                new Date(a.updated_at || a.created_at)
+        );
+
+        setFilteredVideos(filtered);
+    }, [videos, sortFilter]);
+
+    const totalPages = Math.ceil(filteredVideos.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentVideos = sortedVideos.slice(
+    const currentVideos = filteredVideos.slice(
         startIndex,
         startIndex + itemsPerPage
     );
 
-    // Debugging: Log the selected video when a row is clicked
     const handleRowClick = (video) => {
-        console.log("Video selected: ", video);
+        const listing = listings?.find(
+            (listing) => listing.id === video.listing_id
+        );
+        const host = users?.find((user) => user.id === listing?.user_id);
+
         if (onRowClick) {
-            onRowClick(video);
+            onRowClick(video, listing?.name, host, video.is_approved);
         }
     };
 
     return (
-        <div className="rounded-lg pt-2 h-[70vh] flex flex-col w-full max-w-full">
-            {/* Scrollable table container */}
+        <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
             <div className="overflow-x-auto w-full max-w-full">
                 <table className="w-full table-fixed border border-gray-300 min-w-[600px]">
                     <thead>
@@ -56,33 +79,18 @@ const VideoTable = ({ videos, users, listings, onRowClick }) => {
                             const listing = listings?.find(
                                 (listing) => listing.id === video.listing_id
                             );
-
-                            console.log("Checking Listing Match:", {
-                                videoListingId: String(video.listing_id),
-                                availableListings: listings.map((l) =>
-                                    String(l.id)
-                                ),
-                                matchedListing: listing || "No Match Found",
-                            });
-
                             const host = users?.find(
                                 (user) => user.id === listing?.user_id
                             );
 
-                            console.log("Checking Host Match:", {
-                                listingUserId: listing?.user_id,
-                                availableUsers: users.map((u) => u.id),
-                                matchedHost: host,
-                            });
-
                             return (
                                 <tr
-                                    key={index}
+                                    key={video.id || index}
                                     className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
                                     onClick={() => handleRowClick(video)}
                                 >
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                        {listing?.name.length > 20
+                                        {listing?.name?.length > 20
                                             ? `${listing.name.slice(0, 20)}...`
                                             : listing?.name}
                                     </td>
@@ -90,7 +98,8 @@ const VideoTable = ({ videos, users, listings, onRowClick }) => {
                                         {video.created_at.slice(0, 10)}
                                     </td>
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                    <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">                                            {host
+                                        <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">
+                                            {host
                                                 ? `${host.firstname} ${host.lastname}`
                                                 : "Unknown"}
                                         </span>
@@ -119,12 +128,11 @@ const VideoTable = ({ videos, users, listings, onRowClick }) => {
                 </table>
             </div>
 
-            {/* Pagination Controls */}
             <div className="mt-auto flex justify-between items-center pt-4 px-2">
                 <button
                     className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
                     onClick={() =>
-                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
                     }
                     disabled={currentPage === 1}
                 >
@@ -138,7 +146,9 @@ const VideoTable = ({ videos, users, listings, onRowClick }) => {
                 <button
                     className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
                     onClick={() =>
-                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                        setCurrentPage((prev) =>
+                            prev < totalPages ? prev + 1 : prev
+                        )
                     }
                     disabled={currentPage === totalPages}
                 >
@@ -147,11 +157,6 @@ const VideoTable = ({ videos, users, listings, onRowClick }) => {
             </div>
         </div>
     );
-};
-
-// Default prop for onRowClick
-VideoTable.defaultProps = {
-    onRowClick: () => {},
 };
 
 export default VideoTable;

@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import ApprovalConfirmationModal from "./ApprovalConfirmationModal";
 
-const VideoDetails = ({ video, onBack }) => {
-    const [status, setStatus] = useState("pending");
+const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
+    const [status, setStatus] = useState(video?.is_approved ?? null);
     const [violations, setViolations] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [pendingStatus, setPendingStatus] = useState(null);
 
     const termsOfService = [
         "Copyright Infringement",
@@ -16,11 +19,16 @@ const VideoDetails = ({ video, onBack }) => {
     ];
 
     const handleStatusChange = (newStatus) => {
-        setStatus(newStatus);
+        setPendingStatus(newStatus);
+        setModalOpen(true);
+    };
+
+    const confirmStatusChange = () => {
+        setStatus(pendingStatus);
         setDropdownOpen(false);
-        if (newStatus !== "rejected") {
-            setViolations([]);
-        }
+        setModalOpen(false);
+        if (pendingStatus !== 2) setViolations([]);
+        onStatusUpdate({ ...video, is_approved: pendingStatus });
     };
 
     const toggleViolation = (violation) => {
@@ -31,111 +39,147 @@ const VideoDetails = ({ video, onBack }) => {
         );
     };
 
+    const getStatusText = (status) => {
+        switch (status) {
+            case 1:
+                return "VIDEO APPROVED";
+            case 2:
+                return "VIDEO REJECTED";
+            case null:
+            default:
+                return "PENDING APPROVAL";
+        }
+    };
+
     return (
-        <div className="w-full flex border p-4">
-            {/* Left - Portrait Video */}
-            <div className="w-1/3 flex justify-start items-center">
-                <video
-                    controls
-                    className="w-[250px] h-[450px] object-cover rounded-lg shadow-md"
-                >
-                    <source src="/path-to-your-video.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+        <div className="w-full flex flex-col justify-center min-h-[500px]">
+            <div className="w-full flex max-w-5xl">
+                {/* Left + Middle Section */}
+                <div className="flex w-2/3">
+                    {/* Left - Video */}
+                    <div className="w-[250px] flex justify-start items-center">
+                        <video
+                            controls
+                            className="w-[250px] h-[450px] object-cover rounded-lg"
+                        >
+                            <source
+                                src={
+                                    video?.listing_id && video?.filename
+                                        ? `http://127.0.0.1:8001/storage/listings/${video.listing_id}/videos/${video.filename}`
+                                        : "http://127.0.0.1:8001/videos/default.mp4"
+                                }
+                                type="video/mp4"
+                            />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
 
-            {/* Middle - Video Details */}
-            <div className="w-1/3 px-4 border-l">
-                <h2 className="text-2xl font-bold">{video.filename}</h2>
+                    {/* Middle - Video Details */}
+                    <div className="w-2/3 px-4 space-y-6">
+                        <h2 className="text-2xl pb-2 font-bold">
+                            {video?.listingName || "Unknown Listing"}
+                        </h2>
+                        <h3 className="text-lg font-medium text-gray-600">
+                            {video?.host || "Unknown Host"}
+                        </h3>
 
-                {/* Status Dropdown */}
-                <div className="relative mt-2 inline-block">
-                    <button
-                        className={`px-3 py-1 text-sm rounded-full flex items-center gap-2 ${
-                            status === "accepted"
-                                ? "bg-green-500 text-white"
-                                : status === "rejected"
-                                ? "bg-red-500 text-white"
-                                : "bg-blue-500 text-white"
-                        }`}
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                    >
-                        {status === "accepted"
-                            ? "Accepted"
-                            : status === "rejected"
-                            ? "Rejected"
-                            : "APPROVAL PENDING"}
-                        <ChevronDown size={16} />
-                    </button>
-                    {dropdownOpen && (
-                        <div className="absolute mt-2 w-40 bg-white shadow-lg rounded-lg border z-10">
+                        {/* Status Dropdown */}
+                        <div className="relative inline-block">
                             <button
-                                className="w-full text-left px-4 py-2 hover:bg-gray-200 text-green-600"
-                                onClick={() => handleStatusChange("accepted")}
+                                className={`px-3 py-1 text-white font-bold rounded-md flex justify-between items-center w-[220px] ${
+                                    status === 1
+                                        ? "bg-green-500"
+                                        : status === 2
+                                        ? "bg-red-500"
+                                        : "bg-blue-500"
+                                }`}
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
                             >
-                                Accept
+                                {getStatusText(status)}
+                                <ChevronDown size={16} className="ml-2" />
                             </button>
-                            <button
-                                className="w-full text-left px-4 py-2 hover:bg-gray-200 text-red-600"
-                                onClick={() => handleStatusChange("rejected")}
-                            >
-                                Reject
-                            </button>
-                            <button
-                                className="w-full text-left px-4 py-2 hover:bg-gray-200 text-blue-600"
-                                onClick={() => handleStatusChange("pending")}
-                            >
-                                Approval Pending
-                            </button>
+                            {dropdownOpen && (
+                                <div className="absolute mt-2 rounded-lg bg-white p-2 pl-0 z-10">
+                                    <button
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-green-500 hover:bg-green-600"
+                                        onClick={() => handleStatusChange(1)}
+                                    >
+                                        APPROVE VIDEO
+                                    </button>
+                                    <button
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-red-500 hover:bg-red-600"
+                                        onClick={() => handleStatusChange(2)}
+                                    >
+                                        REJECT VIDEO
+                                    </button>
+                                    <button
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-blue-500 hover:bg-blue-600"
+                                        onClick={() => handleStatusChange(null)}
+                                    >
+                                        REMOVE STATUS
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    )}
+
+                        <p className="text-black font-semibold">
+                            Video ID:{" "}
+                            <span className="font-normal">
+                                {video?.id?.slice(0, 14) || "N/A"}
+                            </span>
+                        </p>
+                        <p className="text-black font-semibold">
+                            Upload Date:{" "}
+                            <span className="font-normal">
+                                {video?.created_at?.slice(0, 10) ||
+                                    "Unknown Date"}
+                            </span>
+                        </p>
+                        <p className="text-black font-semibold">
+                            Description:{" "}
+                            <span className="font-normal">
+                                {video?.listingDescription ||
+                                    "No description available"}
+                            </span>
+                        </p>
+                    </div>
                 </div>
 
-                <p className="mt-4 text-gray-600 font-semibold">
-                    Video ID: {video.id}
-                </p>
-                <p className="text-gray-600 font-semibold">
-                    Upload Date: {video.created_at}
-                </p>
+                {/* Right - Violations & Back */}
+                <div className="w-1/3 px-4 border-l flex flex-col justify-between">
+                    <div>
+                        <h4 className="text-2xl pb-2 font-bold">
+                            Terms Violated
+                        </h4>
+                        {termsOfService.map((term) => (
+                            <label key={term} className="block mt-6">
+                                <input
+                                    type="checkbox"
+                                    checked={violations.includes(term)}
+                                    onChange={() => toggleViolation(term)}
+                                    className="mr-2"
+                                />
+                                {term}
+                            </label>
+                        ))}
+                    </div>
 
-                {/* Back Button */}
-                <button
-                    onClick={onBack}
-                    className="mt-4 px-5 py-2 bg-gray-300 text-gray-500 text-lg rounded-lg"
-                >
-                    Back to Table
-                </button>
-            </div>
-
-            {/* Right - TOS Violations */}
-            <div className="w-1/3 px-4 border-l">
-                <h3 className="text-xl font-bold text-gray-700 mb-2">
-                    Terms of Service Violated
-                </h3>
-                {termsOfService.map((term) => (
-                    <label
-                        key={term}
-                        className="flex items-center mt-2 text-gray-700 text-lg"
+                    <button
+                        onClick={onBack}
+                        className="py-2 px-4 bg-gray-300 rounded-md hover:bg-gray-400 transition self-end"
                     >
-                        <input
-                            type="checkbox"
-                            className="w-5 h-5 mr-3 accent-[#000]"
-                            disabled={status !== "rejected"}
-                            checked={violations.includes(term)}
-                            onChange={() => toggleViolation(term)}
-                        />
-                        {term}
-                    </label>
-                ))}
-
-                {/* Save Button */}
-                <button
-                    className="mt-4 px-5 py-2 bg-gray-300 text-gray-500 text-lg rounded-lg disabled:opacity-50"
-                    disabled={status !== "rejected" || violations.length === 0}
-                >
-                    SAVE
-                </button>
+                        Back to Table
+                    </button>
+                </div>
             </div>
+
+            {/* Approval Confirmation Modal */}
+            <ApprovalConfirmationModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={confirmStatusChange}
+                status={pendingStatus}
+            />
         </div>
     );
 };

@@ -26,7 +26,7 @@ const ContentModerator = () => {
                 {/* Content Card for Video Management */}
                 <ContentCard title="Videos">
                     <VideoManagement
-                        videos={videos}
+                        initialVideos={videos}
                         users={users}
                         listings={listings}
                     />

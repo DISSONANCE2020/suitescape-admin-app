@@ -1,10 +1,8 @@
 import React from "react";
-import HeaderBar from "./HeaderBar";
 
-const ContentCard = ({ title, children }) => {
+const ContentCard = ({ children }) => {
     return (
-        <div className="w-full bg-white border border-gray-300 p-6 pt-2 rounded-lg">
-            <HeaderBar title={title} />
+        <div className="w-full h-[85vh] bg-white border border-gray-300 p-6 pt-2 rounded-lg">
             <div className="mt-4">{children}</div>
         </div>
     );

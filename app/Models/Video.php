@@ -27,7 +27,7 @@ class Video extends Model
         'listing_id',
         'filename',
         'created_at',
-        'status'
+        'is_approved'
     ];
 
     // Optionally, if you want to automatically generate a UUID for the 'id' field if not provided
