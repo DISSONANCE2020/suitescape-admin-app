@@ -1,13 +1,91 @@
-import React from 'react';
-import '../../css/app.css';
+import React, { useState } from "react";
+import "../../css/app.css";
+import { usePage, router } from "@inertiajs/react";
 
+const Welcome = () => {
+    const { auth, errors } = usePage().props; // Get auth info and errors from Inertia
+    const [form, setForm] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false);
 
-export default function Welcome() {
+    // If user is already logged in, redirect to ContentModerator
+    if (auth?.user) {
+        router.visit("/content-moderator");
+        return null; // Prevent further rendering
+    }
+
+    // Handle input changes
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    // Handle form submission
+    const handleLogin = (e) => {
+        e.preventDefault();
+        setLoading(true); // Start loading
+
+        router.post("/login", form, {
+            onSuccess: () => {
+                setLoading(false);
+                router.visit("/content-moderator");
+            },
+            onError: () => setLoading(false),
+        });
+    };
+
     return (
-        <div className="p-6">
-            <h1 className="text-3xl font-bold underline">
-                Welcome Page
-            </h1>
+        <div className="flex justify-center items-center min-h-screen bg-[#f4f4f9]">
+            <div className="bg-white p-8 shadow-lg rounded-xl w-[400px]">
+                <h2 className="text-2xl font-bold mb-4 text-center text-[#333]">
+                    Login
+                </h2>
+                <form onSubmit={handleLogin}>
+                    <div className="mb-4">
+                        <label className="block text-[#555]">Email:</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            className="w-full p-2 border border-[#ccc] rounded focus:outline-none focus:ring-2 focus:ring-[#4a90e2]"
+                            required
+                        />
+                        {errors?.email && (
+                            <p className="text-red-500 text-sm">
+                                {errors.email}
+                            </p>
+                        )}
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-[#555]">Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={form.password}
+                            onChange={handleChange}
+                            className="w-full p-2 border border-[#ccc] rounded focus:outline-none focus:ring-2 focus:ring-[#4a90e2]"
+                            required
+                        />
+                        {errors?.password && (
+                            <p className="text-red-500 text-sm">
+                                {errors.password}
+                            </p>
+                        )}
+                    </div>
+                    <button
+                        type="submit"
+                        className={`w-full text-white p-2 rounded transition ${
+                            loading
+                                ? "bg-[#94b3e6] cursor-not-allowed"
+                                : "bg-[#4a90e2] hover:bg-[#357abd]"
+                        }`}
+                        disabled={loading}
+                    >
+                        {loading ? "Logging in..." : "Login"}
+                    </button>
+                </form>
+            </div>
         </div>
-    )
-}
+    );
+};
+
+export default Welcome;

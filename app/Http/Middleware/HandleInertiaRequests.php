@@ -22,7 +22,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
-        return parent::version($request);
+        return parent::version($request) ?? md5_file(public_path('mix-manifest.json'));
     }
 
     /**
@@ -34,11 +34,18 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'firstname' => $request->user()->firstname,
+                    'lastname' => $request->user()->lastname,
+                    'email' => $request->user()->email,
+                    'role_id' => $request->user()->role_id,
+                ] : null,
             ],
             'videos' => fn() => Video::latest()->get(),  // Fetches the latest videos dynamically
             'users' => fn() => User::all(),  // Fetches all users dynamically
             'listings' => fn() => Listing::all(),  // Fetches all listings dynamically
+            'version' => $this->version($request),
         ]);
     }
 }
