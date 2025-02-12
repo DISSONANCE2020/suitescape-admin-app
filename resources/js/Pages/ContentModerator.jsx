@@ -6,13 +6,21 @@ import VideoManagement from "../Components/VideoManagement";
 import PageHeader from "../Components/PageHeader";
 
 const ContentModerator = () => {
-    // Get videos, users, and listings from Inertia props
-    const { videos = [], users = [], listings = [] } = usePage().props;
+    const { videos = [], users = [], listings = [], auth } = usePage().props;
 
-    // Debugging: Check if listings data is received
     console.log("Listings from Inertia:", listings);
     if (!listings || !Array.isArray(listings)) {
         console.error("❌ Error: listings data is missing or not an array.");
+    }
+
+    const user = auth?.user || {};
+    const userRoles = auth?.roles || []; // Assuming roles come from props
+
+    // Check if user has role_id = 4
+    const hasAccess = userRoles.some((role) => role.id === 4);
+
+    if (!hasAccess) {
+        return <div>Access Denied</div>;
     }
 
     return (
@@ -20,10 +28,9 @@ const ContentModerator = () => {
             <Sidebar />
             <div className="flex-1 pb-2 pl-6 pr-6">
                 <PageHeader
-                    breadcrumb="Content Management / Videos"
-                    user={{ name: "Andrew", role: "Admin account" }}
+                    breadcrumb="Content Moderation / Videos"
+                    user={{ name: user.firstname, role: "Content Moderator" }}
                 />
-                {/* Content Card for Video Management */}
                 <ContentCard title="Videos">
                     <VideoManagement
                         initialVideos={videos}

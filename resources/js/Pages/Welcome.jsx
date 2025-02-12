@@ -1,27 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../css/app.css";
 import { usePage, router } from "@inertiajs/react";
 
 const Welcome = () => {
-    const { auth, errors } = usePage().props; // Get auth info and errors from Inertia
+    const props = usePage().props || {}; // Ensure props is never undefined
+    const { auth = { user: null }, errors = {} } = props;
+
+    console.log("usePage().props:", props); // Debugging
+
     const [form, setForm] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
 
-    // If user is already logged in, redirect to ContentModerator
-    if (auth?.user) {
-        router.visit("/content-moderator");
-        return null; // Prevent further rendering
-    }
+    useEffect(() => {
+        if (auth?.user) {
+            router.visit("/content-moderator");
+        }
+    }, [auth?.user]);
 
-    // Handle input changes
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // Handle form submission
     const handleLogin = (e) => {
         e.preventDefault();
-        setLoading(true); // Start loading
+        setLoading(true);
 
         router.post("/login", form, {
             onSuccess: () => {

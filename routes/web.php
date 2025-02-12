@@ -19,7 +19,7 @@ Route::get('/videos', function () {
 });
 
 // Fetch ALL necessary data in one controller
-Route::get('/content-moderator', [VideoController::class, 'index'])->name('content.moderator');
+Route::get('/content-moderator', [VideoController::class, 'index'])->name(name: 'content.moderator');
 Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);

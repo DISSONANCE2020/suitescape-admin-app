@@ -7,6 +7,7 @@ use Inertia\Middleware;
 use App\Models\Video;
 use App\Models\User;
 use App\Models\Listing;
+use Illuminate\Support\Facades\DB;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -22,7 +23,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
-        return parent::version($request) ?? md5_file(public_path('mix-manifest.json'));
+        return parent::version($request) ?? 
+               (file_exists(public_path('mix-manifest.json')) ? md5_file(public_path('mix-manifest.json')) : null);
     }
 
     /**
@@ -32,19 +34,38 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
+        // ✅ Fetch roles from model_has_roles
+        $userRoles = [];
+        if ($user) {
+            $userRoles = DB::table('model_has_roles')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->where('model_has_roles.model_id', $user->id)
+                ->select('roles.id', 'roles.name')
+                ->get()
+                ->toArray();
+        }
+
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user() ? [
-                    'id' => $request->user()->id,
-                    'firstname' => $request->user()->firstname,
-                    'lastname' => $request->user()->lastname,
-                    'email' => $request->user()->email,
-                    'role_id' => $request->user()->role_id,
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                    'email' => $user->email,
                 ] : null,
+
+                // ✅ Attach fetched roles
+                'roles' => $userRoles,
             ],
-            'videos' => fn() => Video::latest()->get(),  // Fetches the latest videos dynamically
-            'users' => fn() => User::all(),  // Fetches all users dynamically
-            'listings' => fn() => Listing::all(),  // Fetches all listings dynamically
+
+            // 🚀 Other props (Do not edit these)
+            'videos' => fn() => Video::latest()->get(),
+            'users' => fn() => User::all(),
+            'listings' => fn() => Listing::all(),
+            'model_has_roles' => DB::table('model_has_roles')->get(),
+
             'version' => $this->version($request),
         ]);
     }

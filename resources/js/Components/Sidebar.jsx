@@ -26,7 +26,7 @@ const Sidebar = () => {
                                 href="#"
                                 className="block text-gray-800 font-semibold bg-gray-200 rounded-md px-2 py-1"
                             >
-                                Content Management
+                                Content Moderation
                             </a>
                         </li>
                     </ul>
