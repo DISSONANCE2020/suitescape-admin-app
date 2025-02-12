@@ -66,10 +66,10 @@ const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
                             <th className="p-2 border border-gray-300 w-[150px]">
                                 Upload Date
                             </th>
-                            <th className="p-2 border border-gray-300 w-[150px]">
+                            <th className="p-2 border border-gray-300 w-[150px] hidden md:table-cell">
                                 Host
                             </th>
-                            <th className="p-2 border border-gray-300 w-[180px]">
+                            <th className="p-2 border border-gray-300 w-[180px] hidden md:table-cell">
                                 Status
                             </th>
                         </tr>
@@ -97,14 +97,14 @@ const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
                                         {video.created_at.slice(0, 10)}
                                     </td>
-                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap hidden md:table-cell">
                                         <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">
                                             {host
                                                 ? `${host.firstname} ${host.lastname}`
                                                 : "Unknown"}
                                         </span>
                                     </td>
-                                    <td className="p-2 w-[180px]">
+                                    <td className="p-2 w-[180px] hidden md:table-cell">
                                         <span
                                             className={`px-3 py-1 text-white w-[200px] font-bold block mx-auto rounded-md ${
                                                 video.is_approved === null
