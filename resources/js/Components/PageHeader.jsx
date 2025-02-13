@@ -32,7 +32,7 @@ const PageHeader = ({ breadcrumb = "Content Management / Videos" }) => {
     };
 
     return (
-        <div className="flex justify-between items-center w-full bg-gray-100 p-6 relative">
+        <div className="flex justify-between items-center w-full bg-gray-100 px-6 py-4 relative">
             {/* Breadcrumb Section */}
             <h1 className="text-lg font-semibold">{breadcrumb}</h1>
 
