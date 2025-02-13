@@ -10,11 +10,13 @@ const ContentModerator = () => {
 
     console.log("Listings from Inertia:", listings);
     if (!listings || !Array.isArray(listings)) {
-        console.error("❌ Error: listings data is missing or not an array.");
+        console.error("Error: listings data is missing or not an array.");
     }
 
     const user = auth?.user || {};
-    const userRoles = auth?.roles || []; // Assuming roles come from props
+    const userRoles = auth?.roles || [];
+
+    console.log("User Roles:", userRoles); // Debugging
 
     // Check if user has role_id = 4
     const hasAccess = userRoles.some((role) => role.id === 4);

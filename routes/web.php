@@ -2,25 +2,32 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+Route::middleware(['auth', 'role:content-admin'])->group(function () {
+    Route::get('/content-moderator', [AdminController::class, 'contentModerator'])->name('content.moderator');
+    Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
+});
+
+
+// Other routes...
 Route::get('/videos', function () {
     return Inertia::render('VideoManagement', [
-        'videos' => \App\Models\Video::all(),
-        'users' => \App\Models\User::all(),
-        'listings' => \App\Models\Listing::all(),
+        'videos' => \App\Models\Video::latest()->get(),
+        'users' => \App\Models\User::latest()->get(),
+        'listings' => \App\Models\Listing::latest()->get(),
     ]);
 });
 
-// Fetch ALL necessary data in one controller
-Route::get('/content-moderator', [VideoController::class, 'index'])->name(name: 'content.moderator');
-Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
+Route::get('/login', function () {
+    return Inertia::render('Welcome');
+})->name('login');
 
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);

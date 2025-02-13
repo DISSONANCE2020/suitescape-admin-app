@@ -23,8 +23,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function version(Request $request): ?string
     {
-        return parent::version($request) ?? 
-               (file_exists(public_path('mix-manifest.json')) ? md5_file(public_path('mix-manifest.json')) : null);
+        return parent::version($request) ??
+            (file_exists(public_path('mix-manifest.json')) ? md5_file(public_path('mix-manifest.json')) : null);
     }
 
     /**
