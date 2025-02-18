@@ -3,6 +3,7 @@
 use App\Models\Video;
 use Illuminate\Http\Request;
 
+
 Route::put('/videos/{id}/status', function ($id, Request $request) {
     $validated = $request->validate([
         'status' => 'nullable|in:0,1',
@@ -19,3 +20,4 @@ Route::put('/videos/{id}/status', function ($id, Request $request) {
 
     return response()->json($video);
 });
+

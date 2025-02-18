@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @viteReactRefresh
-    @vite('resources/js/app.jsx') <!-- Ensure correct path -->
+    @vite(['resources/js/app.jsx', 'resources/css/app.css']) <!-- Ensure correct path -->
 </head>
 <body>
     @inertia

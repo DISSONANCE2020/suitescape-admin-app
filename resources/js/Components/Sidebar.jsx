@@ -18,7 +18,7 @@ const Sidebar = () => {
                                 href="#"
                                 className="block text-gray-800 hover:bg-gray-100 rounded-md px-2 py-1"
                             >
-                                Financial Administration
+                                Finance Management
                             </a>
                         </li>
                         <li className="mb-2">
