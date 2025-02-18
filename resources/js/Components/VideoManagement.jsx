@@ -8,22 +8,28 @@ const VideoManagement = () => {
     const [videos, setVideos] = useState(initialVideos);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [sortBy, setSortBy] = useState("ALL");
+    const [currentPage, setCurrentPage] = useState(1);
 
-    useEffect(() => {
-        setVideos(initialVideos);
-    }, [initialVideos]);
+    // No need to define termsOfService here since mapping will be handled in VideoDetails.
 
+    useEffect(() => setVideos(initialVideos), [initialVideos]);
+
+    // Pass the raw violation data to VideoDetails
     const handleRowClick = (video) => {
         const listing = listings?.find(
             (listing) => listing.id === video.listing_id
         );
         const host = users?.find((user) => user.id === listing?.user_id);
 
+        console.log("Selected video violations:", video.violations); // Verify raw data here
+
         setSelectedVideo({
             ...video,
             host: host ? `${host.firstname} ${host.lastname}` : "Unknown",
             listingName: listing?.name,
-            listingDescription: listing?.description, // Added description retrieval
+            listingDescription: listing?.description,
+            // Pass raw violations data
+            violations: video.violations || [],
         });
     };
 
@@ -31,26 +37,64 @@ const VideoManagement = () => {
         try {
             await router.put(`/videos/${updatedVideo.id}/status`, {
                 is_approved: updatedVideo.is_approved,
+                violations: updatedVideo.violations,
                 updated_at: new Date().toISOString(),
             });
 
-            setVideos((prevVideos) =>
-                prevVideos.map((video) =>
-                    video.id === updatedVideo.id
-                        ? { ...video, is_approved: updatedVideo.is_approved }
-                        : video
+            setVideos((prev) =>
+                prev.map((v) =>
+                    v.id === updatedVideo.id
+                        ? {
+                              ...v,
+                              is_approved: updatedVideo.is_approved,
+                              violations: updatedVideo.violations,
+                          }
+                        : v
                 )
             );
-
-            setSelectedVideo((prev) =>
-                prev ? { ...prev, is_approved: updatedVideo.is_approved } : null
-            );
         } catch (error) {
-            console.error("Error updating video status:", error);
+            console.error("Update failed:", error);
         }
     };
 
-    // Filter videos based on sortBy state
+    // Callback for saving violations (expects an array of violation IDs).
+    const handleViolationsSave = async (updatedVideoWithViolations) => {
+        try {
+            await router.put(
+                `/videos/${updatedVideoWithViolations.id}/violations`,
+                {
+                    violations: updatedVideoWithViolations.violations,
+                }
+            );
+
+            // Option 1: Manually update the local state with the updated video
+            setVideos((prevVideos) =>
+                prevVideos.map((video) =>
+                    video.id === updatedVideoWithViolations.id
+                        ? {
+                              ...video,
+                              violations: updatedVideoWithViolations.violations,
+                          }
+                        : video
+                )
+            );
+            setSelectedVideo((prev) =>
+                prev
+                    ? {
+                          ...prev,
+                          violations: updatedVideoWithViolations.violations,
+                      }
+                    : null
+            );
+
+            // Option 2: Alternatively, trigger a reload to get fresh data:
+            // router.reload({ only: ['videos'] });
+        } catch (error) {
+            console.error("Error updating violations:", error);
+        }
+    };
+
+    // Filter videos based on sortBy state.
     const filteredVideos = videos.filter((video) => {
         if (sortBy === "ALL") return true;
         if (sortBy === "VIDEO APPROVED") return video.is_approved === 1;
@@ -61,13 +105,13 @@ const VideoManagement = () => {
 
     return (
         <div className="flex flex-col h-full">
-            {/* Sorting Bar - Always Visible */}
-            <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-4">
+            {/* Sorting Bar */}
+            <div className="flex justify-between items-center mb-4 border-b border-[#D1D5DB] pb-4">
                 <h2 className="text-lg font-semibold">Videos</h2>
                 <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 w-[220px] border border-gray-300 rounded-md"
+                    className="px-3 py-2 w-[220px] border border-[#D1D5DB] rounded-md"
                 >
                     <option value="ALL">All</option>
                     <option value="VIDEO APPROVED">Approved Videos</option>
@@ -81,6 +125,7 @@ const VideoManagement = () => {
                     video={selectedVideo}
                     onBack={() => setSelectedVideo(null)}
                     onStatusUpdate={handleStatusUpdate}
+                    onViolationsSave={handleViolationsSave}
                 />
             ) : (
                 <div className="flex-grow">
@@ -89,6 +134,8 @@ const VideoManagement = () => {
                         users={users}
                         listings={listings}
                         onRowClick={handleRowClick}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
                     />
                 </div>
             )}

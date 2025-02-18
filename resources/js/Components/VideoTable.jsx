@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 
-const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
+const VideoTable = ({
+    videos,
+    users,
+    listings,
+    onRowClick,
+    sortFilter,
+    currentPage,
+    setCurrentPage,
+}) => {
     const [filteredVideos, setFilteredVideos] = useState([]);
     const itemsPerPage = 7;
-    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         if (!Array.isArray(videos)) return;
@@ -43,17 +50,6 @@ const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
         startIndex + itemsPerPage
     );
 
-    const handleRowClick = (video) => {
-        const listing = listings?.find(
-            (listing) => listing.id === video.listing_id
-        );
-        const host = users?.find((user) => user.id === listing?.user_id);
-
-        if (onRowClick) {
-            onRowClick(video, listing?.name, host, video.is_approved);
-        }
-    };
-
     return (
         <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
             <div className="overflow-x-auto w-full max-w-full">
@@ -87,7 +83,7 @@ const VideoTable = ({ videos, users, listings, onRowClick, sortFilter }) => {
                                 <tr
                                     key={video.id || index}
                                     className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
-                                    onClick={() => handleRowClick(video)}
+                                    onClick={() => onRowClick(video)}
                                 >
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
                                         {listing?.name?.length > 20

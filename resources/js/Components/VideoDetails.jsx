@@ -1,34 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import ApprovalConfirmationModal from "./ApprovalConfirmationModal";
 
-const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
+// Helper to compare arrays
+const arraysEqual = (a, b) => {
+    if (a === b) return true;
+    if (a?.length !== b?.length) return false;
+    return a.every((val, i) => val === b[i]);
+};
+
+const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
     const [status, setStatus] = useState(video?.is_approved ?? null);
     const [violations, setViolations] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [pendingStatus, setPendingStatus] = useState(null);
+    const [initialViolations, setInitialViolations] = useState([]);
 
-    const termsOfService = [
-        "Copyright Infringement",
-        "Misleading Content",
-        "Offensive Material",
-        "Privacy Violations",
-        "Prohibited Activities",
-        "Deceptive Advertising",
-    ];
+    // Memoize the static list of violation terms.
+    const termsOfService = useMemo(
+        () => [
+            "Copyright Infringement",
+            "Misleading Content",
+            "Offensive Material",
+            "Privacy Violations",
+            "Prohibited Activities",
+            "Deceptive Advertising",
+        ],
+        []
+    );
 
     const handleStatusChange = (newStatus) => {
         setPendingStatus(newStatus);
         setModalOpen(true);
+        setDropdownOpen(false);
     };
 
     const confirmStatusChange = () => {
+        const newViolations = pendingStatus === 2 ? violations : [];
         setStatus(pendingStatus);
-        setDropdownOpen(false);
         setModalOpen(false);
-        if (pendingStatus !== 2) setViolations([]);
-        onStatusUpdate({ ...video, is_approved: pendingStatus });
+
+        onStatusUpdate({
+            ...video,
+            is_approved: pendingStatus,
+            violations: newViolations.map((t) => termsOfService.indexOf(t) + 1),
+        });
     };
 
     const toggleViolation = (violation) => {
@@ -51,16 +68,51 @@ const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
         }
     };
 
+    const handleSaveViolations = () => {
+        if (onViolationsSave) {
+            const violationIds = violations.map(
+                (term) => termsOfService.indexOf(term) + 1
+            );
+            onViolationsSave({ ...video, violations: violationIds });
+        }
+    };
+
+    const isEditableViolations = status === 2;
+
+    // Properly initialize violations when video changes
+    useEffect(() => {
+        console.log("Video violation IDs:", video?.violations);
+        if (video?.violations && video.violations.length > 0) {
+            // Extract violation IDs and map them to the corresponding violation terms
+            const violationIds = video.violations.map((v) => v.id || v); // Adjust based on your data structure
+            const violationLabels = violationIds.map(
+                (id) => termsOfService[id - 1]
+            );
+
+            // Set the violations state with the corresponding labels
+            setViolations(violationLabels);
+            setInitialViolations(violationIds); // Keep track of initial state for comparison
+        } else {
+            setViolations([]); // Clear violations if no violations are found
+            setInitialViolations([]); // Reset initial violations
+        }
+    }, [video, termsOfService]); // Ensure this effect runs whenever the video or termsOfService changes
+
+    // Compute current violation IDs based on the selected violation labels
+    const currentViolationIds = violations.map(
+        (term) => termsOfService.indexOf(term) + 1
+    );
+
     return (
         <div className="w-full flex flex-col justify-center min-h-[500px]">
-            <div className="w-full flex max-w-5xl">
+            <div className="w-full flex max-w-5xl flex-col md:flex-row">
                 {/* Left + Middle Section */}
-                <div className="flex w-2/3">
+                <div className="flex w-full md:w-2/3">
                     {/* Left - Video */}
-                    <div className="w-[250px] flex justify-start items-center">
+                    <div className="w-full md:w-[250px] flex justify-center md:justify-start items-center">
                         <video
                             controls
-                            className="w-[250px] h-[450px] object-cover rounded-lg"
+                            className="w-full md:w-[250px] h-[250px] md:h-[450px] object-cover rounded-lg"
                         >
                             <source
                                 src={
@@ -75,23 +127,23 @@ const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
                     </div>
 
                     {/* Middle - Video Details */}
-                    <div className="w-2/3 px-4 space-y-6">
-                        <h2 className="text-2xl pb-2 font-bold">
+                    <div className="w-full md:w-2/3 px-4 space-y-4">
+                        <h2 className="text-2xl font-bold">
                             {video?.listingName || "Unknown Listing"}
                         </h2>
-                        <h3 className="text-lg font-medium text-gray-600">
+                        <h3 className="text-lg font-medium pb-8 text-[#808080]">
                             {video?.host || "Unknown Host"}
                         </h3>
 
                         {/* Status Dropdown */}
                         <div className="relative inline-block">
                             <button
-                                className={`px-3 py-1 text-white font-bold rounded-md flex justify-between items-center w-[220px] ${
+                                className={`px-3 py-1 text-white font-bold rounded-md flex justify-between items-center w-full md:w-[220px] ${
                                     status === 1
-                                        ? "bg-green-500"
+                                        ? "bg-[#10B981]"
                                         : status === 2
-                                        ? "bg-red-500"
-                                        : "bg-blue-500"
+                                        ? "bg-[#EF4444]"
+                                        : "bg-[#3B82F6]"
                                 }`}
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
                             >
@@ -99,21 +151,21 @@ const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
                                 <ChevronDown size={16} className="ml-2" />
                             </button>
                             {dropdownOpen && (
-                                <div className="absolute mt-2 rounded-lg bg-white p-2 pl-0 z-10">
+                                <div className="absolute mt-2 rounded-lg bg-white p-2 pl-0 z-10 w-full md:w-[220px]">
                                     <button
-                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-green-500 hover:bg-green-600"
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-full bg-[#10B981] hover:bg-[#059669]"
                                         onClick={() => handleStatusChange(1)}
                                     >
                                         APPROVE VIDEO
                                     </button>
                                     <button
-                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-red-500 hover:bg-red-600"
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-full bg-[#EF4444] hover:bg-[#DC2626]"
                                         onClick={() => handleStatusChange(2)}
                                     >
                                         REJECT VIDEO
                                     </button>
                                     <button
-                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-[220px] bg-blue-500 hover:bg-blue-600"
+                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-full bg-[#3B82F6] hover:bg-[#2563EB]"
                                         onClick={() => handleStatusChange(null)}
                                     >
                                         REMOVE STATUS
@@ -145,18 +197,22 @@ const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
                     </div>
                 </div>
 
-                {/* Right - Violations & Back */}
-                <div className="w-1/3 px-4 border-l flex flex-col justify-between">
+                {/* Violations Section */}
+                <div className="w-full md:w-1/3 px-4 border-t md:border-t-0 md:border-l flex flex-col justify-between mt-4 md:mt-0 md:ml-8">
                     <div>
-                        <h4 className="text-2xl pb-2 font-bold">
-                            Terms Violated
-                        </h4>
+                        <h4 className="text-2xl font-bold">Terms Violated</h4>
                         {termsOfService.map((term) => (
-                            <label key={term} className="block mt-6">
+                            <label
+                                key={term}
+                                className={`block mt-6 ${
+                                    !isEditableViolations ? "opacity-70" : ""
+                                }`}
+                            >
                                 <input
                                     type="checkbox"
                                     checked={violations.includes(term)}
                                     onChange={() => toggleViolation(term)}
+                                    disabled={!isEditableViolations}
                                     className="mr-2"
                                 />
                                 {term}
@@ -164,16 +220,32 @@ const VideoDetails = ({ video, onBack, onStatusUpdate }) => {
                         ))}
                     </div>
 
-                    <button
-                        onClick={onBack}
-                        className="py-2 px-4 bg-gray-300 rounded-md hover:bg-gray-400 transition self-end"
-                    >
-                        Back to Table
-                    </button>
+                    {/* Action Buttons */}
+                    <div className="flex justify-end mt-4 md:mt-0">
+                        <button
+                            onClick={handleSaveViolations}
+                            disabled={
+                                !isEditableViolations ||
+                                arraysEqual(
+                                    currentViolationIds,
+                                    initialViolations
+                                )
+                            }
+                            className="py-2 px-4 bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Save Violations
+                        </button>
+                        <button
+                            onClick={onBack}
+                            className="py-2 px-4 ml-2 bg-[#D1D5DB] rounded-md hover:bg-[#9CA3AF] transition"
+                        >
+                            Back to Table
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Approval Confirmation Modal */}
+            {/* Confirmation Modal */}
             <ApprovalConfirmationModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}

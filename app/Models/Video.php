@@ -42,5 +42,13 @@ class Video extends Model
             }
         });
     }
+
+    // In App\Models\Video.php
+
+    public function violations()
+    {
+        return $this->belongsToMany(Violation::class, 'video_violations', 'video_id', 'violation_id');
+    }
+
 }
 
