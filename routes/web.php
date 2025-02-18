@@ -13,7 +13,7 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'role:content-admin'])->group(function () {
-    Route::get('/content-moderator', [AdminController::class, 'contentModerator'])->name('content.moderator');
+    Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 });
 

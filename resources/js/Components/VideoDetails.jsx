@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import ApprovalConfirmationModal from "./ApprovalConfirmationModal";
 
-// Helper to compare arrays
 const arraysEqual = (a, b) => {
     if (a === b) return true;
     if (a?.length !== b?.length) return false;
@@ -17,7 +16,6 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
     const [pendingStatus, setPendingStatus] = useState(null);
     const [initialViolations, setInitialViolations] = useState([]);
 
-    // Memoize the static list of violation terms.
     const termsOfService = useMemo(
         () => [
             "Copyright Infringement",
@@ -79,26 +77,22 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
 
     const isEditableViolations = status === 2;
 
-    // Properly initialize violations when video changes
     useEffect(() => {
         console.log("Video violation IDs:", video?.violations);
         if (video?.violations && video.violations.length > 0) {
-            // Extract violation IDs and map them to the corresponding violation terms
-            const violationIds = video.violations.map((v) => v.id || v); // Adjust based on your data structure
+            const violationIds = video.violations.map((v) => v.id || v);
             const violationLabels = violationIds.map(
                 (id) => termsOfService[id - 1]
             );
 
-            // Set the violations state with the corresponding labels
             setViolations(violationLabels);
-            setInitialViolations(violationIds); // Keep track of initial state for comparison
+            setInitialViolations(violationIds);
         } else {
-            setViolations([]); // Clear violations if no violations are found
-            setInitialViolations([]); // Reset initial violations
+            setViolations([]);
+            setInitialViolations([]);
         }
-    }, [video, termsOfService]); // Ensure this effect runs whenever the video or termsOfService changes
+    }, [video, termsOfService]);
 
-    // Compute current violation IDs based on the selected violation labels
     const currentViolationIds = violations.map(
         (term) => termsOfService.indexOf(term) + 1
     );

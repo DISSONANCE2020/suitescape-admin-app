@@ -30,10 +30,9 @@ const VideoTable = ({
                 );
                 break;
             default:
-                break; // "ALL" will show everything
+                break;
         }
 
-        // Sort by latest updated/created date
         filtered.sort(
             (a, b) =>
                 new Date(b.updated_at || b.created_at) -

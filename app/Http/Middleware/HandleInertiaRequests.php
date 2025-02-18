@@ -36,7 +36,6 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        // ✅ Fetch roles from model_has_roles
         $userRoles = [];
         if ($user) {
             $userRoles = DB::table('model_has_roles')
@@ -55,12 +54,9 @@ class HandleInertiaRequests extends Middleware
                     'lastname' => $user->lastname,
                     'email' => $user->email,
                 ] : null,
-                // ✅ Attach fetched roles
                 'roles' => $userRoles,
             ],
 
-            // 🚀 Other props (Do not edit these)
-            // Updated to eager load the violations relationship so that each video includes its associated violation data.
             'videos' => fn() => Video::with('violations')->latest()->get(),
             'users' => fn() => User::all(),
             'listings' => fn() => Listing::all(),

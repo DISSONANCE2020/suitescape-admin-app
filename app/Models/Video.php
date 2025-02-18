@@ -11,18 +11,14 @@ class Video extends Model
 
     protected $table = 'videos';
 
-    // Disable auto-incrementing for the 'id' field as it's a string (UUID)
     public $incrementing = false;
 
-    // Set 'id' to be a string (CHAR(36)) in the database
     protected $keyType = 'string';
 
-    // Cast 'id' to string to ensure it is properly handled when accessed
     protected $casts = [
         'id' => 'string',
     ];
 
-    // You don't need to include 'id' in $fillable as it's auto-managed by Eloquent
     protected $fillable = [
         'listing_id',
         'filename',
@@ -30,7 +26,6 @@ class Video extends Model
         'is_approved'
     ];
 
-    // Optionally, if you want to automatically generate a UUID for the 'id' field if not provided
     protected static function boot()
     {
         parent::boot();
@@ -42,8 +37,6 @@ class Video extends Model
             }
         });
     }
-
-    // In App\Models\Video.php
 
     public function violations()
     {

@@ -30,5 +30,5 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $with = ['roles']; // Auto-load roles
+    protected $with = ['roles'];
 }

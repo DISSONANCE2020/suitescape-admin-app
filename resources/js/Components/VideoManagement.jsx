@@ -10,18 +10,15 @@ const VideoManagement = () => {
     const [sortBy, setSortBy] = useState("ALL");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // No need to define termsOfService here since mapping will be handled in VideoDetails.
-
     useEffect(() => setVideos(initialVideos), [initialVideos]);
 
-    // Pass the raw violation data to VideoDetails
     const handleRowClick = (video) => {
         const listing = listings?.find(
             (listing) => listing.id === video.listing_id
         );
         const host = users?.find((user) => user.id === listing?.user_id);
 
-        console.log("Selected video violations:", video.violations); // Verify raw data here
+        console.log("Selected video violations:", video.violations);
 
         setSelectedVideo({
             ...video,
@@ -57,7 +54,6 @@ const VideoManagement = () => {
         }
     };
 
-    // Callback for saving violations (expects an array of violation IDs).
     const handleViolationsSave = async (updatedVideoWithViolations) => {
         try {
             await router.put(
@@ -67,7 +63,6 @@ const VideoManagement = () => {
                 }
             );
 
-            // Option 1: Manually update the local state with the updated video
             setVideos((prevVideos) =>
                 prevVideos.map((video) =>
                     video.id === updatedVideoWithViolations.id
@@ -87,14 +82,11 @@ const VideoManagement = () => {
                     : null
             );
 
-            // Option 2: Alternatively, trigger a reload to get fresh data:
-            // router.reload({ only: ['videos'] });
         } catch (error) {
             console.error("Error updating violations:", error);
         }
     };
 
-    // Filter videos based on sortBy state.
     const filteredVideos = videos.filter((video) => {
         if (sortBy === "ALL") return true;
         if (sortBy === "VIDEO APPROVED") return video.is_approved === 1;

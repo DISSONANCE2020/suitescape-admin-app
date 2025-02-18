@@ -14,7 +14,6 @@ const ContentModerator = () => {
     const userRoles = auth?.roles || [];
 
 
-    // Check if user has role_id = 4
     const hasAccess = userRoles.some((role) => role.id === 4);
 
     if (!hasAccess) {

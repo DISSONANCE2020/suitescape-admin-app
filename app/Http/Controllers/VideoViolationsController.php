@@ -11,13 +11,10 @@ class VideoViolationsController extends Controller
     {
         $video = Video::findOrFail($id);
 
-        // Sync the violations using only the violation IDs passed in the request
         $video->violations()->sync($request->violations);
 
-        // Reload the violations relationship to ensure the latest data
         $video->load('violations');
 
-        // Return a redirect response with flash data for Inertia
         return redirect()->back()->with('flash', ['message' => 'Violations updated']);
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Middleware\RoleMiddleware; // Import Spatie's RoleMiddleware
+use Spatie\Permission\Middleware\RoleMiddleware;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind the "role" alias so Laravel can resolve it during middleware termination.
         $this->app->bind('role', function ($app) {
             return $app->make(RoleMiddleware::class);
         });
@@ -30,7 +29,6 @@ class AppServiceProvider extends ServiceProvider
             'appName' => config('app.name'),
             'csrf_token' => csrf_token(),
 
-            // Share authenticated user data
             'auth' => function () {
                 return [
                     'user' => Auth::user() ? [
@@ -42,7 +40,6 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
 
-            // Share session flash messages (optional)
             'flash' => function () {
                 return [
                     'success' => Session::get('success'),
