@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class VideoController extends Controller
 {
-    public function contentModerator()
+    public function index()
     {
         return Inertia::render('ContentModerator', [
             'videos' => Video::with([

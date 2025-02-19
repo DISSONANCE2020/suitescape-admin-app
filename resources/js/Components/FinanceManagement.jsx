@@ -19,9 +19,9 @@ const FinanceManagement = () => {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-4">
+            {/* <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-4">
                 <h2 className="text-lg font-semibold">Payouts</h2>
-            </div>
+            </div> */}
 
             <div className="flex-grow">
                 <FinanceTable

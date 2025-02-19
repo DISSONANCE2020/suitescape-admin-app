@@ -14,6 +14,7 @@ class FinanceController extends Controller
         $response = Http::get('http://127.0.0.1:8001/api/bookings');
 
         // Check if the API call was successful
+
         if ($response->successful()) {
             $bookings = $response->json()['data'];
         } else {
