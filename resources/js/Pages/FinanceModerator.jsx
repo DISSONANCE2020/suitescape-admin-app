@@ -1,54 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
-import Sidebar from "../Components/Sidebar";
-import ContentCard from "../Components/ContentCard";
-import FinanceManagement from "../Components/FinanceManagement";
-import PageHeader from "../Components/PageHeader";
+import Sidebar from "@/Components/Sidebar"; // Ensure correct import
+import PageHeader from "@/Components/PageHeader"; // Ensure correct import
+import ContentCard from "@/Components/ContentCard"; // Ensure correct import
+import FinanceTable from "@/Components/FinanceTable"; // Ensure correct import
 
 const FinanceModerator = () => {
+    // Extracting data from Laravel backend via Inertia
     const {
-        bookings = [],
-        users = [],
-        listings = [],
-        payoutMethods = [],
-        payoutMethodDetails = [],
+        bookings: initialBookings,
+        users,
+        listings,
+        payoutMethods,
+        payoutMethodDetails,
     } = usePage().props;
 
-    // If bookings data is not available or empty
-    if (!bookings || bookings.length === 0) {
-        return (
-            <div className="flex min-h-screen bg-gray-100">
-                <Sidebar />
-                <div className="flex-1 pb-2 pl-6 pr-6 bg-red-500">
-                    <PageHeader
-                        breadcrumb="Financial Administrations / Payouts"
-                        user={{ name: "Andrews", role: "Admin account" }}
-                    />
-                    <ContentCard title="Bookings">
-                        <div className="p-4">
-                            <p>No bookings data available.</p>
-                        </div>
-                    </ContentCard>
-                </div>
-            </div>
-        );
-    }
+    const [bookings, setBookings] = useState(initialBookings);
+
+    useEffect(() => {
+        setBookings(initialBookings);
+    }, [initialBookings]);
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Sidebar />
-            <div className="flex-1 pb-2 pl-6 pr-6">
-                <PageHeader
-                    breadcrumb="Content Management / Videos"
-                    user={{ name: "Andrew", role: "Admin account" }}
-                />
-                {/* Content Card for Video Management */}
-                <ContentCard title="Videos">
-                    <FinanceManagement
-                        initialBookings={bookings}
+        <div className="flex h-screen">
+            {/* Sidebar - Fixed Width */}
+            <div className="w-64">
+                <Sidebar />
+            </div>
+
+            {/* Main Content - Expands Fully */}
+            <div className="flex flex-col flex-1 p-6 overflow-auto">
+                {/* Page Header */}
+                <PageHeader breadcrumb="Finance Moderator / Payouts" />
+
+                {/* Content Card */}
+                <ContentCard>
+                    {/* Finance Table */}
+                    <FinanceTable
+                        bookings={bookings}
                         users={users}
                         listings={listings}
-                        payoutMethod={payoutMethods}
+                        payoutMethods={payoutMethods}
                         payoutMethodDetails={payoutMethodDetails}
                     />
                 </ContentCard>

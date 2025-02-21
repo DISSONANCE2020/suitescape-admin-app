@@ -27,4 +27,6 @@ class FinanceController extends Controller
             'bookings' => $bookings
         ]);
     }
+
+
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import FinanceBookingDetails from "./FinanceBookingDetails";
-// Import the new component
+import TextButton from "./TextButton";
 
 const FinanceTable = ({
     bookings,
@@ -25,6 +25,17 @@ const FinanceTable = ({
         setSortedBookings(latestBookings);
     }, [bookings]);
 
+    const updateBooking = (updatedBooking) => {
+        setSortedBookings((prevBookings) =>
+            prevBookings.map((b) =>
+                b.id === updatedBooking.id
+                    ? { ...b, commissionRate: updatedBooking.commissionRate }
+                    : b
+            )
+        );
+        setSelectedBooking(null);
+    };
+
     const totalPages = Math.ceil(sortedBookings.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentBookings = sortedBookings.slice(
@@ -35,38 +46,40 @@ const FinanceTable = ({
     return (
         <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
             {selectedBooking ? (
-                // Show Booking Details Component
                 <FinanceBookingDetails
                     booking={selectedBooking}
                     onClose={() => setSelectedBooking(null)}
+                    onSave={updateBooking}
                 />
             ) : (
                 <>
-                    {/* Table Section */}
-                    <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-4">
-                        <h2 className="text-lg font-semibold">Payouts</h2>
+                    <div className="flex items-center pb-4 mb-4 border-b border-gray-300">
+                        <p className="text-xl font-semibold">Payouts</p>
                     </div>
-                    <div className="overflow-x-auto w-full max-w-full">
+                    <div className="w-full max-w-full overflow-x-auto">
                         <table className="w-full table-fixed border border-gray-300 min-w-[600px]">
                             <thead>
                                 <tr className="text-center">
-                                    <th className="p-2 border border-gray-300 w-[150px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[150px]">
                                         Facility Type
                                     </th>
-                                    <th className="p-2 border border-gray-300 w-[150px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[150px]">
                                         Check-In/Out
                                     </th>
-                                    <th className="p-2 border border-gray-300 w-[150px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[150px]">
                                         Mode of Payment
                                     </th>
-                                    <th className="p-2 border border-gray-300 w-[180px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[180px]">
                                         Amount to Pay
                                     </th>
-                                    <th className="p-2 border border-gray-300 w-[180px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[180px]">
                                         Host
                                     </th>
-                                    <th className="p-2 border border-gray-300 w-[180px]">
+                                    <th className="p-2 border-x-2 border-gray-300 w-[180px]">
                                         Status
+                                    </th>
+                                    <th className="p-2 border-x-2 border-gray-300 w-[180px]">
+                                        Action
                                     </th>
                                 </tr>
                             </thead>
@@ -94,40 +107,46 @@ const FinanceTable = ({
                                     return (
                                         <tr
                                             key={booking.id || index}
-                                            className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
-                                            onClick={() =>
-                                                setSelectedBooking({
-                                                    ...booking,
-                                                    user,
-                                                    listing,
-                                                    payoutMethodDetail,
-                                                })
-                                            }
+                                            className="text-center border border-gray-300 odd:bg-gray-100"
                                         >
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
                                                 {listing?.facility_type}
                                             </td>
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                                {`${booking?.date_start} - ${booking?.date_end}`}
-                                            </td>
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">{`${booking?.date_start} - ${booking?.date_end}`}</td>
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
                                                 {payoutMethodDetail?.type ||
                                                     "N/A"}
                                             </td>
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
                                                 ₱{booking?.amount}
                                             </td>
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                                <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
+                                                <span className="block py-1 text-white font-bold rounded-md bg-red-500 mx-auto w-[180px] overflow-hidden text-ellipsis">
                                                     {host
                                                         ? `${host?.firstname} ${host?.lastname}`
                                                         : "Unknown"}
                                                 </span>
                                             </td>
                                             <td className="p-2 w-[180px]">
-                                                <span className="px-3 py-1 text-white w-[200px] font-bold block mx-auto rounded-md bg-blue-500">
+                                                <span className="px-3 py-1 text-white w-[190px] font-bold block mx-auto rounded-md bg-[#3497e7]">
                                                     PAYMENT PENDING
                                                 </span>
+                                            </td>
+                                            <td className="p-2 w-[180px]">
+                                                <TextButton
+                                                    key={booking.id || index}
+                                                    className="text-center"
+                                                    onClick={() =>
+                                                        setSelectedBooking({
+                                                            ...booking,
+                                                            user,
+                                                            listing,
+                                                            payoutMethodDetail,
+                                                        })
+                                                    }
+                                                >
+                                                    View Details
+                                                </TextButton>
                                             </td>
                                         </tr>
                                     );
@@ -136,8 +155,7 @@ const FinanceTable = ({
                         </table>
                     </div>
 
-                    {/* Pagination */}
-                    <div className="mt-auto flex justify-between items-center pt-4 px-2">
+                    <div className="flex items-end justify-between px-2 pt-4 mt-auto">
                         <button
                             className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
                             onClick={() =>
@@ -149,11 +167,9 @@ const FinanceTable = ({
                         >
                             Previous
                         </button>
-
                         <span className="text-lg font-medium">
                             Page {currentPage} of {totalPages}
                         </span>
-
                         <button
                             className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
                             onClick={() =>

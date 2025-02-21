@@ -27,7 +27,7 @@ Route::get('/videos', function () {
 // Fetch ALL necessary data in one controller
 Route::get('/content-moderator', [VideoController::class, 'index'])->name('content.moderator')->middleware('auth');
 Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
-
+    
 Route::get('/finance', function () {
     $bookings = \App\Models\Booking::all();
     $users = \App\Models\User::all();

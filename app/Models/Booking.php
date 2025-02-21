@@ -10,5 +10,6 @@ class Booking extends Model
     use HasFactory;
     protected $table = 'bookings';
 
-
+    protected $keyType = 'string';
+    public $incrementing = false;
 }
