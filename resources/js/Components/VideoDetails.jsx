@@ -183,20 +183,20 @@ const VideoDetails = ({
                             )}
                         </div>
 
-                        <p className="text-black font-semibold">
+                        <p className="font-semibold text-black">
                             Video ID:{" "}
                             <span className="font-normal">
                                 {video?.id?.slice(0, 14) || "N/A"}
                             </span>
                         </p>
-                        <p className="text-black font-semibold">
+                        <p className="font-semibold text-black">
                             Upload Date:{" "}
                             <span className="font-normal">
                                 {video?.created_at?.slice(0, 10) ||
                                     "Unknown Date"}
                             </span>
                         </p>
-                        <p className="text-black font-semibold">
+                        <p className="font-semibold text-black">
                             Description:{" "}
                             <span className="font-normal">
                                 {video?.listingDescription ||
