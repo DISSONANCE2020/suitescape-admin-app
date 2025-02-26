@@ -13,14 +13,14 @@ const Sidebar = () => {
                 </h2>
                 <nav>
                     <ul>
-                        <li className="mb-2">
+                        {/* <li className="mb-2">
                             <a
                                 href="#"
                                 className="block text-gray-800 hover:bg-gray-100 rounded-md px-2 py-1"
                             >
                                 Financial Administration
                             </a>
-                        </li>
+                        </li> */}
                         <li className="mb-2">
                             <a
                                 href="#"

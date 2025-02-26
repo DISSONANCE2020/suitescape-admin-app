@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\VideoViolationsController;
@@ -12,7 +11,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
-Route::middleware(['auth', 'role:content-admin'])->group(function () {
+Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function () {
     Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 });

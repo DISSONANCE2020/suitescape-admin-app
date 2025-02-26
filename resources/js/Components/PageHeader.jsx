@@ -14,8 +14,10 @@ const PageHeader = ({ breadcrumb = "Content Management / Videos" }) => {
 
     const getRoleName = (roleId) => {
         switch (roleId) {
+            case 1:
+                return "Super Admin";
             case 4:
-                return "Content Manager";
+                return "Content Moderator";
             case 5:
                 return "Finance Administrator";
             default:
@@ -26,7 +28,7 @@ const PageHeader = ({ breadcrumb = "Content Management / Videos" }) => {
     const handleLogout = () => {
         post('/logout', {
             onSuccess: () => {
-                window.location.href = "/"; // Redirect to home after logout
+                window.location.href = "/"; 
             },
         });
     };

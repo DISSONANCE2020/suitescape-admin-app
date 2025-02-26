@@ -1,3 +1,4 @@
+// VideoDetails.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import ApprovalConfirmationModal from "./ApprovalConfirmationModal";
@@ -8,7 +9,13 @@ const arraysEqual = (a, b) => {
     return a.every((val, i) => val === b[i]);
 };
 
-const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
+const VideoDetails = ({
+    video,
+    currentModeratorId,
+    onBack,
+    onStatusUpdate,
+    onViolationsSave,
+}) => {
     const [status, setStatus] = useState(video?.is_approved ?? null);
     const [violations, setViolations] = useState([]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,9 +46,14 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
         setStatus(pendingStatus);
         setModalOpen(false);
 
+        if (pendingStatus === null) {
+            setViolations([]);
+        }
+
         onStatusUpdate({
             ...video,
             is_approved: pendingStatus,
+            moderated_by: pendingStatus === null ? null : currentModeratorId,
             violations: newViolations.map((t) => termsOfService.indexOf(t) + 1),
         });
     };
@@ -78,13 +90,11 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
     const isEditableViolations = status === 2;
 
     useEffect(() => {
-        console.log("Video violation IDs:", video?.violations);
         if (video?.violations && video.violations.length > 0) {
             const violationIds = video.violations.map((v) => v.id || v);
             const violationLabels = violationIds.map(
                 (id) => termsOfService[id - 1]
             );
-
             setViolations(violationLabels);
             setInitialViolations(violationIds);
         } else {
@@ -96,6 +106,11 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
     const currentViolationIds = violations.map(
         (term) => termsOfService.indexOf(term) + 1
     );
+
+    // // The moderator lookup remains here for later use if needed.
+    // const moderator = video?.moderated_by
+    //     ? users?.find((user) => user.firstname === video.moderated_by)
+    //     : null;
 
     return (
         <div className="w-full flex flex-col justify-center min-h-[500px]">
@@ -239,7 +254,6 @@ const VideoDetails = ({ video, onBack, onStatusUpdate, onViolationsSave }) => {
                 </div>
             </div>
 
-            {/* Confirmation Modal */}
             <ApprovalConfirmationModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}

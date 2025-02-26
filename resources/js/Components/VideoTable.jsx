@@ -1,3 +1,4 @@
+// VideoTable.jsx
 import React, { useState, useEffect } from "react";
 
 const VideoTable = ({
@@ -52,20 +53,23 @@ const VideoTable = ({
     return (
         <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
             <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full table-fixed border border-gray-300 min-w-[600px]">
+                <table className="w-full table-fixed border border-[#D1D5DB] min-w-[600px]">
                     <thead>
                         <tr className="text-center">
-                            <th className="p-2 border border-gray-300 w-[150px]">
+                            <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                 Video Title
                             </th>
-                            <th className="p-2 border border-gray-300 w-[150px]">
+                            <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                 Upload Date
                             </th>
-                            <th className="p-2 border border-gray-300 w-[150px] hidden md:table-cell">
+                            <th className="p-2 border border-[#D1D5DB] w-[150px] hidden md:table-cell">
                                 Host
                             </th>
-                            <th className="p-2 border border-gray-300 w-[180px] hidden md:table-cell">
+                            <th className="p-2 border border-[#D1D5DB] w-[180px] hidden md:table-cell">
                                 Status
+                            </th>
+                            <th className="p-2 border border-[#D1D5DB] w-[150px] hidden md:table-cell">
+                                Moderated By
                             </th>
                         </tr>
                     </thead>
@@ -77,11 +81,14 @@ const VideoTable = ({
                             const host = users?.find(
                                 (user) => user.id === listing?.user_id
                             );
+                            const moderator = users?.find(
+                                (user) => user.id === video.moderated_by
+                            );
 
                             return (
                                 <tr
                                     key={video.id || index}
-                                    className="border border-gray-300 text-center odd:bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-200"
+                                    className="border border-[#D1D5DB] text-center odd:bg-[#F3F4F6] hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
                                     onClick={() => onRowClick(video)}
                                 >
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
@@ -90,10 +97,12 @@ const VideoTable = ({
                                             : listing?.name}
                                     </td>
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                        {video.created_at.slice(0, 10)}
+                                        {video.created_at.slice(0, 10)} at{" "}
+                                        {video.created_at.slice(11, 19)}
                                     </td>
+
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap hidden md:table-cell">
-                                        <span className="px-3 py-1 text-white font-bold rounded-md bg-red-500 block mx-auto w-[200px] overflow-hidden text-ellipsis">
+                                        <span className="px-3 py-1 text-white font-bold rounded-md bg-[#EF4444] block mx-auto w-[200px] overflow-hidden text-ellipsis">
                                             {host
                                                 ? `${host.firstname} ${host.lastname}`
                                                 : "Unknown"}
@@ -103,10 +112,10 @@ const VideoTable = ({
                                         <span
                                             className={`px-3 py-1 text-white w-[200px] font-bold block mx-auto rounded-md ${
                                                 video.is_approved === null
-                                                    ? "bg-blue-500"
+                                                    ? "bg-[#3B82F6]"
                                                     : video.is_approved === 1
-                                                    ? "bg-green-500"
-                                                    : "bg-red-500"
+                                                    ? "bg-[#10B981]"
+                                                    : "bg-[#EF4444]"
                                             }`}
                                         >
                                             {video.is_approved === null
@@ -115,6 +124,13 @@ const VideoTable = ({
                                                 ? "VIDEO APPROVED"
                                                 : "VIDEO REJECTED"}
                                         </span>
+                                    </td>
+                                    <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap hidden md:table-cell">
+                                        {video.is_approved === null
+                                            ? "Pending"
+                                            : moderator
+                                            ? `${moderator.firstname} ${moderator.lastname}`
+                                            : "Unknown"}
                                     </td>
                                 </tr>
                             );
@@ -125,7 +141,7 @@ const VideoTable = ({
 
             <div className="mt-auto flex justify-between items-center pt-4 px-2">
                 <button
-                    className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
                     onClick={() =>
                         setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
                     }
@@ -139,7 +155,7 @@ const VideoTable = ({
                 </span>
 
                 <button
-                    className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
                     onClick={() =>
                         setCurrentPage((prev) =>
                             prev < totalPages ? prev + 1 : prev

@@ -23,7 +23,8 @@ class Video extends Model
         'listing_id',
         'filename',
         'created_at',
-        'is_approved'
+        'is_approved',
+        'moderated_by'
     ];
 
     protected static function boot()
@@ -31,7 +32,6 @@ class Video extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            // Generate a UUID for 'id' if not already set
             if (!$model->id) {
                 $model->id = (string) \Str::uuid();
             }
@@ -42,6 +42,4 @@ class Video extends Model
     {
         return $this->belongsToMany(Violation::class, 'video_violations', 'video_id', 'violation_id');
     }
-
 }
-

@@ -1,10 +1,16 @@
+// VideoManagement.jsx
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import VideoTable from "./VideoTable";
 import VideoDetails from "./VideoDetails";
 
 const VideoManagement = () => {
-    const { videos: initialVideos, users, listings } = usePage().props;
+    const {
+        videos: initialVideos,
+        users,
+        listings,
+        currentModerator,
+    } = usePage().props;
     const [videos, setVideos] = useState(initialVideos);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [sortBy, setSortBy] = useState("ALL");
@@ -18,25 +24,28 @@ const VideoManagement = () => {
         );
         const host = users?.find((user) => user.id === listing?.user_id);
 
-        console.log("Selected video violations:", video.violations);
-
         setSelectedVideo({
             ...video,
             host: host ? `${host.firstname} ${host.lastname}` : "Unknown",
             listingName: listing?.name,
             listingDescription: listing?.description,
-            // Pass raw violations data
             violations: video.violations || [],
         });
     };
 
     const handleStatusUpdate = async (updatedVideo) => {
         try {
-            await router.put(`/videos/${updatedVideo.id}/status`, {
+            const payload = {
                 is_approved: updatedVideo.is_approved,
+                moderated_by:
+                    updatedVideo.is_approved === null
+                        ? null
+                        : updatedVideo.moderated_by,
                 violations: updatedVideo.violations,
                 updated_at: new Date().toISOString(),
-            });
+            };
+
+            await router.put(`/videos/${updatedVideo.id}/status`, payload);
 
             setVideos((prev) =>
                 prev.map((v) =>
@@ -44,6 +53,10 @@ const VideoManagement = () => {
                         ? {
                               ...v,
                               is_approved: updatedVideo.is_approved,
+                              moderated_by:
+                                  updatedVideo.is_approved === null
+                                      ? null
+                                      : updatedVideo.moderated_by,
                               violations: updatedVideo.violations,
                           }
                         : v
@@ -81,7 +94,6 @@ const VideoManagement = () => {
                       }
                     : null
             );
-
         } catch (error) {
             console.error("Error updating violations:", error);
         }
@@ -115,6 +127,8 @@ const VideoManagement = () => {
             {selectedVideo ? (
                 <VideoDetails
                     video={selectedVideo}
+                    currentModeratorId={currentModerator?.id}
+                    users={users}
                     onBack={() => setSelectedVideo(null)}
                     onStatusUpdate={handleStatusUpdate}
                     onViolationsSave={handleViolationsSave}

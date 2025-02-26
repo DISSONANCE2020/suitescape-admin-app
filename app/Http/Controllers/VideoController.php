@@ -20,21 +20,28 @@ class VideoController extends Controller
             ])->get()->map(function ($video) {
                 return [
                     ...$video->toArray(),
-                    'violations' => $video->violations->pluck('id')
+                    'violations' => $video->violations->pluck('id'),
+                    'moderated_by' => $video->moderated_by,
                 ];
             }),
             'listings' => Listing::all(),
             'users' => User::all(),
+            'currentModerator' => auth()->user(),
         ]);
     }
 
-
     public function updateStatus(Request $request, Video $video)
     {
+        $moderatedBy = $request->has('moderated_by')
+            ? $request->input('moderated_by')
+            : auth()->user()->id;
+
         $video->update([
             'is_approved' => $request->is_approved,
+            'moderated_by' => $moderatedBy,
             'updated_at' => now()
         ]);
+
 
         $video->violations()->sync($request->violations);
 
@@ -47,10 +54,10 @@ class VideoController extends Controller
             ])->get()->map(function ($video) {
                 return [
                     ...$video->toArray(),
-                    'violations' => $video->violations->pluck('id')
+                    'violations' => $video->violations->pluck('id'),
+                    'moderated_by' => $video->moderated_by,
                 ];
             })
         ]);
     }
-
 }

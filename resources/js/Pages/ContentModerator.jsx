@@ -11,14 +11,6 @@ const ContentModerator = () => {
 
 
     const user = auth?.user || {};
-    const userRoles = auth?.roles || [];
-
-
-    const hasAccess = userRoles.some((role) => role.id === 4);
-
-    if (!hasAccess) {
-        return <div>Access Denied</div>;
-    }
 
     return (
         <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
