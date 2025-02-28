@@ -12,6 +12,8 @@ const FinanceTable = ({
     const [sortedBookings, setSortedBookings] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [selectedPayoutMethodDetail, setSelectedPayoutMethodDetail] =
+        useState(null);
 
     const itemsPerPage = 7;
 
@@ -25,17 +27,6 @@ const FinanceTable = ({
         setSortedBookings(latestBookings);
     }, [bookings]);
 
-    const updateBooking = (updatedBooking) => {
-        setSortedBookings((prevBookings) =>
-            prevBookings.map((b) =>
-                b.id === updatedBooking.id
-                    ? { ...b, commissionRate: updatedBooking.commissionRate }
-                    : b
-            )
-        );
-        setSelectedBooking(null);
-    };
-
     const totalPages = Math.ceil(sortedBookings.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentBookings = sortedBookings.slice(
@@ -43,18 +34,43 @@ const FinanceTable = ({
         startIndex + itemsPerPage
     );
 
+    const updateBooking = (updatedBooking) => {
+        setSortedBookings((prevBookings) =>
+            prevBookings.map((booking) =>
+                booking.id === updatedBooking.id ? updatedBooking : booking
+            )
+        );
+    };
+
+    const handleViewDetails = (booking) => {
+        const listing = listings?.find((l) => l.id === booking?.listing_id);
+        const host = users?.find((h) => h.id === listing?.user_id);
+        const payoutMethod = payoutMethods?.find((p) => p.user_id === host?.id);
+        const payoutMethodDetail = payoutMethodDetails?.find(
+            (d) => d.payout_method_id === payoutMethod?.id
+        );
+
+        setSelectedBooking(booking);
+        setSelectedPayoutMethodDetail(payoutMethodDetail);
+    };
+
     return (
         <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
             {selectedBooking ? (
                 <FinanceBookingDetails
                     booking={selectedBooking}
+                    payoutMethodDetail={selectedPayoutMethodDetail}
                     onClose={() => setSelectedBooking(null)}
-                    onSave={updateBooking}
                 />
             ) : (
                 <>
-                    <div className="flex items-center pb-4 mb-4 border-b border-gray-300">
-                        <p className="text-xl font-semibold">Payouts</p>
+                    <div className="grid items-center grid-flow-col grid-cols-2 pb-4 mb-4 border-b border-gray-300 ">
+                        <button className="text-xl font-semibold">
+                            Payouts
+                        </button>
+                        <button className="text-xl font-semibold">
+                            Refunds
+                        </button>
                     </div>
                     <div className="w-full max-w-full overflow-x-auto">
                         <table className="w-full table-fixed border border-gray-300 min-w-[600px]">
@@ -112,7 +128,31 @@ const FinanceTable = ({
                                             <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
                                                 {listing?.facility_type}
                                             </td>
-                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">{`${booking?.date_start} - ${booking?.date_end}`}</td>
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
+                                                {booking.date_start &&
+                                                booking.date_end
+                                                    ? `${new Intl.DateTimeFormat(
+                                                          "en-US",
+                                                          {
+                                                              month: "short",
+                                                              day: "2-digit",
+                                                          }
+                                                      ).format(
+                                                          new Date(
+                                                              booking.date_start
+                                                          )
+                                                      )} -
+                                            ${new Intl.DateTimeFormat("en-US", {
+                                                month: "short",
+                                                day: "2-digit",
+                                            }).format(
+                                                new Date(booking.date_end)
+                                            )},
+                                                  ${new Date(
+                                                      booking.date_end
+                                                  ).getFullYear()}`
+                                                    : "N/A"}
+                                            </td>
                                             <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
                                                 {payoutMethodDetail?.type ||
                                                     "N/A"}
@@ -127,19 +167,19 @@ const FinanceTable = ({
                                                         : "Unknown"}
                                                 </span>
                                             </td>
-                                            <td className="p-2 w-[180px]">
-                                                <span className="px-3 py-1 text-white w-[190px] font-bold block mx-auto rounded-md bg-[#3497e7]">
-                                                    PAYMENT PENDING
-                                                </span>
+                                            <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap capitalize">
+                                                {payoutMethodDetail?.status ||
+                                                    "N/A"}
                                             </td>
                                             <td className="p-2 w-[180px]">
                                                 <TextButton
                                                     key={booking.id || index}
                                                     className="text-center"
                                                     onClick={() =>
-                                                        setSelectedBooking({
+                                                        handleViewDetails({
                                                             ...booking,
                                                             user,
+                                                            host,
                                                             listing,
                                                             payoutMethodDetail,
                                                         })
