@@ -26,20 +26,20 @@ Route::get('/videos', function () {
 // Fetch ALL necessary data in one controller
 Route::get('/content-moderator', [VideoController::class, 'index'])->name('content.moderator')->middleware('auth');
 Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
-    
+
 Route::get('/finance', function () {
     $bookings = \App\Models\Booking::all();
     $users = \App\Models\User::all();
     $listings = \App\Models\Listing::all();
     $payout_methods = \App\Models\PayoutMethod::all();
-    $payout_method_details = \App\Models\PayoutMethodDetail::all();
+    // $payout_method_details = \App\Models\PayoutMethodDetail::all();
 
     return Inertia::render('FinanceModerator', [
         'bookings' => $bookings,
         'users' => $users,
         'listings' => $listings,
         'payoutMethods' => $payout_methods,
-        'payoutMethodDetails' => $payout_method_details,
+        // 'payoutMethodDetails' => $payout_method_details,
     ]);
 });
 
