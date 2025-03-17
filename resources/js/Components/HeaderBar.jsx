@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
 
 const HeaderBar = ({ title, onSortChange }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const handleSortSelection = (sortType) => {
         onSortChange(sortType);
-        setIsDropdownOpen(false); // Close dropdown after selection
+        setIsDropdownOpen(false);
     };
 
     return (
-        <div className="flex pt-2 pb-4 justify-between items-center border-b border-gray-300 relative">
+        <div className="flex pt-2 pb-4 justify-between items-center relative">
             <h2 className="flex text-xl font-semibold">{title}</h2>
             <div className="relative">
                 <button

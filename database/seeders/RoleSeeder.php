@@ -10,6 +10,11 @@ class RoleSeeder extends Seeder
 {
     public function run()
     {
+
+        $this->call([
+            RoleSeeder::class,
+        ]);
+        
         // Ensure roles exist
         Role::firstOrCreate(['name' => 'super-admin']);
         Role::firstOrCreate(['name' => 'content-admin']);

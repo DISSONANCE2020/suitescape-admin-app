@@ -16,24 +16,24 @@ class ContentAdminSeeder extends Seeder
     public function run(): void
     {
         // Ensure the content-admin role exists
-        if (!Role::where('name', 'content-admin')->exists()) {
-            Role::create(['name' => 'content-admin']);
+        if (!Role::where('name', 'super-admin')->exists()) {
+            Role::create(['name' => 'super-admin']);
         }
 
         // Check if the user already exists
-        $user = User::where('email', 'content@suitescape.ph')->first();
+        $user = User::where('email', 'newadmin@suitescape.ph')->first();
         if (!$user) {
             $user = User::create([
-                'id' => Str::uuid()->toString(), // Ensure UUID is set
-                'firstname' => 'Content',
-                'lastname' => 'Admin',
-                'email' => 'content@suitescape.ph',
+                'id' => Str::uuid()->toString(),
+                'firstname' => 'Jose',
+                'lastname' => 'Cruz',
+                'email' => 'newadmin@suitescape.ph',
                 'password' => Hash::make('Confirmpassword01'),
-                'date_of_birth' => '2003-03-17', // ✅ Add date_of_birth field
+                'date_of_birth' => '2003-03-17',
             ]);
 
             // Assign role
-            $user->assignRole('content-admin');
+            $user->assignRole('super-admin');
         }
     }
 }

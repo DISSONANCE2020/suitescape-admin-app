@@ -37,10 +37,12 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         // Redirect based on role
-        if ($roleId === 4) {
+        if ($roleId === 1) {
+            return Inertia::location('/super-admin'); // Super Admin
+        } elseif ($roleId === 4) {
             return Inertia::location('/content-moderator'); // Content Moderator
         } elseif ($roleId === 5) {
-            return Inertia::location('/finance-admin'); // Finance Administrator
+            return Inertia::location('/finance'); // Finance Administrator
         }
 
         return Inertia::location('/dashboard'); // Default redirect

@@ -107,11 +107,6 @@ const VideoDetails = ({
         (term) => termsOfService.indexOf(term) + 1
     );
 
-    // // The moderator lookup remains here for later use if needed.
-    // const moderator = video?.moderated_by
-    //     ? users?.find((user) => user.firstname === video.moderated_by)
-    //     : null;
-
     return (
         <div className="w-full flex flex-col justify-center min-h-[500px]">
             <div className="w-full flex max-w-5xl flex-col md:flex-row">

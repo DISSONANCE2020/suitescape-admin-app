@@ -1,9 +1,10 @@
 import React from "react";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import logo from "../../assets/images/logo.png";
 
 const Sidebar = () => {
-    const { url = "", auth, model_has_roles } = usePage().props;
+    const { url } = usePage().props;
+    const { auth, model_has_roles } = usePage().props;
     const user = auth?.user || {};
     const userRole = model_has_roles?.find(
         (role) => role.model_id === user.id
@@ -27,10 +28,6 @@ const Sidebar = () => {
         ];
     }
 
-    // Fallback: if url is not provided, use window.location.pathname
-    const currentUrl =
-        url || (typeof window !== "undefined" ? window.location.pathname : "");
-
     return (
         <div className="w-64 bg-[#ffffff] border-r border-[#D1D5DB] min-h-screen p-4 flex flex-col">
             {/* Logo */}
@@ -45,16 +42,16 @@ const Sidebar = () => {
                     <ul>
                         {navLinks.map((link) => (
                             <li key={link.label} className="mb-2">
-                                <Link
+                                <a
                                     href={link.href}
                                     className={`block rounded-md px-2 py-1 hover:bg-[#F3F4F6] ${
-                                        currentUrl.startsWith(link.href)
+                                        url.startsWith(link.href)
                                             ? "text-[#1F2937] font-semibold bg-[#E5E7EB]"
                                             : "text-[#1F2937] font-normal bg-[#ffffff]"
                                     }`}
                                 >
                                     {link.label}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -69,20 +66,20 @@ const Sidebar = () => {
                 </h2>
                 <ul>
                     <li className="mb-2">
-                        <Link
+                        <a
                             href="#"
                             className="block text-[#1F2937] hover:bg-[#F3F4F6] rounded-md px-2 py-1"
                         >
                             Help
-                        </Link>
+                        </a>
                     </li>
                     <li>
-                        <Link
+                        <a
                             href="#"
                             className="block text-[#1F2937] hover:bg-[#F3F4F6] rounded-md px-2 py-1"
                         >
                             Settings
-                        </Link>
+                        </a>
                     </li>
                 </ul>
             </div>

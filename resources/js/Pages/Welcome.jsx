@@ -36,9 +36,9 @@ const Welcome = () => {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-[#f4f4f9]">
-            <div className="bg-white p-8 shadow-lg rounded-xl w-[400px]">
+            <div className="bg-white p-8 border border-gray rounded-xl w-[400px]">
                 <h2 className="text-2xl font-bold mb-4 text-center text-[#333]">
-                    Login
+                    Suitescape Admin Login
                 </h2>
                 <form onSubmit={handleLogin}>
                     <div className="mb-4">
