@@ -10,7 +10,7 @@ class Listing extends Model
 
     protected $table = 'listings';
 
-    protected $fillable = ['name', 'description', 'user_id'];
+    protected $fillable = ['name', 'description', 'user_id', 'facility_type'];
 
     public $incrementing = false;
 

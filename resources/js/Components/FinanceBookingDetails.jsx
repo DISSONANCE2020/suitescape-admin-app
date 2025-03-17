@@ -1,195 +1,236 @@
 import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
 
-const FinanceBookingDetails = ({ booking, onClose, onSave }) => {
+const FinanceBookingDetails = ({
+    booking,
+    payoutMethodDetail,
+    onClose,
+    onUpdateStatus,
+}) => {
     if (!booking) return null;
 
-    const [updatedBooking, setUpdatedBooking] = useState(booking);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [selectedStatus, setSelectedStatus] = useState(booking.status);
-    const [commissionRate, setCommissionRate] = useState(2); // Default 2%
-    const [savedCommissionRate, setSavedCommissionRate] = useState(2); // Saved value
-
     const amountPaid = parseFloat(booking.amount) || 0;
-    const commission = (amountPaid * commissionRate) / 100;
-    const hostPayout = amountPaid - commission;
+    const hostPayout = amountPaid;
+    const [status, setStatus] = useState(payoutMethodDetail?.status || "N/A");
 
-    const handleSave = () => {
-        onSave({
-            ...updatedBooking,
-            commissionRate: commissionRate, // Ensure it is passed when saving
-        });
-    };
-    const handleSaveChanges = () => {
-        setSavedCommissionRate(commissionRate); // Update saved commission rate
-        setUpdatedBooking((prev) => ({
-            ...prev,
-            commissionRate: commissionRate, // Ensure the commission rate is updated in the booking data
-        }));
-    };
-
-    const handleStatusChange = (newStatus) => {
-        console.log("Status changed to:", newStatus);
-        setSelectedStatus(newStatus);
-        setDropdownOpen(false);
-    };
-
-    const getStatusText = (status) => {
-        return status === 1 ? "PAYOUT SENT" : "PAYOUT PENDING";
+    const handleStatusChange = (event) => {
+        const newStatus = event.target.value;
+        setStatus(newStatus);
+        onUpdateStatus(booking.id, newStatus);
     };
 
     return (
         <div className="">
-            <h2 className="pl-3 mb-5 text-5xl font-semibold capitalize ">
+            {/* Header Section */}
+            <h2 className="m-4 text-4xl font-semibold capitalize">
                 {booking.listing?.facility_type || "N/A"}
             </h2>
-            <p className="pb-8 pl-3 text-3xl capitalize b-4 ">
+            <p className="m-4 text-2xl capitalize font-poppins">
                 {booking?.listing ? booking.listing.name : "Unknown"}
             </p>
-            <div className="mb-5 border border-gray-200"></div>
+            <div className="mt-6 mb-6 border border-gray-200"></div>
 
-            <table className="w-auto">
-                <tbody>
-                    {/* Status Dropdown */}
-                    <tr>
-                        <td className="p-3 text-xl font-semibold">Status:</td>
-                        <td className="relative p-3">
-                            <button
-                                className={`px-3 py-1 text-white font-bold rounded-md flex justify-between items-center w-full md:w-[220px] ${
-                                    selectedStatus === 1
-                                        ? "bg-[#10B981]"
-                                        : "bg-[#3497e7] "
-                                }`}
-                                onClick={() => setDropdownOpen(!dropdownOpen)}
-                            >
-                                {getStatusText(selectedStatus)}
-                                <ChevronDown size={16} className="ml-2" />
-                            </button>
+            {/* Two-Column Layout */}
+            <div className="grid grid-flow-col grid-cols-2">
+                {/* Left Column - Payout Details */}
+                <div>
+                    <h3 className="mb-5 ml-4 text-2xl font-semibold text-gray-500">
+                        Payout Details
+                    </h3>
+                    <table className="w-full">
+                        <tbody>
+                            {/* Host Email for Payout */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Email:
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    {payoutMethodDetail?.email ||
+                                        "helloworld@gmail.com"}
+                                </td>
+                            </tr>
 
-                            {dropdownOpen && (
-                                <div
-                                    className="absolute mt-2 rounded-lg bg-white p-2 z-10 w-full md:w-[220px] shadow-lg"
-                                    onClick={(e) => e.stopPropagation()} // Prevent dropdown from closing immediately
-                                >
-                                    <button
-                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-full bg-[#10B981] hover:bg-[#059669]"
-                                        onClick={() => handleStatusChange(1)}
+                            {/* Account Name */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Account Name:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {payoutMethodDetail?.account_name ||
+                                        "Sample Account Name"}
+                                </td>
+                            </tr>
+
+                            {/* Payout Method */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Payout Method:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {payoutMethodDetail?.type || "Gcash"}
+                                </td>
+                            </tr>
+
+                            {/* Account Number */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Account Number:
+                                </td>
+                                <td className="pb-4 text-xl capitalize ">
+                                    {payoutMethodDetail?.account_number ||
+                                        "09123456789"}
+                                </td>
+                            </tr>
+
+                            {/* Amount Paid */}
+                            <tr>
+                                <td className="pt-12 pb-4 pl-6 text-xl font-semibold">
+                                    Booking Amount:
+                                </td>
+                                <td className="pt-12 pb-4 text-xl capitalize ">
+                                    ₱{amountPaid.toFixed(2)}
+                                </td>
+                            </tr>
+
+                            {/* Host Payout */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Host Payout:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    ₱{hostPayout.toFixed(2)}
+                                </td>
+                            </tr>
+
+                            {/* Payout Status */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Payout Status:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    <select
+                                        value={status}
+                                        onChange={handleStatusChange}
                                     >
-                                        PAYOUT SENT
-                                    </button>
+                                        <option value="Payout Pending">
+                                            Payout Pending
+                                        </option>
+                                        <option value="Payout Sent">
+                                            Payout Sent
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                                    <button
-                                        className="px-3 py-1 mt-2 text-white font-bold rounded-md flex justify-between items-start w-full bg-[#3497e7] hover:bg-[#1c78c4] "
-                                        onClick={() => handleStatusChange(2)}
-                                    >
-                                        PAYOUT PENDING
-                                    </button>
-                                </div>
-                            )}
-                        </td>
-                    </tr>
-                    {/* Booking ID */}
-                    <tr className="">
-                        <td className="w-1/3 p-3 pb-2 text-xl font-semibold ">
-                            Booking ID:
-                        </td>
-                        <td className="p-3 text-xl">
-                            {booking.id || "No ID Available"}
-                        </td>
-                    </tr>
+                {/* Right Column - Booking Details */}
+                <div>
+                    <h3 className="mb-5 ml-4 text-2xl font-semibold text-gray-500">
+                        Booking Details
+                    </h3>
+                    <table className="w-full">
+                        <tbody>
+                            {/* Guest Name */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Guest Name:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {`${booking.user?.firstname} ${booking.user?.lastname}`}
+                                </td>
+                            </tr>
 
-                    {/* Customer Name */}
-                    <tr className="">
-                        <td className="p-3 text-xl font-semibold">
-                            Customer Name:
-                        </td>
-                        <td className="p-3 text-xl ">
-                            {booking.user?.firstname} {booking.user?.lastname}
-                        </td>
-                    </tr>
+                            {/* Booking Reference */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Booking No:
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    {booking.id || "N/A"}
+                                </td>
+                            </tr>
 
-                    {/* Check-in & Check-out */}
-                    <tr className="">
-                        <td className="p-3 text-xl font-semibold">Check-In:</td>
-                        <td className="p-3 text-xl">
-                            {new Date(booking.date_start).toLocaleDateString(
-                                "en-US",
-                                {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                }
-                            )}{" "}
-                            -{" "}
-                            {new Date(booking.date_end).toLocaleDateString(
-                                "en-US",
-                                {
-                                    month: "long",
-                                    day: "numeric",
-                                    year: "numeric",
-                                }
-                            )}
-                        </td>
-                    </tr>
+                            {/* Mode of Payment */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Mode of Payment:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.paymongo_customer_id || "N/A"}
+                                </td>
+                            </tr>
 
-                    {/* Mode of Payment */}
-                    <tr className="">
-                        <td className="p-3 text-xl font-semibold">
-                            Mode of Payment:
-                        </td>
-                        <td className="p-3 text-xl ">
-                            {booking.payoutMethodDetail?.type || "N/A"}
-                        </td>
-                    </tr>
+                            {/* Amount Paid */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Amount Paid:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.amount || "N/A"}
+                                </td>
+                            </tr>
 
-                    {/* Amount Paid */}
-                    <tr className="">
-                        <td className="p-3 text-xl font-semibold pb-14">
-                            Amount Paid:
-                        </td>
-                        <td className="p-3 text-xl pb-14">
-                            ₱{amountPaid.toFixed(2)}
-                        </td>
-                    </tr>
+                            {/* Paid Amount Date */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Paid on:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.created_at
+                                        ? new Intl.DateTimeFormat("en-US", {
+                                              year: "numeric",
+                                              month: "short",
+                                              day: "2-digit",
+                                          }).format(
+                                              new Date(booking.created_at)
+                                          )
+                                        : "N/A"}
+                                </td>
+                            </tr>
 
-                    {/* Suitescape Commission */}
-                    <tr>
-                        <td className="p-3 text-xl font-semibold">
-                            Commission (%):
-                        </td>
-                        <td className="p-3">
-                            <input
-                                type="number"
-                                className="w-20 p-2 border border-gray-300 rounded-md"
-                                value={commissionRate}
-                                onChange={(e) =>
-                                    setCommissionRate(e.target.value)
-                                }
-                                min="0"
-                                max="100"
-                            />
-                        </td>
-                    </tr>
+                            {/* Booking Date */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Booking Date:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.date_start && booking.date_end
+                                        ? `${new Intl.DateTimeFormat("en-US", {
+                                              month: "short",
+                                              day: "2-digit",
+                                          }).format(
+                                              new Date(booking.date_start)
+                                          )} -
+                                            ${new Intl.DateTimeFormat("en-US", {
+                                                month: "short",
+                                                day: "2-digit",
+                                            }).format(
+                                                new Date(booking.date_end)
+                                            )},
+                                                  ${new Date(
+                                                      booking.date_end
+                                                  ).getFullYear()}`
+                                        : "N/A"}
+                                </td>
+                            </tr>
 
-                    {/* Host Payout */}
-                    <tr className="">
-                        <td className="p-3 text-xl font-semibold">
-                            Host Payout:
-                        </td>
-                        <td className="p-3 text-xl">
-                            ₱{hostPayout.toFixed(2)}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            {/* Booking Status */}
+                            <tr>
+                                <td className="pb-4 pl-6 text-xl font-semibold">
+                                    Booking Status:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.status || "N/A"}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <div className="flex p-3 mt-6 ">
-                <button
-                    onClick={handleSave}
-                    className="px-6 py-3 font-medium text-white bg-blue-500 border border-blue-600 rounded-md hover:bg-blue-600 drop-shadow-sm"
-                >
-                    Save Changes
-                </button>
+            {/* Close Button */}
+            <div className="flex p-3 mt-12">
                 <button
                     onClick={onClose}
                     className="px-6 py-3 font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
