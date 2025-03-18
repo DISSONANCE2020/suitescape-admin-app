@@ -14,12 +14,12 @@ const Sidebar = () => {
         // Super Admin
         navLinks = [
             { label: "User Management", href: "/super-admin" },
-            { label: "Finance Management", href: "/finance" },
+            { label: "Finance Management", href: "/finance-manager" },
             { label: "Content Moderation", href: "/content-moderator" },
         ];
     } else if (userRole === 5) {
         // Finance Administrator
-        navLinks = [{ label: "Finance Management", href: "/finance" }];
+        navLinks = [{ label: "Finance Management", href: "/finance-manager" }];
     } else if (userRole === 4) {
         // Content Moderator
         navLinks = [

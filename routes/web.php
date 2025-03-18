@@ -30,6 +30,10 @@ Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::put('/videos/{video}/status', [SuperAdminController::class, 'updateStatus']);
 });
 
+Route::middleware(['auth', 'role:finance-admin|super-admin'])->group(function () {
+    Route::get('/finance-manager', [FinanceController::class, 'financeAdmin'])->name('finance.manager');
+});
+
 Route::get('/videos', function () {
     return Inertia::render('VideoManagement', [
         'videos' => \App\Models\Video::latest()->get(),
@@ -40,20 +44,18 @@ Route::get('/videos', function () {
 
 Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update']);
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
-    
-Route::get('/finance', function () {
-    $bookings = \App\Models\Booking::all();
-    $users = \App\Models\User::all();
-    $listings = \App\Models\Listing::all();
-    $payout_methods = \App\Models\PayoutMethod::all();
-    $payout_method_details = \App\Models\PayoutMethodDetail::all();
 
-    return Inertia::render('FinanceModerator', [
-        'bookings' => $bookings,
-        'users' => $users,
-        'listings' => $listings,
-        'payoutMethods' => $payout_methods,
-        'payoutMethodDetails' => $payout_method_details,
-    ]);
-});
+// Route::get('/finance', function () {
+//     $bookings = \App\Models\Booking::all();
+//     $users = \App\Models\User::all();
+//     $listings = \App\Models\Listing::all();
+//     $payout_methods = \App\Models\PayoutMethod::all();
+
+//     return Inertia::render('FinanceModerator', [
+//         'bookings' => $bookings,
+//         'users' => $users,
+//         'listings' => $listings,
+//         'payoutMethods' => $payout_methods,
+//     ]);
+// });
 

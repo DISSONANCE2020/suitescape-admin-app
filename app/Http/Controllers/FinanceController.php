@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\PayoutMethodDetail;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Http;
 class FinanceController extends Controller
 {
-    public function index()
+    public function financeAdmin()
     {
         // Fetch finance data from the external API
-        $response = Http::get('http://127.0.0.1:8000/api/bookings');
+        $response = Http::get('http://127.0.0.1:8001/api/bookings');
 
         // Check if the API call was successful
 
@@ -24,7 +22,7 @@ class FinanceController extends Controller
         }
 
         // Pass finance data to Inertia
-        return Inertia::render('FinanceManagement', [
+        return Inertia::render('FinanceManager', [
             'bookings' => $bookings
         ]);
     }
