@@ -15,9 +15,9 @@ const FinanceManager = () => {
         payoutMethodDetails,
         auth,
     } = usePage().props;
-
-    const user = auth?.user || {};
     const [activeTab, setActiveTab] = useState("payouts");
+    const [currentPagePayouts, setCurrentPagePayouts] = useState(1);
+    const [currentPageRefunds, setCurrentPageRefunds] = useState(1);
 
     // Filter bookings for each tab:
     const payouts = bookings.filter(
@@ -27,11 +27,16 @@ const FinanceManager = () => {
         (booking) => booking.status === "cancelled"
     );
 
+    const user = auth?.user || {};
+
     return (
         <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
+            {/* Sidebar */}
             <div className="hidden md:block">
                 <Sidebar />
             </div>
+
+            {/* Main Content */}
             <div className="flex-1 pb-2 px-4 md:px-6">
                 <PageHeader
                     breadcrumb={`Finance Management / ${
@@ -39,7 +44,8 @@ const FinanceManager = () => {
                     }`}
                     user={{ name: user.firstname, role: "Finance Moderator" }}
                 />
-                <ContentCard title="Finance">
+
+                <ContentCard title="Finance Records">
                     {/* Tab Switcher */}
                     <div className="flex justify-start gap-4 mb-4 border-b border-[#D1D5DB] pb-4">
                         <button
@@ -48,29 +54,37 @@ const FinanceManager = () => {
                                     ? "border-b-2 border-blue-600 text-blue-600"
                                     : "text-gray-500"
                             }`}
-                            onClick={() => setActiveTab("payouts")}
+                            onClick={() => {
+                                setActiveTab("payouts");
+                                setCurrentPagePayouts(1);
+                            }}
                         >
                             Payouts
                         </button>
+
                         <button
                             className={`px-4 py-2 font-semibold focus:outline-none ${
                                 activeTab === "refunds"
                                     ? "border-b-2 border-red-600 text-red-600"
                                     : "text-gray-500"
                             }`}
-                            onClick={() => setActiveTab("refunds")}
+                            onClick={() => {
+                                setActiveTab("refunds");
+                                setCurrentPageRefunds(1);
+                            }}
                         >
                             Refunds
                         </button>
                     </div>
 
-                    {/* Conditionally render only one component at a time */}
                     {activeTab === "payouts" ? (
                         <PayoutsTable
                             bookings={payouts}
                             users={users}
                             listings={listings}
                             payoutMethods={payoutMethods}
+                            currentPage={currentPagePayouts}
+                            setCurrentPage={setCurrentPagePayouts}
                         />
                     ) : (
                         <RefundsTable

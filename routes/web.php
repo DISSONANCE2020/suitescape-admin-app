@@ -20,19 +20,19 @@ Route::get('/login', function () {
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-Route::middleware(['auth', 'role:content-admin|super-admin|finance-admin'])->group(function () {
+// Route::middleware(['auth', 'role:content-admin|super-admin|finance-admin'])->group(function () {
     Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
-});
+// });
 
-Route::middleware(['auth', 'role:super-admin'])->group(function () {
+// Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/super-admin', [SuperAdminController::class, 'superAdmin'])->name('super.admin');
-    Route::put('/videos/{video}/status', [SuperAdminController::class, 'updateStatus']);
-});
+    // Route::put('/videos/{video}/status', action: [SuperAdminController::class, 'updateStatus']);
+// });
 
-Route::middleware(['auth', 'role:finance-admin|super-admin'])->group(function () {
+// Route::middleware(['auth', 'role:finance-admin|super-admin'])->group(function () {
     Route::get('/finance-manager', [FinanceController::class, 'financeAdmin'])->name('finance.manager');
-});
+// });
 
 Route::get('/videos', function () {
     return Inertia::render('VideoManagement', [
