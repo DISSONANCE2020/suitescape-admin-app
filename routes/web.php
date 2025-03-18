@@ -20,7 +20,7 @@ Route::get('/login', function () {
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function () {
+Route::middleware(['auth', 'role:content-admin|super-admin|finance-admin'])->group(function () {
     Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 });
@@ -40,20 +40,17 @@ Route::get('/videos', function () {
 
 Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update']);
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
-    
+
 Route::get('/finance', function () {
     $bookings = \App\Models\Booking::all();
     $users = \App\Models\User::all();
     $listings = \App\Models\Listing::all();
     $payout_methods = \App\Models\PayoutMethod::all();
-    $payout_method_details = \App\Models\PayoutMethodDetail::all();
 
     return Inertia::render('FinanceModerator', [
         'bookings' => $bookings,
         'users' => $users,
         'listings' => $listings,
         'payoutMethods' => $payout_methods,
-        'payoutMethodDetails' => $payout_method_details,
     ]);
 });
-
