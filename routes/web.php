@@ -20,7 +20,7 @@ Route::get('/login', function () {
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function () {
+Route::middleware(['auth', 'role:content-admin|super-admin|finance-admin'])->group(function () {
     Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
 });
