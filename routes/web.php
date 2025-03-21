@@ -6,7 +6,6 @@ use App\Http\Controllers\VideoController;
 use App\Http\Controllers\VideoViolationsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\FinanceController;
 
 
 Route::get('/', function () {
@@ -20,12 +19,12 @@ Route::get('/login', function () {
 Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-// Route::middleware(['auth', 'role:content-admin|super-admin|finance-admin'])->group(function () {
+Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function () {
     Route::get('/content-moderator', [VideoController::class, 'contentModerator'])->name('content.moderator');
     Route::put('/videos/{video}/status', [VideoController::class, 'updateStatus']);
-// });
+});
 
-// Route::middleware(['auth', 'role:super-admin'])->group(function () {
+Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/super-admin', [SuperAdminController::class, 'superAdmin'])->name('super.admin');
     // Route::put('/videos/{video}/status', action: [SuperAdminController::class, 'updateStatus']);
 // });
@@ -56,9 +55,6 @@ Route::get('/finance', function () {
         'users' => $users,
         'listings' => $listings,
         'payoutMethods' => $payout_methods,
-        'invoices' => $invoices,
     ]);
 });
-
-
 
