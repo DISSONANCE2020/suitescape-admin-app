@@ -10,8 +10,13 @@ use Illuminate\Http\Request;
 
 class VideoController extends Controller
 {
+    public function __construct(
+        protected Video $video,
+    ) {
+    }
     public function contentModerator()
     {
+
         return Inertia::render('ContentModerator', [
             'videos' => Video::with([
                 'violations' => function ($query) {

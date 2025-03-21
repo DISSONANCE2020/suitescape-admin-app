@@ -6,7 +6,6 @@ use App\Http\Controllers\VideoController;
 use App\Http\Controllers\VideoViolationsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdminController;
-use App\Http\Controllers\FinanceController;
 
 
 Route::get('/', function () {
@@ -27,7 +26,6 @@ Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function ()
 
 Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/super-admin', [SuperAdminController::class, 'superAdmin'])->name('super.admin');
-    Route::put('/videos/{video}/status', [SuperAdminController::class, 'updateStatus']);
 });
 
 Route::get('/videos', function () {
@@ -46,14 +44,12 @@ Route::get('/finance', function () {
     $users = \App\Models\User::all();
     $listings = \App\Models\Listing::all();
     $payout_methods = \App\Models\PayoutMethod::all();
-    $payout_method_details = \App\Models\PayoutMethodDetail::all();
 
     return Inertia::render('FinanceModerator', [
         'bookings' => $bookings,
         'users' => $users,
         'listings' => $listings,
         'payoutMethods' => $payout_methods,
-        'payoutMethodDetails' => $payout_method_details,
     ]);
 });
 
