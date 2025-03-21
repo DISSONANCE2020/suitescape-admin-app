@@ -6,8 +6,6 @@ const Welcome = () => {
     const props = usePage().props || {};
     const { auth = { user: null }, errors = {} } = props;
 
-    console.log("usePage().props:", props);
-
     const [form, setForm] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
 

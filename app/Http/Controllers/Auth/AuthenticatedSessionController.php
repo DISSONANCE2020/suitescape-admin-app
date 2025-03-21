@@ -42,7 +42,7 @@ class AuthenticatedSessionController extends Controller
         } elseif ($roleId === 4) {
             return Inertia::location('/content-moderator'); // Content Moderator
         } elseif ($roleId === 5) {
-            return Inertia::location('/finance'); // Finance Administrator
+            return Inertia::location('/finance-manager'); // Finance Administrator
         }
 
         return Inertia::location('/dashboard'); // Default redirect

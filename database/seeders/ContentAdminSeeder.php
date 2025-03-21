@@ -21,7 +21,7 @@ class ContentAdminSeeder extends Seeder
         }
 
         // Check if the user already exists
-        $user = User::where('email', 'newadmin@suitescape.ph')->first();
+        $user = User::where('email', operator: 'newadmin@suitescape.ph')->first();
         if (!$user) {
             $user = User::create([
                 'id' => Str::uuid()->toString(),
