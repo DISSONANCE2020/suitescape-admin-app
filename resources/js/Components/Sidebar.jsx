@@ -32,7 +32,7 @@ const Sidebar = () => {
         url || (typeof window !== "undefined" ? window.location.pathname : "");
 
     return (
-        <div className="w-64 bg-[#ffffff] border-r border-[#D1D5DB] min-h-screen p-4 flex flex-col">
+        <div className="w-64 bg-[#ffffff] border-r border-[#D1D5DB] h-full p-4 flex flex-col">
             {/* Logo */}
             <img src={logo} alt="Logo" className="w-48 mx-auto" />
 
