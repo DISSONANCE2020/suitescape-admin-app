@@ -107,6 +107,17 @@ const VideoDetails = ({
         (term) => termsOfService.indexOf(term) + 1
     );
 
+    const formattedDate = video.created_at
+    ? new Date(video.created_at).toLocaleString(
+          "en-US",
+          {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+          }
+      )
+    : "N/A";
+
     return (
         <div className="w-full flex flex-col justify-center min-h-[500px]">
             <div className="w-full flex max-w-5xl flex-col md:flex-row">
@@ -181,14 +192,13 @@ const VideoDetails = ({
                         <p className="font-semibold text-black">
                             Video ID:{" "}
                             <span className="font-normal">
-                                {video?.id?.slice(0, 14) || "N/A"}
+                                {video?.id || "N/A"}
                             </span>
                         </p>
                         <p className="font-semibold text-black">
                             Upload Date:{" "}
                             <span className="font-normal">
-                                {video?.created_at?.slice(0, 10) ||
-                                    "Unknown Date"}
+                                {formattedDate}
                             </span>
                         </p>
                         <p className="font-semibold text-black">

@@ -4,7 +4,7 @@ import UserTable from "./UserTable";
 import UserDetails from "./UserDetails";
 
 const UserManagement = () => {
-    const { users } = usePage().props;
+    const { users, activeSessions, listings, bookings } = usePage().props;
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedUser, setSelectedUser] = useState(null);
     const [sortedUsers, setSortedUsers] = useState([]);
@@ -12,7 +12,6 @@ const UserManagement = () => {
 
     useEffect(() => {
         if (!Array.isArray(users)) return;
-        // Sort users by creation date (descending)
         let sorted = [...users].sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
@@ -35,33 +34,24 @@ const UserManagement = () => {
             <div className="flex justify-between items-center mb-4 border-b border-[#D1D5DB] pb-4">
                 <div>
                     <h2 className="text-lg font-semibold">Users</h2>
-                    <p className="text-sm text-[#808080]">
-                        {filteredUsers.length} Total Users
-                    </p>
                 </div>
-                <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 w-[220px] border border-[#D1D5DB] rounded-md"
-                >
-                    <option value="ALL">All</option>
-                    <option value="1">Super Admins</option>
-                    <option value="2">Hosts</option>
-                    <option value="3">Guests</option>
-                    <option value="4">Content Moderators</option>
-                    <option value="5">Finance Managers</option>
-                </select>
+                <p className="text-sm text-[#808080]">
+                    {filteredUsers.length} Total Users
+                </p>
             </div>
 
             {selectedUser ? (
                 <UserDetails
                     user={selectedUser}
+                    activeSessions={activeSessions}
+                    userListings={listings}
+                    userBookings={bookings}
                     onBack={() => setSelectedUser(null)}
                 />
             ) : (
                 <div className="flex-grow">
                     <UserTable
-                        users={filteredUsers}
+                        user={filteredUsers}
                         onRowClick={handleRowClick}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}

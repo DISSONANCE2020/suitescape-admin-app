@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const UserTable = ({ users, onRowClick, currentPage, setCurrentPage }) => {
+const UserTable = ({ user, onRowClick, currentPage, setCurrentPage }) => {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const itemsPerPage = 9;
 
@@ -13,9 +13,9 @@ const UserTable = ({ users, onRowClick, currentPage, setCurrentPage }) => {
     };
 
     useEffect(() => {
-        if (!Array.isArray(users)) return;
+        if (!Array.isArray(user)) return;
 
-        let filteredAndSortedUsers = [...users]
+        let filteredAndSortedUsers = [...user]
             .filter(user => {
                 const roleId = user.role_id ?? 3; // If role_id is null, treat as Guest (3)
                 return roleId === 2 || roleId === 3;
@@ -23,7 +23,7 @@ const UserTable = ({ users, onRowClick, currentPage, setCurrentPage }) => {
             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
         setFilteredUsers(filteredAndSortedUsers);
-    }, [users]);
+    }, [user]);
 
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -51,11 +51,19 @@ const UserTable = ({ users, onRowClick, currentPage, setCurrentPage }) => {
                     </thead>
                     <tbody>
                         {currentUsers
-                            // .filter(
-                            //     (user) =>
-                            //         user.role_id === 2 || user.role_id === 3
-                            // )
-                            .map((user, index) => (
+                            .map((user, index) => {
+                                const formattedDate = user.created_at
+                                ? new Date(user.created_at).toLocaleString(
+                                    "en-US",
+                                    {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                    })
+                                    : "N/A";
+                                const time = user.created_at ? user.created_at.slice(11, 19) : "";
+                                
+                                return(
                                 <tr
                                     key={user.id || index}
                                     className="border border-[#D1D5DB] text-center odd:bg-[#F3F4F6] hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
@@ -70,11 +78,10 @@ const UserTable = ({ users, onRowClick, currentPage, setCurrentPage }) => {
                                         {user.email}
                                     </td>
                                     <td className="p-2 overflow-hidden whitespace-nowrap">
-                                        {user.created_at.slice(0, 10)} at{" "}
-                                        {user.created_at.slice(11, 19)}{" "}
+                                        {formattedDate} at {time}
                                     </td>
                                 </tr>
-                            ))}
+                            )})}
                     </tbody>
                 </table>
             </div>

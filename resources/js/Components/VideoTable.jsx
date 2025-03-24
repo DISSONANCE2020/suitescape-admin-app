@@ -77,12 +77,29 @@ const VideoTable = ({
                             const listing = listings?.find(
                                 (listing) => listing.id === video.listing_id
                             );
+
                             const host = users?.find(
                                 (user) => user.id === listing?.user_id
                             );
+
                             const moderator = users?.find(
                                 (user) => user.id === video.moderated_by
                             );
+
+                            const formattedDate = video.created_at
+                                ? new Date(video.created_at).toLocaleString(
+                                      "en-US",
+                                      {
+                                          month: "short",
+                                          day: "numeric",
+                                          year: "numeric",
+                                      }
+                                  )
+                                : "N/A";
+
+                            const time = video.created_at
+                                ? video.created_at.slice(11, 19)
+                                : "";
 
                             return (
                                 <tr
@@ -96,8 +113,7 @@ const VideoTable = ({
                                             : listing?.name}
                                     </td>
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
-                                        {video.created_at.slice(0, 10)} at{" "}
-                                        {video.created_at.slice(11, 19)}
+                                        {formattedDate} at {time}
                                     </td>
 
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap hidden md:table-cell">
