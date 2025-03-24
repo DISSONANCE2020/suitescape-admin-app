@@ -92,7 +92,9 @@ const FinancePayoutDetails = ({
                                     Guest Name:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
-                                    {guest ? `${guest.firstname} ${guest.lastname}` : "N/A"}
+                                    {guest
+                                        ? `${guest.firstname} ${guest.lastname}`
+                                        : "N/A"}
                                 </td>
                             </tr>
                             <tr>
@@ -116,40 +118,37 @@ const FinancePayoutDetails = ({
                                     Booking Amount:
                                 </td>
                                 <td className="pb-4 text-xl">
-                                    {booking?.amount || "N/A"}
+                                    ₱{booking?.amount || "N/A"}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
-                                        Paid on:
+                                    Paid on:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
-                                        {booking.created_at
-                                            ? new Intl.DateTimeFormat("en-US", {
-                                                  year: "numeric",
-                                                  month: "short",
-                                                  day: "2-digit",
-                                              }).format(
-                                                  new Date(booking.created_at)
-                                              )
-                                            : "N/A"}
+                                    {booking.created_at
+                                        ? new Intl.DateTimeFormat("en-US", {
+                                              year: "numeric",
+                                              month: "short",
+                                              day: "2-digit",
+                                          }).format(
+                                              new Date(booking.created_at)
+                                          )
+                                        : "N/A"}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
-                                        Booking Date:
+                                    Booking Date:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
-                                        {booking.date_start && booking.date_end
-                                            ? `${new Intl.DateTimeFormat(
-                                                  "en-US",
-                                                  {
-                                                      month: "short",
-                                                      day: "2-digit",
-                                                  }
-                                              ).format(
-                                                  new Date(booking.date_start)
-                                              )} -
+                                    {booking.date_start && booking.date_end
+                                        ? `${new Intl.DateTimeFormat("en-US", {
+                                              month: "short",
+                                              day: "2-digit",
+                                          }).format(
+                                              new Date(booking.date_start)
+                                          )} -
                                             ${new Intl.DateTimeFormat("en-US", {
                                                 month: "short",
                                                 day: "2-digit",
@@ -159,18 +158,17 @@ const FinancePayoutDetails = ({
                                                   ${new Date(
                                                       booking.date_end
                                                   ).getFullYear()}`
-                                            : "N/A"}
+                                        : "N/A"}
                                 </td>
                             </tr>
                             <tr>
-                                    <td className="pb-4 pl-4 text-xl font-semibold">
-                                        Booking Status:
-                                    </td>
-                                    <td className="pb-4 text-xl capitalize">
-                                        {booking.status || "N/A"}
-                                    </td>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    Booking Status:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {booking.status || "N/A"}
+                                </td>
                             </tr>
-
                         </tbody>
                     </table>
                 </div>
@@ -186,7 +184,11 @@ const FinancePayoutDetails = ({
             </div>
 
             {isModalOpen && (
-                <FinanceListingDetailsModal listing={listing} onClose={handleCloseModal} />
+                <FinanceListingDetailsModal
+                    listing={listing}
+                    users={users}
+                    onClose={handleCloseModal}
+                />
             )}
         </div>
     );

@@ -4,13 +4,8 @@ import FinancePayoutsTable from "./FinancePayoutsTable";
 import FinanceRefundsTable from "./FinanceRefundsTable";
 
 const FinanceManagement = () => {
-    const {
-        bookings,
-        users,
-        listings,
-        payoutMethods,
-        invoices,
-    } = usePage().props;
+    const { bookings, users, listings, payoutMethods, invoices } =
+        usePage().props;
     const [activeTab, setActiveTab] = useState("payouts");
     const [currentPagePayouts, setCurrentPagePayouts] = useState(1);
     const [currentPageRefunds, setCurrentPageRefunds] = useState(1);
