@@ -7,6 +7,7 @@ use App\Http\Controllers\VideoViolationsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\PayoutMethodController;
 
 
 Route::get('/', function () {
@@ -41,3 +42,10 @@ Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
 
 Route::get('/finance-manager', [FinanceController::class, 'payoutdetails']);
+
+Route::middleware('auth')->group(function () {
+    Route::post('/payout-methods', [PayoutMethodController::class, 'store']);
+    Route::post('/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds']);
+    Route::get('/payout-methods', [PayoutMethodController::class, 'index'])->name('payout-methods.index');
+
+});

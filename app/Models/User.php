@@ -12,6 +12,10 @@ class User extends Authenticatable
 
     public $incrementing = false;
 
+    public function payoutMethods()
+    {
+        return $this->hasMany(PayoutMethod::class);
+    }
     protected $casts = [
         'id' => 'string',
     ];
