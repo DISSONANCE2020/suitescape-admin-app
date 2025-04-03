@@ -101,9 +101,17 @@ class PayoutMethodController extends Controller
         );
     }
 
+    //THIS IS TEMPORARY FOR DEBUGGING PURPOSES ONLY
+    // REMOVE THIS IN PRODUCTION
+    public function debug()
+    {
+        $payoutMethods = auth()->user()->payoutMethods()->with('payoutable')->get();
+        return response()->json($payoutMethods);
+    }
+
     public function transferFunds(Request $request, PayoutMethod $payoutMethod)
     {
-        if (auth()->id() !== $payoutMethod->user_id) {
+        if (!auth()->user()->hasRole('finance') && auth()->id() !== $payoutMethod->user_id) {
             abort(403, 'Unauthorized action');
         }
 

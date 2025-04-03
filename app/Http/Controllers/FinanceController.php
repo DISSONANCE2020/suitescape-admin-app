@@ -14,20 +14,25 @@ class FinanceController extends Controller
 {
     public function payoutdetails()
     {
-        // Fetch all necessary data
         $bookings = Booking::all();
         $users = User::all();
         $listings = Listing::all();
-        $payoutMethods = PayoutMethod::all();
+        $payoutMethods = PayoutMethod::with('payoutable')->get();
         $invoices = Invoice::all();
-
-        // Pass the data to the Inertia view
+    
         return Inertia::render('FinanceManager', [
             'bookings' => $bookings,
             'users' => $users,
             'listings' => $listings,
             'payoutMethods' => $payoutMethods,
             'invoices' => $invoices,
+        ]);
+    }
+
+    public function financeDashboard()
+    {
+        return Inertia::render('FinanceManagement', [
+            'payoutMethods' => PayoutMethod::with(['payoutable', 'user'])->get(),
         ]);
     }
 

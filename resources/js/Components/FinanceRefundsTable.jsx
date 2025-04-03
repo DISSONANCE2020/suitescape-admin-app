@@ -6,8 +6,8 @@ const FinanceRefundsTable = ({
     users,
     listings,
     payoutMethods,
-    setSelectedBooking, // Add this prop
-    selectedBooking, // Add this prop
+    setSelectedBooking, 
+    selectedBooking, 
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredRefunds, setFilteredRefunds] = useState([]);
@@ -178,6 +178,7 @@ const FinanceRefundsTable = ({
                     booking={selectedBooking}
                     users={users}
                     listings={listings}
+                    payoutMethods={payoutMethods}
                     onClose={handleCloseDetails}
                 />
             )}

@@ -3,10 +3,12 @@ import { usePage } from "@inertiajs/react";
 
 const PayoutsModal = ({ onClose }) => {
     const { payoutMethods } = usePage().props;
-
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
+    const { csrf_token } = usePage().props;
+
+    console.log("Payout Methods:", payoutMethods);
 
     const handleTransfer = async () => {
         if (!selectedMethod || !amount || amount <= 0) {
@@ -20,7 +22,12 @@ const PayoutsModal = ({ onClose }) => {
                 `/payout-methods/${selectedMethod}/transfer`,
                 {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute("content"),
+                    },
                     body: JSON.stringify({ amount, description: "Transfer" }),
                 }
             );
@@ -46,17 +53,53 @@ const PayoutsModal = ({ onClose }) => {
                     onChange={(e) => setSelectedMethod(e.target.value)}
                 >
                     <option value="">Select Payout Method</option>
-                    {payoutMethods.map((method) => (
-                        <option key={method.id} value={method.id}>
-                            {method.payoutable_type.includes("Gcash")
-                                ? `GCash - ${
-                                      method.payoutable?.phone_number || "N/A"
-                                  }`
-                                : `Bank - ${
-                                      method.payoutable?.account_number || "N/A"
-                                  } (${method.payoutable?.bank_code || "N/A"})`}
-                        </option>
-                    ))}
+                    {payoutMethods &&
+                        payoutMethods.map((method) => {
+                            console.log(
+                                "Method:",
+                                method.id,
+                                "Payoutable:",
+                                method.payoutable
+                            );
+
+                            if (method.payoutable_type_key === "gcash") {
+                                return (
+                                    <option key={method.id} value={method.id}>
+                                        {`GCash - ${
+                                            method.payoutable &&
+                                            method.payoutable.phone_number
+                                                ? method.payoutable.phone_number
+                                                : "N/A"
+                                        }`}
+                                    </option>
+                                );
+                            } else if (method.payoutable_type_key === "bank") {
+                                const bankAccount = method.payoutable;
+                                return (
+                                    <option key={method.id} value={method.id}>
+                                        {`Bank - ${
+                                            bankAccount &&
+                                            bankAccount.account_number
+                                                ? bankAccount.account_number
+                                                : "N/A"
+                                        } (${
+                                            bankAccount && bankAccount.bank_name
+                                                ? bankAccount.bank_name
+                                                : bankAccount &&
+                                                  bankAccount.bank_code
+                                                ? bankAccount.bank_code
+                                                : "N/A"
+                                        })`}
+                                    </option>
+                                );
+                            } else {
+                                return (
+                                    <option key={method.id} value={method.id}>
+                                        {`Unknown Payment Method`}
+                                    </option>
+                                );
+                            }
+                        })}
                 </select>
 
                 <input
@@ -78,6 +121,7 @@ const PayoutsModal = ({ onClose }) => {
                         onClick={handleTransfer}
                         className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
                         disabled={!selectedMethod || !amount || loading}
+                        value={csrf_token}
                     >
                         {loading ? "Processing..." : "Transfer"}
                     </button>

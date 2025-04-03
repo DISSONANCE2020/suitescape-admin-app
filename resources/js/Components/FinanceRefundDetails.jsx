@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import PayoutsModal from "./PayoutsModal";
 
-const FinanceRefundDetails = ({ booking, users, listings, onClose }) => {
+const FinanceRefundDetails = ({
+    booking,
+    users,
+    listings,
+    payoutMethods,
+    onClose,
+}) => {
     const [showPayoutsModal, setShowPayoutsModal] = useState(false);
 
     if (!booking) return null;
@@ -9,6 +15,13 @@ const FinanceRefundDetails = ({ booking, users, listings, onClose }) => {
     const listing = listings?.find((l) => l.id === booking?.listing_id);
     const host = users?.find((u) => u.id === listing?.user_id);
     const guest = users?.find((u) => u.id === booking?.user_id);
+
+    const hostPayoutMethods =
+        host && payoutMethods
+            ? payoutMethods.filter(
+                  (method) => method.user_id === host.id && method.payoutable // Ensure payoutable exists
+              )
+            : [];
 
     return (
         <div>
@@ -119,7 +132,7 @@ const FinanceRefundDetails = ({ booking, users, listings, onClose }) => {
 
             {showPayoutsModal && host && (
                 <PayoutsModal
-                    payoutMethod={host}
+                    payoutMethods={hostPayoutMethods}
                     onClose={() => setShowPayoutsModal(false)}
                 />
             )}

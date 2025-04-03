@@ -28,6 +28,10 @@ Route::middleware(['auth', 'role:content-admin|super-admin'])->group(function ()
 
 Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/super-admin', [SuperAdminController::class, 'superAdmin'])->name('super.admin');
+    
+    Route::get('/super-admin/finance', [FinanceController::class, 'financeDashboard'])->name('super.admin.finance');
+    Route::get('/super-admin/payouts', [PayoutMethodController::class, 'index'])->name('super.admin.payouts');
+    Route::post('/super-admin/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds']);
 });
 
 Route::get('/videos', function () {
@@ -41,11 +45,15 @@ Route::get('/videos', function () {
 Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update']);
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
 
-Route::get('/finance-manager', [FinanceController::class, 'payoutdetails']);
-
-Route::middleware('auth')->group(function () {
-    Route::post('/payout-methods', [PayoutMethodController::class, 'store']);
-    Route::post('/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds']);
-    Route::get('/payout-methods', [PayoutMethodController::class, 'index'])->name('payout-methods.index');
-
+Route::middleware(['auth', 'role:finance|super-admin'])->group(function () {
+    Route::get('/finance-manager', [FinanceController::class, 'payoutdetails'])->name('finance.manager');
+    Route::get('/finance-manager/dashboard', [FinanceController::class, 'financeDashboard'])->name('finance.dashboard');
+    
+    Route::get('/finance-manager/payouts', [PayoutMethodController::class, 'index'])->name('finance.payouts');
+    Route::post('/finance-manager/payout-methods', [PayoutMethodController::class, 'store']);
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds']);
 });
+
+if (app()->environment('local', 'development')) {
+    Route::get('/debug-payouts', [PayoutMethodController::class, 'debug'])->middleware(['auth', 'role:super-admin']);
+}

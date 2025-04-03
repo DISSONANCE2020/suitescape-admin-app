@@ -6,7 +6,9 @@ use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Spatie\Permission\Middleware\RoleMiddleware;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
                     'error'   => Session::get('error'),
                 ];
             },
+
+            Relation::morphMap([
+                'gcash' => 'App\Models\GcashAccount'::class,
+                'bank'  => 'App\Models\BankAccount'::class,
+            ]),
         ]);
     }
 }
