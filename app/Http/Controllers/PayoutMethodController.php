@@ -116,11 +116,14 @@ class PayoutMethodController extends Controller
         }
 
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'description' => 'nullable|string',
+            'amount' => 'required|numeric|min:100',
+            'description' => 'nullable|string|max:255',
         ]);
 
+        $amountInCents = (int) round($validated['amount'] * 100, 0);
+
         try {
+
             $payoutMethod->loadMissing('payoutable');
             $payoutable = $payoutMethod->payoutable;
 
@@ -160,7 +163,7 @@ class PayoutMethodController extends Controller
             }
 
             $payout = Paymongo::payout()->create([
-                'amount' => $validated['amount'] * 100,
+                'amount' => $amountInCents, // Use converted amount
                 'currency' => 'PHP',
                 'payout_method' => [
                     'type' => $type,
@@ -169,10 +172,21 @@ class PayoutMethodController extends Controller
                 'description' => $validated['description'] ?? 'Funds transfer',
             ]);
 
-            return back()->with('success', 'Transfer successful!');
+            return back()->with('success', 'Transfer successful! Reference: ' . $payout->id);
         } catch (\Exception $e) {
             \Log::error('Transfer error: ' . $e->getMessage());
-            return back()->with('error', 'Transfer failed: ' . $e->getMessage());
+            return back()->with('error', 'Transfer failed: ' . $this->simplifyErrorMessage($e->getMessage()));
         }
+    }
+
+    private function simplifyErrorMessage($message)
+    {
+        if (str_contains($message, 'insufficient funds')) {
+            return 'Insufficient balance for this transfer';
+        }
+        if (str_contains($message, 'bank account not found')) {
+            return 'Invalid bank account details';
+        }
+        return 'Payment processing error - please try again';
     }
 }

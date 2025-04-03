@@ -8,8 +8,6 @@ const PayoutsModal = ({ onClose }) => {
     const [loading, setLoading] = useState(false);
     const { csrf_token } = usePage().props;
 
-    console.log("Payout Methods:", payoutMethods);
-
     const handleTransfer = async () => {
         if (!selectedMethod || !amount || amount <= 0) {
             alert("Please select a payout method and enter a valid amount.");
@@ -24,9 +22,9 @@ const PayoutsModal = ({ onClose }) => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute("content"),
+                        "X-CSRF-TOKEN":
+                            document.querySelector('meta[name="csrf-token"]')
+                                ?.content || "",
                     },
                     body: JSON.stringify({ amount, description: "Transfer" }),
                 }
@@ -55,12 +53,6 @@ const PayoutsModal = ({ onClose }) => {
                     <option value="">Select Payout Method</option>
                     {payoutMethods &&
                         payoutMethods.map((method) => {
-                            console.log(
-                                "Method:",
-                                method.id,
-                                "Payoutable:",
-                                method.payoutable
-                            );
 
                             if (method.payoutable_type_key === "gcash") {
                                 return (
