@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage } from "@inertiajs/react";
+import { usePage, router } from "@inertiajs/react";
 
 const PayoutsModal = ({ onClose }) => {
     const { payoutMethods } = usePage().props;
@@ -9,35 +9,31 @@ const PayoutsModal = ({ onClose }) => {
     const { csrf_token } = usePage().props;
 
     const handleTransfer = async () => {
-        if (!selectedMethod || !amount || amount <= 0) {
+        if (!selectedMethod || !isValidUUID(selectedMethod) || !amount || amount <= 0) {
             alert("Please select a payout method and enter a valid amount.");
             return;
         }
 
         setLoading(true);
-        try {
-            const response = await fetch(
-                `/payout-methods/${selectedMethod}/transfer`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN":
-                            document.querySelector('meta[name="csrf-token"]')
-                                ?.content || "",
-                    },
-                    body: JSON.stringify({ amount, description: "Transfer" }),
-                }
-            );
+        
+        router.post(`/finance-manager/payout-methods/${selectedMethod}/transfer`, {
+            amount: amount,
+            description: "Transfer"
+        }, {
+            onSuccess: () => {
+                alert("Transfer initiated successfully!");
+                onClose();
+                setLoading(false);
+            },
+            onError: (errors) => {
+                alert(Object.values(errors).join('\n'));
+                setLoading(false);
+            }
+        });
+    };
 
-            if (!response.ok) throw new Error("Transfer failed");
-            alert("Transfer initiated successfully!");
-            onClose();
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
+    const isValidUUID = (uuid) => {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
     };
 
     return (
@@ -53,7 +49,6 @@ const PayoutsModal = ({ onClose }) => {
                     <option value="">Select Payout Method</option>
                     {payoutMethods &&
                         payoutMethods.map((method) => {
-
                             if (method.payoutable_type_key === "gcash") {
                                 return (
                                     <option key={method.id} value={method.id}>

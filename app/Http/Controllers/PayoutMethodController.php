@@ -14,7 +14,6 @@ use Luigel\Paymongo\Facades\Paymongo;
 
 class PayoutMethodController extends Controller
 {
-
     public function store(Request $request)
     {
         return DB::transaction(function () use ($request) {
@@ -101,8 +100,7 @@ class PayoutMethodController extends Controller
         );
     }
 
-    //THIS IS TEMPORARY FOR DEBUGGING PURPOSES ONLY
-    // REMOVE THIS IN PRODUCTION
+    // THIS IS TEMPORARY FOR DEBUGGING PURPOSES ONLY - REMOVE THIS IN PRODUCTION
     public function debug()
     {
         $payoutMethods = auth()->user()->payoutMethods()->with('payoutable')->get();
@@ -111,7 +109,7 @@ class PayoutMethodController extends Controller
 
     public function transferFunds(Request $request, PayoutMethod $payoutMethod)
     {
-        if (!auth()->user()->hasRole('finance') && auth()->id() !== $payoutMethod->user_id) {
+        if (!auth()->user()->hasRole(['finance-admin', 'super-admin']) && auth()->id() !== $payoutMethod->user_id) {
             abort(403, 'Unauthorized action');
         }
 
@@ -123,7 +121,6 @@ class PayoutMethodController extends Controller
         $amountInCents = (int) round($validated['amount'] * 100, 0);
 
         try {
-
             $payoutMethod->loadMissing('payoutable');
             $payoutable = $payoutMethod->payoutable;
 
@@ -162,17 +159,17 @@ class PayoutMethodController extends Controller
                     break;
             }
 
-            $payout = Paymongo::payout()->create([
-                'amount' => $amountInCents, // Use converted amount
+            $payment = Paymongo::payment()->create([
+                'amount' => $amountInCents,
                 'currency' => 'PHP',
-                'payout_method' => [
+                'destination' => [
                     'type' => $type,
                     'details' => $details,
                 ],
                 'description' => $validated['description'] ?? 'Funds transfer',
             ]);
 
-            return back()->with('success', 'Transfer successful! Reference: ' . $payout->id);
+            return back()->with('success', 'Transfer successful! Reference: ' . $payment->id);
         } catch (\Exception $e) {
             \Log::error('Transfer error: ' . $e->getMessage());
             return back()->with('error', 'Transfer failed: ' . $this->simplifyErrorMessage($e->getMessage()));
