@@ -6,34 +6,43 @@ const PayoutsModal = ({ onClose }) => {
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
-    const { csrf_token } = usePage().props;
 
     const handleTransfer = async () => {
-        if (!selectedMethod || !isValidUUID(selectedMethod) || !amount || amount <= 0) {
+        if (
+            !selectedMethod ||
+            !isValidUUID(selectedMethod) ||
+            !amount ||
+            amount <= 0
+        ) {
             alert("Please select a payout method and enter a valid amount.");
             return;
         }
 
         setLoading(true);
-        
-        router.post(`/finance-manager/payout-methods/${selectedMethod}/transfer`, {
-            amount: amount,
-            description: "Transfer"
-        }, {
-            onSuccess: () => {
-                alert("Transfer initiated successfully!");
-                onClose();
-                setLoading(false);
+
+        router.post(
+            `/finance-manager/payout-methods/${selectedMethod}/transfer`,
+            {
+                amount,
+                description: "Transfer",
             },
-            onError: (errors) => {
-                alert(Object.values(errors).join('\n'));
-                setLoading(false);
+            {
+                onSuccess: () => {
+                    alert("Transfer initiated successfully!");
+                    onClose();
+                },
+                onError: (errors) => {
+                    alert(Object.values(errors).join("\n"));
+                },
+                onFinish: () => setLoading(false),
             }
-        });
+        );
     };
 
     const isValidUUID = (uuid) => {
-        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            uuid
+        );
     };
 
     return (
@@ -47,46 +56,37 @@ const PayoutsModal = ({ onClose }) => {
                     onChange={(e) => setSelectedMethod(e.target.value)}
                 >
                     <option value="">Select Payout Method</option>
-                    {payoutMethods &&
-                        payoutMethods.map((method) => {
-                            if (method.payoutable_type_key === "gcash") {
-                                return (
-                                    <option key={method.id} value={method.id}>
-                                        {`GCash - ${
-                                            method.payoutable &&
-                                            method.payoutable.phone_number
-                                                ? method.payoutable.phone_number
-                                                : "N/A"
-                                        }`}
-                                    </option>
-                                );
-                            } else if (method.payoutable_type_key === "bank") {
-                                const bankAccount = method.payoutable;
-                                return (
-                                    <option key={method.id} value={method.id}>
-                                        {`Bank - ${
-                                            bankAccount &&
-                                            bankAccount.account_number
-                                                ? bankAccount.account_number
-                                                : "N/A"
-                                        } (${
-                                            bankAccount && bankAccount.bank_name
-                                                ? bankAccount.bank_name
-                                                : bankAccount &&
-                                                  bankAccount.bank_code
-                                                ? bankAccount.bank_code
-                                                : "N/A"
-                                        })`}
-                                    </option>
-                                );
-                            } else {
-                                return (
-                                    <option key={method.id} value={method.id}>
-                                        {`Unknown Payment Method`}
-                                    </option>
-                                );
-                            }
-                        })}
+                    {payoutMethods?.map((method) => {
+                        const { id, payoutable_type_key, payoutable } = method;
+
+                        if (payoutable_type_key === "gcash") {
+                            return (
+                                <option key={id} value={id}>
+                                    {`GCash - ${
+                                        payoutable?.phone_number || "N/A"
+                                    }`}
+                                </option>
+                            );
+                        } else if (payoutable_type_key === "bank") {
+                            return (
+                                <option key={id} value={id}>
+                                    {`Bank - ${
+                                        payoutable?.account_number || "N/A"
+                                    } (${
+                                        payoutable?.bank_name ||
+                                        payoutable?.bank_code ||
+                                        "N/A"
+                                    })`}
+                                </option>
+                            );
+                        } else {
+                            return (
+                                <option key={id} value={id}>
+                                    Unknown Payment Method
+                                </option>
+                            );
+                        }
+                    })}
                 </select>
 
                 <input
@@ -108,7 +108,6 @@ const PayoutsModal = ({ onClose }) => {
                         onClick={handleTransfer}
                         className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
                         disabled={!selectedMethod || !amount || loading}
-                        value={csrf_token}
                     >
                         {loading ? "Processing..." : "Transfer"}
                     </button>

@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PayoutMethod;
 use App\Models\BankAccount;
 use App\Models\GcashAccount;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Luigel\Paymongo\Facades\Paymongo;
@@ -21,7 +20,7 @@ class PayoutMethodController extends Controller
                 'payoutable_type' => 'required|string',
                 'payoutable_id' => 'required|string',
                 'status' => 'nullable|string',
-                'is_default' => 'nullable|boolean'
+                'is_default' => 'nullable|boolean',
             ]);
 
             try {
@@ -30,7 +29,7 @@ class PayoutMethodController extends Controller
                     'payoutable_type' => $validated['payoutable_type'],
                     'payoutable_id' => $validated['payoutable_id'],
                     'status' => $validated['status'] ?? 'active',
-                    'is_default' => $validated['is_default'] ?? false
+                    'is_default' => $validated['is_default'] ?? false,
                 ]);
 
                 if ($payoutMethod->is_default) {
@@ -42,7 +41,7 @@ class PayoutMethodController extends Controller
                 \Log::error('Payout Method Creation Failed: ' . $e->getMessage());
 
                 throw ValidationException::withMessages([
-                    'general' => 'Failed to create payout method. Please try again.'
+                    'general' => 'Failed to create payout method. Please try again.',
                 ]);
             }
         });
@@ -56,13 +55,13 @@ class PayoutMethodController extends Controller
 
         $validated = $request->validate([
             'status' => 'nullable|string',
-            'is_default' => 'nullable|boolean'
+            'is_default' => 'nullable|boolean',
         ]);
 
         return DB::transaction(function () use ($payoutMethod, $validated, $request) {
             $payoutMethod->update([
                 'status' => $validated['status'] ?? $payoutMethod->status,
-                'is_default' => $validated['is_default'] ?? $payoutMethod->is_default
+                'is_default' => $validated['is_default'] ?? $payoutMethod->is_default,
             ]);
 
             if ($request->input('is_default')) {
@@ -92,19 +91,9 @@ class PayoutMethodController extends Controller
     {
         $payoutMethods = auth()->user()->payoutMethods()->with('payoutable')->get();
 
-        return Inertia::render(
-            'PayoutMethods/Index',
-            [
-                'payoutMethods' => $payoutMethods
-            ]
-        );
-    }
-
-    // THIS IS TEMPORARY FOR DEBUGGING PURPOSES ONLY - REMOVE THIS IN PRODUCTION
-    public function debug()
-    {
-        $payoutMethods = auth()->user()->payoutMethods()->with('payoutable')->get();
-        return response()->json($payoutMethods);
+        return Inertia::render('PayoutMethods/Index', [
+            'payoutMethods' => $payoutMethods,
+        ]);
     }
 
     public function transferFunds(Request $request, PayoutMethod $payoutMethod)
@@ -138,26 +127,7 @@ class PayoutMethodController extends Controller
             }
 
             $type = $typeMap[get_class($payoutable)];
-            $details = [];
-
-            switch ($type) {
-                case 'gcash':
-                    if (!isset($payoutable->phone_number)) {
-                        throw new \Exception('Phone number is missing for the GCash account');
-                    }
-                    $details['phone_number'] = $payoutable->phone_number;
-                    break;
-                case 'bank_account':
-                    if (!isset($payoutable->account_number, $payoutable->bank_code, $payoutable->account_name)) {
-                        throw new \Exception('Required bank account details are missing');
-                    }
-                    $details = [
-                        'account_number' => $payoutable->account_number,
-                        'bank_code' => $payoutable->bank_code,
-                        'account_name' => $payoutable->account_name,
-                    ];
-                    break;
-            }
+            $details = $this->getPayoutDetails($type, $payoutable);
 
             $payment = Paymongo::payment()->create([
                 'amount' => $amountInCents,
@@ -176,7 +146,31 @@ class PayoutMethodController extends Controller
         }
     }
 
-    private function simplifyErrorMessage($message)
+    private function getPayoutDetails(string $type, $payoutable): array
+    {
+        switch ($type) {
+            case 'gcash':
+                if (!isset($payoutable->phone_number)) {
+                    throw new \Exception('Phone number is missing for the GCash account');
+                }
+                return ['phone_number' => $payoutable->phone_number];
+
+            case 'bank_account':
+                if (!isset($payoutable->account_number, $payoutable->bank_code, $payoutable->account_name)) {
+                    throw new \Exception('Required bank account details are missing');
+                }
+                return [
+                    'account_number' => $payoutable->account_number,
+                    'bank_code' => $payoutable->bank_code,
+                    'account_name' => $payoutable->account_name,
+                ];
+
+            default:
+                throw new \Exception('Unsupported payout method');
+        }
+    }
+
+    private function simplifyErrorMessage(string $message): string
     {
         if (str_contains($message, 'insufficient funds')) {
             return 'Insufficient balance for this transfer';

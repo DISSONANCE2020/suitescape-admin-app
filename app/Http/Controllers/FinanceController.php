@@ -14,12 +14,14 @@ class FinanceController extends Controller
 {
     public function payoutdetails()
     {
-        $bookings = Booking::all();
-        $users = User::all();
-        $listings = Listing::all();
-        $payoutMethods = PayoutMethod::with('payoutable')->get();
-        $invoices = Invoice::all();
-    
+        // Fetch all necessary data
+        $bookings = Booking::latest()->get();
+        $users = User::latest()->get();
+        $listings = Listing::latest()->get();
+        $payoutMethods = PayoutMethod::with('payoutable')->latest()->get();
+        $invoices = Invoice::latest()->get();
+
+        // Return data to the FinanceManager view
         return Inertia::render('FinanceManager', [
             'bookings' => $bookings,
             'users' => $users,
@@ -31,8 +33,12 @@ class FinanceController extends Controller
 
     public function financeDashboard()
     {
+        // Fetch payout methods with related data
+        $payoutMethods = PayoutMethod::with(['payoutable', 'user'])->latest()->get();
+
+        // Return data to the FinanceManagement view
         return Inertia::render('FinanceManagement', [
-            'payoutMethods' => PayoutMethod::with(['payoutable', 'user'])->get(),
+            'payoutMethods' => $payoutMethods,
         ]);
     }
 
@@ -42,14 +48,9 @@ class FinanceController extends Controller
         $response = Http::get('http://127.0.0.1:8001/api/bookings');
 
         // Check if the API call was successful
-        if ($response->successful()) {
-            $bookings = $response->json()['data'];
-        } else {
-            // Handle API failure case, like logging the error
-            $bookings = [];
-        }
+        $bookings = $response->successful() ? $response->json()['data'] : [];
 
-        // Pass finance data to Inertia
+        // Return data to the FinanceManager view
         return Inertia::render('FinanceManager', [
             'bookings' => $bookings,
         ]);
