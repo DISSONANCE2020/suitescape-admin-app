@@ -13,4 +13,9 @@ class Booking extends Model
 
     protected $keyType = 'string';
     public $incrementing = false;
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
 }

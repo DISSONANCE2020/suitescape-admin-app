@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import FinanceRefundDetails from "./FinanceRefundDetails"; // Import the new component
+import FinanceRefundDetails from "./FinanceRefundDetails"; // Import the component to show detailed refund info
 
 const FinanceRefundsTable = ({
     refunds,
     users,
     listings,
     payoutMethods,
-    setSelectedBooking, 
-    selectedBooking, 
+    setSelectedBooking,
+    selectedBooking,
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredRefunds, setFilteredRefunds] = useState([]);
@@ -47,7 +47,7 @@ const FinanceRefundsTable = ({
                             <thead>
                                 <tr className="text-center">
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Host
+                                        Recipient
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Listing Name
@@ -56,13 +56,13 @@ const FinanceRefundsTable = ({
                                         Check-In/Out
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Mode of Refund
-                                    </th>
-                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Refund Amount
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Status
+                                        Booking Status
+                                    </th>
+                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
+                                        Refund Status
                                     </th>
                                 </tr>
                             </thead>
@@ -74,6 +74,19 @@ const FinanceRefundsTable = ({
                                     const host = users?.find(
                                         (h) => h.id === listing?.user_id
                                     );
+                                    const guest = users?.find(
+                                        (u) => u.id === booking?.user_id
+                                    );
+
+                                    const refundStatus = booking.invoice
+                                        ? booking.invoice.payment_status ===
+                                          "paid"
+                                            ? "Refund Pending"
+                                            : booking.invoice.payment_status ===
+                                              "refunded"
+                                            ? "Refund Issued"
+                                            : "N/A"
+                                        : "N/A";
 
                                     return (
                                         <tr
@@ -84,8 +97,8 @@ const FinanceRefundsTable = ({
                                             }
                                         >
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {host
-                                                    ? `${host.firstname} ${host.lastname}`
+                                                {guest
+                                                    ? `${guest.firstname} ${guest.lastname}`
                                                     : "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
@@ -121,9 +134,6 @@ const FinanceRefundsTable = ({
                                                     : "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {booking.payment_mode || "N/A"}
-                                            </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 ₱
                                                 {Number(
                                                     booking.amount
@@ -134,6 +144,9 @@ const FinanceRefundsTable = ({
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 {booking.status || "N/A"}
+                                            </td>
+                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                                {refundStatus}
                                             </td>
                                         </tr>
                                     );
