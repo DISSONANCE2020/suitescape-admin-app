@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
+import PayoutsModal from "./PayoutsModal"; // Make sure to import the PayoutsModal component
 
 const FinancePayoutDetails = ({
     booking,
     users,
     invoices,
     listings,
+    payoutMethods, // Add payoutMethods to props
     onClose,
 }) => {
     if (!booking) return null;
@@ -16,12 +18,28 @@ const FinancePayoutDetails = ({
     const host = users?.find((u) => u.id === listing?.user_id);
     // Find the guest associated with the booking
     const guest = users?.find((u) => u.id === booking?.user_id);
-    //find the invoices associated with the booking
+    // Find the invoices associated with the booking
     const invoice = invoices?.find((i) => i.booking_id === booking?.id);
 
     const amountPaid = parseFloat(booking.amount) || 0;
 
+    // Set the initial SuiteEscape fee percentage (default 3%)
+    const [suiteEscapeFeePercentage, setSuiteEscapeFeePercentage] = useState(3);
+
+    // Calculate the SuiteEscape fee and payout amount
+    const suitescapeFee = amountPaid * (suiteEscapeFeePercentage / 100);
+    const payoutAmount = amountPaid - suitescapeFee;
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showPayoutsModal, setShowPayoutsModal] = useState(false);
+
+    // Filter payout methods for the host
+    const hostPayoutMethods =
+        host && payoutMethods
+            ? payoutMethods.filter(
+                  (method) => method.user_id === host.id && method.payoutable
+              )
+            : [];
 
     const handleListingClick = () => {
         setIsModalOpen(true);
@@ -31,10 +49,15 @@ const FinancePayoutDetails = ({
         setIsModalOpen(false);
     };
 
+    // Handle fee percentage change
+    const handleFeePercentageChange = (e) => {
+        setSuiteEscapeFeePercentage(parseFloat(e.target.value));
+    };
+
     return (
         <div>
             {/* Header Section */}
-            <h2 className="m-2 pb-2 text-4xl font-semibold capitalize">
+            <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
             <p className="m-2 text-2xl capitalize font-poppins">
@@ -68,11 +91,57 @@ const FinancePayoutDetails = ({
                             </tr>
 
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-12 pl-4 text-xl font-semibold">
                                     Host Email:
                                 </td>
-                                <td className="pb-4 text-xl">
+                                <td className="pb-12 text-xl">
                                     {host?.email || "N/A"}
+                                </td>
+                            </tr>
+
+                            {/* Fee Percentage Input */}
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    SuiteEscape Fee (%):
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value={suiteEscapeFeePercentage}
+                                        onChange={handleFeePercentageChange}
+                                        className="w-20 p-2 border border-gray-300 rounded-md"
+                                    />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    Booking Amount:
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    ₱ {booking?.amount || "N/A"}
+                                </td>
+                            </tr>
+
+                            {/* Dynamic SuiteEscape Fee */}
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    SuiteEscape Fee ({suiteEscapeFeePercentage}
+                                    %):
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    ₱ {suitescapeFee.toFixed(2) || "N/A"}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-bold">
+                                    Payout Amount:
+                                </td>
+                                <td className="pb-4 text-xl font-bold">
+                                    ₱ {payoutAmount.toFixed(2) || "N/A"}
                                 </td>
                             </tr>
                         </tbody>
@@ -109,16 +178,8 @@ const FinancePayoutDetails = ({
                                 <td className="pb-4 pl-4 text-xl font-semibold">
                                     Mode of Payment:
                                 </td>
-                                <td className="pb-4 text-xl">
+                                <td className="pb-4 text-xl capitalize">
                                     {invoice?.payment_method || "N/A"}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
-                                    Booking Amount:
-                                </td>
-                                <td className="pb-4 text-xl">
-                                    ₱{booking?.amount || "N/A"}
                                 </td>
                             </tr>
                             <tr>
@@ -148,16 +209,17 @@ const FinancePayoutDetails = ({
                                               day: "2-digit",
                                           }).format(
                                               new Date(booking.date_start)
-                                          )} -
-                                            ${new Intl.DateTimeFormat("en-US", {
-                                                month: "short",
-                                                day: "2-digit",
-                                            }).format(
-                                                new Date(booking.date_end)
-                                            )},
-                                                  ${new Date(
-                                                      booking.date_end
-                                                  ).getFullYear()}`
+                                          )} - ${new Intl.DateTimeFormat(
+                                              "en-US",
+                                              {
+                                                  month: "short",
+                                                  day: "2-digit",
+                                              }
+                                          ).format(
+                                              new Date(booking.date_end)
+                                          )}, ${new Date(
+                                              booking.date_end
+                                          ).getFullYear()}`
                                         : "N/A"}
                                 </td>
                             </tr>
@@ -174,13 +236,22 @@ const FinancePayoutDetails = ({
                 </div>
             </div>
 
-            <div className="p-3 mt-4">
+            {/* Button Section */}
+            <div className="flex gap-4 p-3 mt-4">
                 <button
                     onClick={onClose}
-                    className="px-6 py-3 font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
+                    className="px-6 py-3 font-medium text-black bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 "
                 >
                     Close
                 </button>
+                {host && (
+                    <button
+                        onClick={() => setShowPayoutsModal(true)}
+                        className="px-6 py-3 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                    >
+                        Send Payout
+                    </button>
+                )}
             </div>
 
             {isModalOpen && (
@@ -188,6 +259,15 @@ const FinancePayoutDetails = ({
                     listing={listing}
                     users={users}
                     onClose={handleCloseModal}
+                />
+            )}
+
+            {showPayoutsModal && host && (
+                <PayoutsModal
+                    payoutMethods={hostPayoutMethods}
+                    onClose={() => setShowPayoutsModal(false)}
+                    amount={amountPaid} // You might want to pass the amount to transfer
+                    bookingId={booking.id} // And other relevant data
                 />
             )}
         </div>

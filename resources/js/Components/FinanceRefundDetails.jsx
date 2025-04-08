@@ -25,7 +25,7 @@ const FinanceRefundDetails = ({
 
     return (
         <div>
-            <h2 className="m-2 pb-2 text-4xl font-semibold capitalize">
+            <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
             <p className="m-2 text-2xl capitalize font-poppins">
@@ -113,7 +113,7 @@ const FinanceRefundDetails = ({
                 </div>
             </div>
 
-            <div className="mt-6 flex gap-4">
+            <div className="flex gap-4 mt-6">
                 <button
                     onClick={onClose}
                     className="px-6 py-3 font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
