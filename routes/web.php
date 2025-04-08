@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\PayoutMethodController;
+use App\Http\Controllers\WebhookController;
 
 
 Route::get('/', function () {
@@ -55,6 +56,8 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function () {
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
          ->name('payout.transfer');
 });
+
+Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 
 if (app()->environment('local', 'development')) {
     Route::get('/debug-payouts', [PayoutMethodController::class, 'debug'])->middleware(['auth', 'role:super-admin']);

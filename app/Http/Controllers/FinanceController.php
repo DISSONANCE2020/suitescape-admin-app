@@ -15,7 +15,7 @@ class FinanceController extends Controller
     public function payoutdetails()
     {
         // Fetch all necessary data
-        $bookings = Booking::latest()->get();
+        $bookings = Booking::with('invoice')->latest()->get();
         $users = User::latest()->get();
         $listings = Listing::latest()->get();
         $payoutMethods = PayoutMethod::with('payoutable')->latest()->get();

@@ -89,13 +89,15 @@ const PayoutsModal = ({ onClose }) => {
                     })}
                 </select>
 
-                <input
-                    type="number"
-                    placeholder="Amount in PHP"
-                    className="w-full p-2 border mb-4"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                />
+                <div className="relative mb-4">
+                    <input
+                        type="number"
+                        placeholder="Amount in PHP"
+                        className="w-full p-2 border mb-4"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                    />
+                </div>
 
                 <div className="flex justify-end gap-2">
                     <button
