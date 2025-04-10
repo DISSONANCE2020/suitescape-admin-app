@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 
-const PayoutsModal = ({ onClose }) => {
+const FinancePayoutsModal = ({ onClose, userId }) => {
     const { payoutMethods } = usePage().props;
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
+
+    console.log("Payout Methods: ", payoutMethods);
+
+    // Filter payoutMethods by user_id
+    const userPayoutMethods = payoutMethods?.filter(
+        (method) => method.user_id === userId
+    );
 
     const handleTransfer = async () => {
         if (
@@ -56,7 +63,7 @@ const PayoutsModal = ({ onClose }) => {
                     onChange={(e) => setSelectedMethod(e.target.value)}
                 >
                     <option value="">Select Payout Method</option>
-                    {payoutMethods?.map((method) => {
+                    {userPayoutMethods?.map((method) => {
                         const { id, payoutable_type_key, payoutable } = method;
 
                         if (payoutable_type_key === "gcash") {
@@ -119,4 +126,4 @@ const PayoutsModal = ({ onClose }) => {
     );
 };
 
-export default PayoutsModal;
+export default FinancePayoutsModal;

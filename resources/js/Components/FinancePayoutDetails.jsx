@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
 import PayoutsModal from "./PayoutsModal"; // Make sure to import the PayoutsModal component
+import FinancePayoutsModal from "./financePayoutsModal";
 
 const FinancePayoutDetails = ({
     booking,
@@ -263,7 +264,7 @@ const FinancePayoutDetails = ({
             )}
 
             {showPayoutsModal && host && (
-                <PayoutsModal
+                <FinancePayoutsModal
                     payoutMethods={hostPayoutMethods}
                     onClose={() => setShowPayoutsModal(false)}
                     amount={amountPaid} // You might want to pass the amount to transfer

@@ -41,21 +41,21 @@ Route::get('/videos', function () {
         'users' => \App\Models\User::latest()->get(),
         'listings' => \App\Models\Listing::latest()->get(),
     ]);
-});
+}); 
 
 Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update']);
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
 
-// Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void {
-Route::get('/finance-manager', [FinanceController::class, 'payoutdetails'])->name('finance.manager');
-Route::get('/finance-manager/dashboard', [FinanceController::class, 'financeDashboard'])->name('finance.dashboard');
+Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void {
+    Route::get('/finance-manager', [FinanceController::class, 'payoutdetails'])->name('finance.manager');
+    Route::get('/finance-manager/dashboard', [FinanceController::class, 'financeDashboard'])->name('finance.dashboard');
 
-Route::get('/finance-manager/payouts', [PayoutMethodController::class, 'index'])->name('finance.payouts');
-Route::post('/finance-manager/payout-methods', [PayoutMethodController::class, 'store']);
+    Route::get('/finance-manager/payouts', [PayoutMethodController::class, 'index'])->name('finance.payouts');
+    Route::post('/finance-manager/payout-methods', [PayoutMethodController::class, 'store']);
 
-Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
-    ->name('payout.transfer');
-// });
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
+        ->name('payout.transfer');
+});
 
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 

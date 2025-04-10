@@ -63,13 +63,13 @@ const FinancePayoutsTable = ({
                                         Check-In/Out
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Mode of Payout
-                                    </th>
-                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Payout Amount
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Status
+                                        Booking Status
+                                    </th>
+                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
+                                        Payout Status
                                     </th>
                                 </tr>
                             </thead>
@@ -129,9 +129,7 @@ const FinancePayoutsTable = ({
                                                       ).getFullYear()}`
                                                     : "N/A"}
                                             </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {payoutMethod?.type || "N/A"}
-                                            </td>
+
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 ₱
                                                 {Number(
@@ -142,7 +140,10 @@ const FinancePayoutsTable = ({
                                                 })}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {payoutMethod?.payout_status ||
+                                                {booking?.status || "N/A"}
+                                            </td>
+                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                                {payoutMethod?.transfer_status ||
                                                     "N/A"}
                                             </td>
                                         </tr>
@@ -153,6 +154,7 @@ const FinancePayoutsTable = ({
                     </div>
 
                     {/* Hide pagination when a booking is selected */}
+
                     <div className="mt-auto flex justify-between items-center pt-4 px-2">
                         <button
                             className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
