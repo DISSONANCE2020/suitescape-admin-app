@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
-import PayoutsModal from "./PayoutsModal"; // Make sure to import the PayoutsModal component
 import FinancePayoutsModal from "./financePayoutsModal";
 
 const FinancePayoutDetails = ({
@@ -110,7 +109,7 @@ const FinancePayoutDetails = ({
                                         type="number"
                                         min="0"
                                         max="100"
-                                        step="0.01"
+                                        step="0.1"
                                         value={suiteEscapeFeePercentage}
                                         onChange={handleFeePercentageChange}
                                         className="w-20 p-2 border border-gray-300 rounded-md"

@@ -41,7 +41,7 @@ Route::get('/videos', function () {
         'users' => \App\Models\User::latest()->get(),
         'listings' => \App\Models\Listing::latest()->get(),
     ]);
-}); 
+});
 
 Route::put('/videos/{id}/violations', [VideoViolationsController::class, 'update']);
 Route::put('videos/{video}/violations', [VideoViolationsController::class, 'update']);
@@ -55,6 +55,8 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
         ->name('payout.transfer');
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PayoutMethodController::class, 'transferPayout'])
+        ->name('payout.transferFunds');
 });
 
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
