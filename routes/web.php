@@ -55,8 +55,7 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
         ->name('payout.transfer');
-    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PayoutMethodController::class, 'transferPayout'])
-        ->name('payout.transferFunds');
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PayoutMethodController::class, 'transferPayout'])->name('finance.transferpayout');
 });
 
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);

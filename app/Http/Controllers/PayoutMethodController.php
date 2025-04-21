@@ -149,53 +149,48 @@ class PayoutMethodController extends Controller
 
     public function transferPayout(Request $request, PayoutMethod $payoutMethod)
     {
+        // ✅ Authorization: Only allow users with roles 'finance-admin' or 'super-admin'
+        // or the owner of the payout method to proceed. Others get 403 Forbidden.
         if (!auth()->user()->hasRole(['finance-admin', 'super-admin']) && auth()->id() !== $payoutMethod->user_id) {
             abort(403, 'Unauthorized action');
         }
 
+        // ✅ Validate the incoming request data
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:100',
-            'description' => 'nullable|string|max:255',
+            'amount' => 'required|numeric|min:100', // Amount is required, must be numeric and at least 100
+            'description' => 'nullable|string|max:255', // Optional description, max 255 characters
         ]);
 
+        // ✅ Convert amount to cents (PHP smallest unit is centavo)
         $amountInCents = (int) round($validated['amount'] * 100, 0);
 
         try {
-            $payoutMethod->loadMissing('payoutable');
-            $payoutable = $payoutMethod->payoutable;
+            // ✅ Note: Since PayMongo does not currently support payouts directly,
+            // this is a simulated payout action
 
-            if (!$payoutable) {
-                throw new \Exception('Payoutable record not found for this payout method');
-            }
-
-            $typeMap = [
-                GcashAccount::class => 'gcash',
-                BankAccount::class => 'bank_account',
-            ];
-
-            if (!isset($typeMap[get_class($payoutable)])) {
-                throw new \Exception('Unsupported payout method');
-            }
-
-            $type = $typeMap[get_class($payoutable)];
-            $details = $this->getPayoutDetails($type, $payoutable);
-
-            $payment = Paymongo::payment()->create([
-                'amount' => $amountInCents,
-                'currency' => 'PHP',
-                'destination' => [
-                    'type' => $type,
-                    'details' => $details,
-                ],
-                'description' => $validated['description'] ?? 'Funds transfer',
+            // 🔄 Simulate the logic as if the transfer was successful
+            \Log::info('Simulated PayMongo Payout', [
+                'user_id' => auth()->id(), // Log the current user's ID
+                'payout_method_id' => $payoutMethod->id, // Log the payout method being used
+                'amount' => $validated['amount'], // Log the amount requested
             ]);
 
-            return back()->with('success', 'Transfer successful! Reference: ' . $payment->id);
+            // ✅ Update the transfer status of the payout method to "sent"
+            $payoutMethod->update([
+                'transfer_status' => 'sent',
+            ]);
+
+            // ✅ Redirect back with a success message
+            return back()->with('success', 'Simulated payout successful. Status updated to SENT.');
         } catch (\Exception $e) {
+            // ❌ Handle any unexpected errors and log the message
             \Log::error('Transfer error: ' . $e->getMessage());
-            return back()->with('error', 'Transfer failed: ' . $this->simplifyErrorMessage($e->getMessage()));
+
+            // 🔁 Redirect back with error message
+            return back()->with('error', 'Transfer failed: ' . $e->getMessage());
         }
     }
+
 
     private function getPayoutDetails(string $type, $payoutable): array
     {

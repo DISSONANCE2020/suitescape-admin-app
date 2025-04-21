@@ -7,10 +7,12 @@ const FinancePayoutDetails = ({
     users,
     invoices,
     listings,
-    payoutMethods, // Add payoutMethods to props
+    payoutMethods,
     onClose,
 }) => {
     if (!booking) return null;
+
+    // Find the payout method associated with the booking
 
     // Find the listing associated with the booking
     const listing = listings?.find((l) => l.id === booking?.listing_id);
@@ -20,6 +22,7 @@ const FinancePayoutDetails = ({
     const guest = users?.find((u) => u.id === booking?.user_id);
     // Find the invoices associated with the booking
     const invoice = invoices?.find((i) => i.booking_id === booking?.id);
+    const payoutMethod = payoutMethods?.find((p) => p.user_id === host?.id);
 
     const amountPaid = parseFloat(booking.amount) || 0;
 
@@ -91,14 +94,21 @@ const FinancePayoutDetails = ({
                             </tr>
 
                             <tr>
-                                <td className="pb-12 pl-4 text-xl font-semibold">
+                                <td className="pb-4 pl-4 text-xl font-semibold">
                                     Host Email:
                                 </td>
-                                <td className="pb-12 text-xl">
+                                <td className="pb-4 text-xl">
                                     {host?.email || "N/A"}
                                 </td>
                             </tr>
-
+                            <tr>
+                                <td className="pb-12 pl-4 text-xl font-semibold">
+                                    Payout Status:
+                                </td>
+                                <td className="pb-12 text-xl capitalize">
+                                    {payoutMethod?.transfer_status || "N/A"}
+                                </td>
+                            </tr>
                             {/* Fee Percentage Input */}
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
@@ -109,7 +119,7 @@ const FinancePayoutDetails = ({
                                         type="number"
                                         min="0"
                                         max="100"
-                                        step="0.1"
+                                        step="1"
                                         value={suiteEscapeFeePercentage}
                                         onChange={handleFeePercentageChange}
                                         className="w-20 p-2 border border-gray-300 rounded-md"
@@ -267,6 +277,12 @@ const FinancePayoutDetails = ({
                     payoutMethods={hostPayoutMethods}
                     onClose={() => setShowPayoutsModal(false)}
                     amount={amountPaid} // You might want to pass the amount to transfer
+                    payoutAmount={payoutAmount}
+                    suiteEscapeFee={suitescapeFee}
+                    suiteEscapeFeePercentage={suiteEscapeFeePercentage}
+                    users={users}
+                    listing={listing}
+                    booking={booking}
                     bookingId={booking.id} // And other relevant data
                 />
             )}
