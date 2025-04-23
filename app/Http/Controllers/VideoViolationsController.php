@@ -7,14 +7,23 @@ use App\Models\Video;
 
 class VideoViolationsController extends Controller
 {
-    public function update(Request $request, $id, Video $video)
+    public function update(Request $request, $id)
     {
         $video = Video::findOrFail($id);
 
-        $video->violations()->sync($request->violations);
+        $validated = $request->validate([
+            'violations' => 'required|array',
+        ]);
 
-        $video->load('violations');
+        try {
+            $video->violations()->sync($validated['violations']);
+            $video->load('violations');
 
-        return redirect()->back()->with('flash', ['message' => 'Violations updated']);
+            return redirect()->back()->with('flash', ['message' => 'Violations updated']);
+        } catch (\Exception $e) {
+            \Log::error('Failed to update video violations: ' . $e->getMessage());
+
+            return redirect()->back()->with('flash', ['error' => 'Failed to update violations. Please try again.']);
+        }
     }
 }

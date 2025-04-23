@@ -11,17 +11,22 @@ const FinanceManager = () => {
 
     return (
         <div className="flex flex-col md:flex-row bg-gray-100 min-h-screen">
-            <div className="hidden md:block">
+            {/* Sidebar */}
+            <div className="hidden md:block h-screen">
                 <Sidebar />
             </div>
-            <div className="flex-1 pb-2 px-4 md:px-6">
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col pb-5 px-4 md:px-6 h-screen overflow-hidden">
                 <PageHeader
                     breadcrumb="Finance Management"
                     user={{ name: user.firstname, role: "Finance Moderator" }}
                 />
-                <ContentCard title="Finance">
-                    <FinanceManagement />
-                </ContentCard>
+                <div className="flex-1 overflow-auto">
+                    <ContentCard title="Finance">
+                        <FinanceManagement />
+                    </ContentCard>
+                </div>
             </div>
         </div>
     );

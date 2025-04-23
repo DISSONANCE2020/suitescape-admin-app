@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 
-const PayoutsModal = ({ onClose }) => {
+const PayoutsModal = ({ onClose, bookingId, onRefundComplete }) => {
     const { payoutMethods } = usePage().props;
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
@@ -24,12 +24,14 @@ const PayoutsModal = ({ onClose }) => {
             `/finance-manager/payout-methods/${selectedMethod}/transfer`,
             {
                 amount,
-                description: "Transfer",
+                description: "Refund Transfer",
+                booking_id: bookingId,
             },
             {
                 onSuccess: () => {
                     alert("Transfer initiated successfully!");
                     onClose();
+                    onRefundComplete();
                 },
                 onError: (errors) => {
                     alert(Object.values(errors).join("\n"));
@@ -47,8 +49,17 @@ const PayoutsModal = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="p-6 bg-white rounded-lg shadow-lg w-96">
-                <h2 className="mb-4 text-xl font-semibold">Transfer Funds</h2>
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                <h2 className="text-xl font-semibold mb-4">Process Refund</h2>
+
+                {bookingId && (
+                    <div className="mb-4 p-2 bg-blue-50 border border-blue-100 rounded">
+                        <p className="text-sm text-blue-700">
+                            Refund will be processed for booking ID:{" "}
+                            {bookingId}...
+                        </p>
+                    </div>
+                )}
 
                 <select
                     className="w-full p-2 mb-4 border"
@@ -111,7 +122,7 @@ const PayoutsModal = ({ onClose }) => {
                         className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
                         disabled={!selectedMethod || !amount || loading}
                     >
-                        {loading ? "Processing..." : "Transfer"}
+                        {loading ? "Processing..." : "Process Refund"}
                     </button>
                 </div>
             </div>

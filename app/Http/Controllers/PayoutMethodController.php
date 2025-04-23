@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\PayoutMethod;
-use App\Models\BankAccount;
-use App\Models\GcashAccount;
+use Illuminate\Support\Facades\Http;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+
 
 class PayoutMethodController extends Controller
 {
@@ -105,46 +106,238 @@ class PayoutMethodController extends Controller
         $validated = $request->validate([
             'amount' => 'required|numeric|min:100',
             'description' => 'nullable|string|max:255',
+            'booking_id' => 'required|string|exists:bookings,id',
         ]);
 
         $amountInCents = (int) round($validated['amount'] * 100, 0);
 
         try {
-            $payoutMethod->loadMissing('payoutable');
-            $payoutable = $payoutMethod->payoutable;
+            // Retrieve the invoice to get the reference_number
+            $invoice = $this->getInvoiceByBookingId($validated['booking_id']);
 
-            if (!$payoutable) {
-                throw new \Exception('Payoutable record not found for this payout method');
+            // Retrieve payment_id (id) using reference_number via API
+            $paymentId = $this->getPaymentIdFromReferenceNumber($invoice->reference_number);
+
+            $secretKey = env('PAYMONGO_SECRET_KEY');
+
+            // Initiate the refund via PayMongo's Refunds API
+            $response = Http::withBasicAuth($secretKey, '')
+                ->post('https://api.paymongo.com/v1/refunds', [
+                    'data' => [
+                        'attributes' => [
+                            'amount' => $amountInCents,
+                            'payment_id' => $paymentId,
+                            'reason' => 'requested_by_customer',
+                            'notes' => $validated['description'] ?? 'Refund payment',
+                        ],
+                    ],
+                ]);
+
+            if ($response->successful()) {
+                $refundData = $response->json()['data'];
+
+                // Optionally, update the invoice status to 'refunded'
+                $invoice->payment_status = 'refunded';
+                $invoice->save();
+
+                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount']);
+
+                return back()->with('success', 'Refund initiated successfully! Refund ID: ' . $refundData['id']);
+            } else {
+                $this->logError('Refund processing', new \Exception('Refund failed'), [
+                    'booking_id' => $validated['booking_id'],
+                    'user_id' => auth()->id(),
+                    'response' => $response->body(),
+                ]);
+                return back()->with('error', 'Refund failed: ' . $response->json()['errors'][0]['detail'] ?? 'Unknown error');
             }
-
-            $typeMap = [
-                GcashAccount::class => 'gcash',
-                BankAccount::class => 'bank_account',
-            ];
-
-            if (!isset($typeMap[get_class($payoutable)])) {
-                throw new \Exception('Unsupported payout method');
-            }
-
-            $type = $typeMap[get_class($payoutable)];
-            $details = $this->getPayoutDetails($type, $payoutable);
-
-            $payment = Paymongo::payment()->create([
-                'amount' => $amountInCents,
-                'currency' => 'PHP',
-                'destination' => [
-                    'type' => $type,
-                    'details' => $details,
-                ],
-                'description' => $validated['description'] ?? 'Funds transfer',
-            ]);
-
-            return back()->with('success', 'Transfer successful! Reference: ' . $payment->id);
         } catch (\Exception $e) {
-            \Log::error('Transfer error: ' . $e->getMessage());
-            return back()->with('error', 'Transfer failed: ' . $this->simplifyErrorMessage($e->getMessage()));
+            $this->logError('Refund processing exception', $e, [
+                'booking_id' => $validated['booking_id'] ?? null,
+                'user_id' => auth()->id(),
+            ]);
+            return back()->with('error', 'Refund failed: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Update the invoice status to "refunded" for a given booking
+     *
+     * @param string $bookingId
+     * @return void
+     */
+    private function updateInvoiceStatus(string $bookingId)
+    {
+        try {
+            $invoice = Invoice::where('booking_id', $bookingId)->first();
+
+            if ($invoice) {
+                $invoice->payment_status = 'refunded';
+                $invoice->save();
+
+                \Log::info("Invoice {$invoice->id} for booking {$bookingId} marked as refunded");
+            } else {
+                \Log::warning("No invoice found for booking {$bookingId}");
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to update invoice status for booking {$bookingId}: " . $e->getMessage());
+        }
+    }
+
+    public function transferPayout(Request $request, PayoutMethod $payoutMethod)
+    {
+        // ✅ Authorization: Only allow users with roles 'finance-admin' or 'super-admin'
+        // or the owner of the payout method to proceed. Others get 403 Forbidden.
+        if (!auth()->user()->hasRole(['finance-admin', 'super-admin']) && auth()->id() !== $payoutMethod->user_id) {
+            abort(403, 'Unauthorized action');
+        }
+
+        // ✅ Validate the incoming request data
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:100', // Amount is required, must be numeric and at least 100
+            'description' => 'nullable|string|max:255', // Optional description, max 255 characters
+        ]);
+
+        // ✅ Convert amount to cents (PHP smallest unit is centavo)
+        $amountInCents = (int) round($validated['amount'] * 100, 0);
+
+        try {
+            // ✅ Note: Since PayMongo does not currently support payouts directly,
+            // this is a simulated payout action
+
+            // 🔄 Simulate the logic as if the transfer was successful
+            \Log::info('Simulated PayMongo Payout', [
+                'user_id' => auth()->id(), // Log the current user's ID
+                'payout_method_id' => $payoutMethod->id, // Log the payout method being used
+                'amount' => $validated['amount'], // Log the amount requested
+            ]);
+
+            // ✅ Update the transfer status of the payout method to "sent"
+            $payoutMethod->update([
+                'transfer_status' => 'sent',
+            ]);
+
+            // ✅ Redirect back with a success message
+            return back()->with('success', 'Simulated payout successful. Status updated to SENT.');
+        } catch (\Exception $e) {
+            // ❌ Handle any unexpected errors and log the message
+            $this->logError('Transfer error', $e);
+
+            // 🔁 Redirect back with error message
+            return back()->with('error', 'Transfer failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Validate and retrieve the invoice by booking ID.
+     *
+     * @param string $bookingId
+     * @return Invoice
+     * @throws \Exception
+     */
+    private function getInvoiceByBookingId(string $bookingId)
+    {
+        $invoice = Invoice::where('booking_id', $bookingId)->first();
+
+        if (!$invoice || !$invoice->reference_number) {
+            throw new \Exception('Payment ID not found for the provided booking ID.');
+        }
+
+        return $invoice;
+    }
+
+    /**
+     * Retrieve payment_id (id) using reference_number via API.
+     *
+     * @param string $referenceNumber
+     * @return string
+     * @throws \Exception
+     */
+    private function getPaymentIdFromReferenceNumber(string $referenceNumber): string
+    {
+        $secretKey = env('PAYMONGO_SECRET_KEY');
+
+        try {
+            // Make a GET request to the PayMongo API to retrieve the link details
+            $response = Http::withBasicAuth($secretKey, '')
+                ->get("https://api.paymongo.com/v1/links/{$referenceNumber}");
+
+            if (!$response->successful()) {
+                throw new \Exception('Failed to retrieve link details: ' . $response->body());
+            }
+
+            // Parse the response to extract the payments array
+            $payments = $response->json()['data']['attributes']['payments'] ?? [];
+
+            if (empty($payments)) {
+                throw new \Exception('No payments found for the provided reference number.');
+            }
+
+            // Extract the payment_id from the first payment in the array
+            $payment = $payments[0]['data'] ?? null;
+
+            if (!$payment || $payment['attributes']['status'] !== 'paid') {
+                throw new \Exception('The payment is not completed. Refunds can only be processed for completed payments.');
+            }
+
+            return $payment['id'];
+        } catch (\Exception $e) {
+            \Log::error("Error retrieving payment ID for reference number {$referenceNumber}: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Trace payment_id using reference_number.
+     *
+     * @param string $referenceNumber
+     * @return string
+     * @throws \Exception
+     */
+    private function tracePaymentId(string $referenceNumber): string
+    {
+        // Example logic to trace payment_id using reference_number
+        // Replace this with actual implementation (e.g., API call or database query)
+        $paymentRecord = DB::table('invoices')->where('reference_number', $referenceNumber)->first();
+
+        if (!$paymentRecord || !$paymentRecord->payment_id) {
+            throw new \Exception('Payment ID not found for the provided reference number.');
+        }
+
+        return $paymentRecord->payment_id;
+    }
+
+    /**
+     * Log detailed refund information for traceability.
+     *
+     * @param array $refundData
+     * @param string $bookingId
+     * @param float $amount
+     * @return void
+     */
+    private function logRefundDetails(array $refundData, string $bookingId, float $amount)
+    {
+        \Log::info("Refund initiated successfully", [
+            'booking_id' => $bookingId,
+            'amount' => $amount,
+            'refund_id' => $refundData['id'],
+            'processed_by' => auth()->id(),
+        ]);
+    }
+
+    /**
+     * Log errors consistently for refund and payout operations.
+     *
+     * @param string $context
+     * @param \Exception $exception
+     * @param array $additionalData
+     * @return void
+     */
+    private function logError(string $context, \Exception $exception, array $additionalData = [])
+    {
+        \Log::error("{$context} error: " . $exception->getMessage(), $additionalData);
+    }
+
     private function getPayoutDetails(string $type, $payoutable): array
     {
         switch ($type) {
@@ -181,3 +374,4 @@ class PayoutMethodController extends Controller
     }
 
 }
+

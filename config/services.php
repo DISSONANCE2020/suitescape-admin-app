@@ -36,8 +36,7 @@ return [
     ],
 
     'paymongo' => [
-        'secret' => env('PAYMONGO_SECRET_KEY'),
+        'key' => env('PAYMONGO_SECRET_KEY'),
     ],
-
 
 ];

@@ -1,0 +1,83 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "PayMongo API",
+        "version": "1.0.0"
+    },
+
+    "servers": [
+        {
+            "url": "https://api.paymongo.com"
+        }
+    ],
+
+    "components": {
+        "schemas": {
+            "PaymentRequest": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "description": "Amount to be paid"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code"
+                    }
+                },
+                "required": ["amount", "currency"]
+            },
+            "PaymentResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the payment"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Current status of the payment"
+                    }
+                }
+            }
+        }
+    },
+
+    "security": [
+        {
+            "sec0": []
+        }
+    ],
+    
+    "paths": {
+        "/payments": {
+            "post": {
+                "summary": "Create a payment",
+                "operationId": "createPayment",
+                "requestBody": {
+                    "description": "Payment details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
