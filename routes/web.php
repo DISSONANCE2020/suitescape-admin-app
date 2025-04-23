@@ -9,6 +9,8 @@ use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\PayoutMethodController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\PaymongoController;
+
 
 
 Route::get('/', function () {
@@ -55,8 +57,11 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
         ->name('payout.transfer');
-    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PayoutMethodController::class, 'transferPayout'])->name('finance.transferpayout');
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PaymongoController::class, 'transferPayout'])->name('finance.transferpayout');
+    Route::post('/generate-paymongo-link', [PaymongoController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
+
 });
+
 
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 

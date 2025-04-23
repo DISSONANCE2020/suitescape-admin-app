@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
-import FinancePayoutsModal from "./financePayoutsModal";
 
 const FinancePayoutDetails = ({
     booking,
@@ -9,40 +8,25 @@ const FinancePayoutDetails = ({
     listings,
     payoutMethods,
     onClose,
+    onGeneratePayoutLink, // Optional callback if you need to notify parent
 }) => {
     if (!booking) return null;
 
-    // Find the payout method associated with the booking
-
-    // Find the listing associated with the booking
     const listing = listings?.find((l) => l.id === booking?.listing_id);
-    // Find the host associated with the listing
     const host = users?.find((u) => u.id === listing?.user_id);
-    // Find the guest associated with the booking
     const guest = users?.find((u) => u.id === booking?.user_id);
-    // Find the invoices associated with the booking
     const invoice = invoices?.find((i) => i.booking_id === booking?.id);
     const payoutMethod = payoutMethods?.find((p) => p.user_id === host?.id);
 
     const amountPaid = parseFloat(booking.amount) || 0;
-
-    // Set the initial SuiteEscape fee percentage (default 3%)
     const [suiteEscapeFeePercentage, setSuiteEscapeFeePercentage] = useState(3);
-
-    // Calculate the SuiteEscape fee and payout amount
     const suitescapeFee = amountPaid * (suiteEscapeFeePercentage / 100);
     const payoutAmount = amountPaid - suitescapeFee;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showPayoutsModal, setShowPayoutsModal] = useState(false);
-
-    // Filter payout methods for the host
-    const hostPayoutMethods =
-        host && payoutMethods
-            ? payoutMethods.filter(
-                  (method) => method.user_id === host.id && method.payoutable
-              )
-            : [];
+    const [showModal, setShowModal] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generatedLink, setGeneratedLink] = useState("");
 
     const handleListingClick = () => {
         setIsModalOpen(true);
@@ -52,14 +36,47 @@ const FinancePayoutDetails = ({
         setIsModalOpen(false);
     };
 
-    // Handle fee percentage change
     const handleFeePercentageChange = (e) => {
         setSuiteEscapeFeePercentage(parseFloat(e.target.value));
     };
 
+    const handleSendPayout = async (booking) => {
+        try {
+            setIsGenerating(true);
+            const response = await fetch("/generate-paymongo-link", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    )?.content, // Add CSRF if using Laravel
+                },
+                body: JSON.stringify({
+                    booking_id: booking.id,
+                    amount: payoutAmount,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to generate PayMongo link");
+            }
+
+            const data = await response.json();
+            const paymentLink = data.link;
+
+            setGeneratedLink(paymentLink);
+            setShowModal(true); // Show the modal after the link is generated
+        } catch (error) {
+            console.error("Failed to generate PayMongo link:", error);
+            alert("Something went wrong generating the payment link.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div>
-            {/* Header Section */}
+            {/* Header */}
             <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
@@ -68,17 +85,15 @@ const FinancePayoutDetails = ({
             </p>
             <div className="mt-6 mb-6 border border-gray-300"></div>
 
-            {/* Two-Column Layout */}
+            {/* Details Grid */}
             <div className="grid grid-flow-col grid-cols-2">
-                {/* Left Column - Payout Details */}
+                {/* Payout Details */}
                 <div>
                     <h3 className="mb-6 ml-2 text-2xl font-semibold text-gray-500">
                         Payout Details
                     </h3>
-
                     <table className="w-full">
                         <tbody>
-                            {/* Listing ID */}
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
                                     Listing ID:
@@ -92,7 +107,6 @@ const FinancePayoutDetails = ({
                                     </button>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
                                     Host Email:
@@ -109,7 +123,6 @@ const FinancePayoutDetails = ({
                                     {payoutMethod?.transfer_status || "N/A"}
                                 </td>
                             </tr>
-                            {/* Fee Percentage Input */}
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
                                     SuiteEscape Fee (%):
@@ -134,36 +147,32 @@ const FinancePayoutDetails = ({
                                     ₱ {booking?.amount || "N/A"}
                                 </td>
                             </tr>
-
-                            {/* Dynamic SuiteEscape Fee */}
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-semibold">
                                     SuiteEscape Fee ({suiteEscapeFeePercentage}
                                     %):
                                 </td>
                                 <td className="pb-4 text-xl">
-                                    ₱ {suitescapeFee.toFixed(2) || "N/A"}
+                                    ₱ {suitescapeFee.toFixed(2)}
                                 </td>
                             </tr>
-
                             <tr>
                                 <td className="pb-4 pl-4 text-xl font-bold">
                                     Payout Amount:
                                 </td>
                                 <td className="pb-4 text-xl font-bold">
-                                    ₱ {payoutAmount.toFixed(2) || "N/A"}
+                                    ₱ {payoutAmount.toFixed(2)}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                {/* Right Column - Booking Details */}
+                {/* Booking Details */}
                 <div>
                     <h3 className="mb-6 ml-2 text-2xl font-semibold text-gray-500">
                         Booking Details
                     </h3>
-
                     <table className="w-full">
                         <tbody>
                             <tr>
@@ -246,44 +255,45 @@ const FinancePayoutDetails = ({
                 </div>
             </div>
 
-            {/* Button Section */}
-            <div className="flex gap-4 p-3 mt-4">
+            {/* Button Actions */}
+            <div className="flex flex-col gap-3 p-3 mt-4 sm:flex-row">
                 <button
                     onClick={onClose}
-                    className="px-6 py-3 font-medium text-black bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 "
+                    className="px-6 py-3 font-medium text-black bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300"
                 >
                     Close
                 </button>
                 {host && (
                     <button
-                        onClick={() => setShowPayoutsModal(true)}
-                        className="px-6 py-3 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                        onClick={handleSendPayout}
+                        disabled={isGenerating}
+                        className="px-6 py-3 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
                     >
-                        Send Payout
+                        {isGenerating ? "Generating..." : "Send Payout"}
                     </button>
                 )}
             </div>
+
+            {/* Show generated link if available */}
+            {generatedLink && (
+                <div className="mt-4 text-lg text-green-600">
+                    ✅ Payout Link:{" "}
+                    <a
+                        href={generatedLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                    >
+                        {generatedLink}
+                    </a>
+                </div>
+            )}
 
             {isModalOpen && (
                 <FinanceListingDetailsModal
                     listing={listing}
                     users={users}
                     onClose={handleCloseModal}
-                />
-            )}
-
-            {showPayoutsModal && host && (
-                <FinancePayoutsModal
-                    payoutMethods={hostPayoutMethods}
-                    onClose={() => setShowPayoutsModal(false)}
-                    amount={amountPaid} // You might want to pass the amount to transfer
-                    payoutAmount={payoutAmount}
-                    suiteEscapeFee={suitescapeFee}
-                    suiteEscapeFeePercentage={suiteEscapeFeePercentage}
-                    users={users}
-                    listing={listing}
-                    booking={booking}
-                    bookingId={booking.id} // And other relevant data
                 />
             )}
         </div>
