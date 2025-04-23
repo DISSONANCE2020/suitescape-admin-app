@@ -147,7 +147,7 @@ const FinanceRefundsTable = ({
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 <span
-                                                    className={`px-3 py-1 text-white w-[180px] font-bold block mx-auto rounded-md ${
+                                                    className={`px-3 py-1 text-white w-[160px] font-bold block mx-auto rounded-md ${
                                                         refundStatus ===
                                                         "REFUND PENDING"
                                                             ? "bg-[#EF4444]" // Red for Refund Pending
