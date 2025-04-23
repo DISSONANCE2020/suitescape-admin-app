@@ -1,11 +1,22 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 
-const PayoutsModal = ({ onClose, bookingId }) => {
+const FinancePayoutsModal = ({
+    onClose,
+    payoutAmount,
+    suiteEscapeFee,
+    suiteEscapeFeePercentage,
+    bookingId,
+    users,
+    listing,
+    booking,
+}) => {
     const { payoutMethods } = usePage().props;
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const host = users?.find((u) => u.id === listing?.user_id);
 
     const handleTransfer = async () => {
         if (
@@ -20,11 +31,14 @@ const PayoutsModal = ({ onClose, bookingId }) => {
 
         setLoading(true);
 
+        // Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PayoutMethodController::class, 'transferPayout'])
+        // ->name('payout.transferFunds');
+
         router.post(
-            `/finance-manager/payout-methods/${selectedMethod}/transfer`,
+            `/finance-manager/payout-methods/${selectedMethod}/transferpayout`,
             {
                 amount,
-                description: "Refund Transfer",
+                description: "Payout Transfer",
                 booking_id: bookingId,
             },
             {
@@ -48,14 +62,21 @@ const PayoutsModal = ({ onClose, bookingId }) => {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h2 className="text-xl font-semibold mb-4">Process Refund</h2>
+            <div className="p-6 bg-white rounded-lg shadow-lg w-96">
+                <h2 className="mb-4 text-xl font-semibold">Process Payout</h2>
 
-                {bookingId && (
-                    <div className="mb-4 p-2 bg-blue-50 border border-blue-100 rounded">
-                        <p className="text-sm text-blue-700">
-                            Refund will be processed for booking ID:{" "}
-                            {bookingId}...
+                {host && (
+                    <div className="p-2 mb-4 border border-blue-100 rounded bg-blue-50">
+                        <p className="text-blue-700 text-md">
+                            Payout will be processed for the host:{" "}
+                            <span className="font-semibold">
+                                {host?.firstname} {host?.lastname}{" "}
+                            </span>
+                            with the amount of{" "}
+                            <span className="font-semibold">
+                                {" "}
+                                ₱{payoutAmount.toFixed(2) || "N/A"}
+                            </span>
                         </p>
                     </div>
                 )}
@@ -121,7 +142,7 @@ const PayoutsModal = ({ onClose, bookingId }) => {
                         className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
                         disabled={!selectedMethod || !amount || loading}
                     >
-                        {loading ? "Processing..." : "Process Refund"}
+                        {loading ? "Processing..." : "Process Payout"}
                     </button>
                 </div>
             </div>
@@ -129,4 +150,4 @@ const PayoutsModal = ({ onClose, bookingId }) => {
     );
 };
 
-export default PayoutsModal;
+export default FinancePayoutsModal;

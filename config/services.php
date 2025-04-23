@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'paymongo' => [
+        'key' => env('PAYMONGO_SECRET_KEY'), // Use environment variable
+    ],
+
 ];

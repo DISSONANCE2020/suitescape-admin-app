@@ -14,14 +14,14 @@ return [
      * Public keys cannot be used to trigger payments or modify any part of the transaction flow.
      * They have the prefix pk_live_ for live mode and pk_test_ for test mode.
      */
-    'public_key' => env('PAYMONGO_PUBLIC_KEY', null),
+    'public_key' => env('pk_test_sz4ekYogDj5n49oAP38d2AFN'),
 
     /**
      * Secret keys, on the other hand, are for triggering or modifying payments. Never share your secret keys anywhere
      * that is publicly accessible: Github, client-side Javascript code, your website or even chat rooms.
      * The prefixes for the secret keys are sk_live_ for live mode and sk_test_ for test mode.
      */
-    'secret_key' => env('PAYMONGO_SECRET_KEY', null),
+    'secret_key' => env('PAYMONGO_SECRET_KEY'),
 
     /**
      * Paymongo's team continuously adding more features and integrations to the API.
@@ -50,7 +50,7 @@ return [
     /**
      * Webhook signature configuration for backwards compatibility.
      */
-    'webhook_signature' => env('PAYMONGO_WEBHOOK_SIG'),
+    'webhook_signature' => env('Pwhsk_qLUYHo4LAW9zxCbYvkJNjZsV'),
 
     /*
      * This is the name of the header where the signature will be added.

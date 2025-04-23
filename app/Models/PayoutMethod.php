@@ -37,6 +37,7 @@ class PayoutMethod extends Model
         'id',
         'payoutable_type',
         'payoutable_id',
+        'transfer_status',
         'status',
         'is_default',
     ];

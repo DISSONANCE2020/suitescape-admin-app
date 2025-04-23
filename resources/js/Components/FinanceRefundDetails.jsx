@@ -16,6 +16,20 @@ const FinanceRefundDetails = ({
     const host = users?.find((u) => u.id === listing?.user_id);
     const guest = users?.find((u) => u.id === booking?.user_id);
 
+    const refundStatus = booking.invoice
+        ? booking.invoice.payment_status === "paid"
+            ? "Refund Pending"
+            : booking.invoice.payment_status === "refunded"
+            ? "Refund Issued"
+            : "N/A"
+        : "N/A";
+
+    const handleProcessRefund = () => {
+        setShowPayoutsModal(true);
+    };
+
+    const isRefundProcessable = refundStatus === "Refund Pending";
+
     const hostPayoutMethods =
         host && payoutMethods
             ? payoutMethods.filter(
@@ -25,7 +39,7 @@ const FinanceRefundDetails = ({
 
     return (
         <div>
-            <h2 className="m-2 pb-2 text-4xl font-semibold capitalize">
+            <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
             <p className="m-2 text-2xl capitalize font-poppins">
@@ -113,7 +127,7 @@ const FinanceRefundDetails = ({
                 </div>
             </div>
 
-            <div className="mt-6 flex gap-4">
+            <div className="flex gap-4 mt-6">
                 <button
                     onClick={onClose}
                     className="px-6 py-3 font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
@@ -122,10 +136,15 @@ const FinanceRefundDetails = ({
                 </button>
                 {host && (
                     <button
-                        onClick={() => setShowPayoutsModal(true)}
-                        className="px-6 py-3 font-medium text-white bg-blue-500 border border-blue-600 rounded-md hover:bg-blue-600"
+                        onClick={handleProcessRefund}
+                        disabled={!isRefundProcessable}
+                        className={`px-4 py-2 rounded-lg ${
+                            isRefundProcessable
+                                ? "bg-blue-500 text-white hover:bg-blue-600"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
                     >
-                        Transfer Funds
+                        Process Refund
                     </button>
                 )}
             </div>
@@ -133,6 +152,7 @@ const FinanceRefundDetails = ({
             {showPayoutsModal && host && (
                 <PayoutsModal
                     payoutMethods={hostPayoutMethods}
+                    bookingId={booking.id}
                     onClose={() => setShowPayoutsModal(false)}
                 />
             )}

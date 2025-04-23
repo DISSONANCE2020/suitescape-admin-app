@@ -21,14 +21,14 @@ class ContentAdminSeeder extends Seeder
         }
 
         // Check if the user already exists
-        $user = User::where('email', operator: 'newadmin@suitescape.ph')->first();
+        $user = User::where('email', operator: 'sample@gmail.com')->first();
         if (!$user) {
             $user = User::create([
                 'id' => Str::uuid()->toString(),
                 'firstname' => 'Jose',
                 'lastname' => 'Cruz',
-                'email' => 'newadmin@suitescape.ph',
-                'password' => Hash::make('Confirmpassword01'),
+                'email' => 'sample@gmail.com',
+                'password' => Hash::make('123'),
                 'date_of_birth' => '2003-03-17',
             ]);
 

@@ -37,6 +37,9 @@ return [
     | stack traces will be shown on every error that occurs within your
     | application. If disabled, a simple generic error page is shown.
     |
+    | IMPORTANT: Ensure APP_DEBUG is set to false in production to avoid
+    | exposing sensitive information in error messages.
+    |
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
@@ -93,6 +96,9 @@ return [
     | to a random, 32 character string to ensure that all encrypted values
     | are secure. You should do this prior to deploying the application.
     |
+    | IMPORTANT: Ensure APP_KEY is stored securely in the .env file and not
+    | hardcoded in the repository.
+    |
     */
 
     'cipher' => 'AES-256-CBC',
@@ -122,5 +128,6 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
 
 ];

@@ -60,32 +60,6 @@ const Sidebar = () => {
                     </ul>
                 </nav>
             </div>
-
-            {/* Separator and Other Section */}
-            <div>
-                <hr className="my-4 border-[#D1D5DB]" />
-                <h2 className="text-sm font-semibold text-[#9CA3AF] uppercase mb-2">
-                    Other
-                </h2>
-                <ul>
-                    <li className="mb-2">
-                        <Link
-                            href="#"
-                            className="block text-[#1F2937] hover:bg-[#F3F4F6] rounded-md px-2 py-1"
-                        >
-                            Help
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="#"
-                            className="block text-[#1F2937] hover:bg-[#F3F4F6] rounded-md px-2 py-1"
-                        >
-                            Settings
-                        </Link>
-                    </li>
-                </ul>
-            </div>
         </div>
     );
 };
