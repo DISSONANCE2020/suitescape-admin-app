@@ -418,3 +418,4 @@ class PayoutMethodController extends Controller
         return 'Payment processing error - please try again';
     }
 }
+
