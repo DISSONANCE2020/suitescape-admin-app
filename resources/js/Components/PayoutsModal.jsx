@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 
-const PayoutsModal = ({ onClose, bookingId }) => {
+const PayoutsModal = ({ onClose, bookingId, onRefundComplete }) => {
     const { payoutMethods } = usePage().props;
     const [selectedMethod, setSelectedMethod] = useState("");
     const [amount, setAmount] = useState("");
@@ -31,6 +31,7 @@ const PayoutsModal = ({ onClose, bookingId }) => {
                 onSuccess: () => {
                     alert("Transfer initiated successfully!");
                     onClose();
+                    onRefundComplete();
                 },
                 onError: (errors) => {
                     alert(Object.values(errors).join("\n"));
@@ -61,7 +62,6 @@ const PayoutsModal = ({ onClose, bookingId }) => {
                 )}
 
                 <select
-                    className="w-full p-2 mb-4 border"
                     className="w-full p-2 mb-4 border"
                     value={selectedMethod}
                     onChange={(e) => setSelectedMethod(e.target.value)}
@@ -105,7 +105,6 @@ const PayoutsModal = ({ onClose, bookingId }) => {
                         type="number"
                         placeholder="Amount in PHP"
                         className="w-full p-2 mb-4 border"
-                        className="w-full p-2 mb-4 border"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                     />
@@ -120,7 +119,6 @@ const PayoutsModal = ({ onClose, bookingId }) => {
                     </button>
                     <button
                         onClick={handleTransfer}
-                        className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
                         className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
                         disabled={!selectedMethod || !amount || loading}
                     >

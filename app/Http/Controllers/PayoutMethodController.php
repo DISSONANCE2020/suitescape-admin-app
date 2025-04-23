@@ -256,80 +256,34 @@ class PayoutMethodController extends Controller
     {
         $secretKey = env('PAYMONGO_SECRET_KEY');
 
-        // Step 1: Retrieve the invoice using the reference_number
-        $invoice = Invoice::where('reference_number', $referenceNumber)->first();
+        try {
+            // Make a GET request to the PayMongo API to retrieve the link details
+            $response = Http::withBasicAuth($secretKey, '')
+                ->get("https://api.paymongo.com/v1/links/{$referenceNumber}");
 
-        if (!$invoice) {
-            throw new \Exception('Invoice not found for the provided reference number.');
-        }
-
-        // Retrieve amount and description (fallback to bookings table if not present in invoices)
-        $amount = $invoice->amount ?? 0;
-        $description = $invoice->description ?? null;
-
-        if ($amount <= 0 || !$description) {
-            $booking = DB::table('bookings')->where('id', $invoice->booking_id)->first();
-
-            if (!$booking || !$booking->amount || !$booking->message) {
-                throw new \Exception('Amount or message is missing in both invoices and bookings tables.');
+            if (!$response->successful()) {
+                throw new \Exception('Failed to retrieve link details: ' . $response->body());
             }
 
-            $amount = $booking->amount;
-            $description = $booking->message;
+            // Parse the response to extract the payments array
+            $payments = $response->json()['data']['attributes']['payments'] ?? [];
+
+            if (empty($payments)) {
+                throw new \Exception('No payments found for the provided reference number.');
+            }
+
+            // Extract the payment_id from the first payment in the array
+            $payment = $payments[0]['data'] ?? null;
+
+            if (!$payment || $payment['attributes']['status'] !== 'paid') {
+                throw new \Exception('The payment is not completed. Refunds can only be processed for completed payments.');
+            }
+
+            return $payment['id'];
+        } catch (\Exception $e) {
+            \Log::error("Error retrieving payment ID for reference number {$referenceNumber}: " . $e->getMessage());
+            throw $e;
         }
-
-        // Convert amount to cents (integer)
-        $amountInCents = (int) round($amount * 100, 0);
-
-        $linkResponse = Http::withBasicAuth($secretKey, '')
-            ->post('https://api.paymongo.com/v1/links', [
-                'data' => [
-                    'attributes' => [
-                        'reference_number' => $referenceNumber,
-                        'amount' => $amountInCents,
-                        'description' => $description,
-                    ],
-                ],
-            ]);
-
-        if (!$linkResponse->successful()) {
-            throw new \Exception('Failed to retrieve link_id: ' . $linkResponse->body());
-        }
-
-        $linkId = $linkResponse->json()['data']['id'] ?? null;
-
-        if (!$linkId) {
-            throw new \Exception('Link ID not found for the provided reference number.');
-        }
-
-        // Step 2: Retrieve the payment_id using the link_id
-        $paymentResponse = Http::withBasicAuth($secretKey, '')
-            ->get("https://api.paymongo.com/v1/links/{$linkId}");
-
-        if (!$paymentResponse->successful()) {
-            throw new \Exception('Failed to retrieve payment details: ' . $paymentResponse->body());
-        }
-
-        // Log the full response for debugging
-        \Log::info('PayMongo Link API Response', [
-            'link_id' => $linkId,
-            'response' => $paymentResponse->json(),
-        ]);
-
-        $payments = $paymentResponse->json()['data']['attributes']['payments'] ?? [];
-
-        if (empty($payments)) {
-            throw new \Exception('No payments found for the provided link ID.');
-        }
-
-        // Extract the payment_id and check the payment status
-        $payment = $payments[0]['data'] ?? null;
-
-        if (!$payment || $payment['attributes']['status'] !== 'paid') {
-            throw new \Exception('The payment is not completed. Refunds can only be processed for completed payments.');
-        }
-
-        return $payment['id'];
     }
 
     /**

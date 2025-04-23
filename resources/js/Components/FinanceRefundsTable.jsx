@@ -81,10 +81,10 @@ const FinanceRefundsTable = ({
                                     const refundStatus = booking.invoice
                                         ? booking.invoice.payment_status ===
                                           "paid"
-                                            ? "Refund Pending"
+                                            ? "REFUND PENDING"
                                             : booking.invoice.payment_status ===
                                               "refunded"
-                                            ? "Refund Issued"
+                                            ? "REFUND ISSUED"
                                             : "N/A"
                                         : "N/A";
 
@@ -102,7 +102,7 @@ const FinanceRefundsTable = ({
                                                     : "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {listing?.facility_type ||
+                                                {listing?.name ||
                                                     "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
@@ -146,7 +146,19 @@ const FinanceRefundsTable = ({
                                                 {booking.status || "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {refundStatus}
+                                                <span
+                                                    className={`px-3 py-1 text-white w-[180px] font-bold block mx-auto rounded-md ${
+                                                        refundStatus ===
+                                                        "REFUND PENDING"
+                                                            ? "bg-[#EF4444]" // Red for Refund Pending
+                                                            : refundStatus ===
+                                                              "REFUND ISSUED"
+                                                            ? "bg-[#10B981]" // Green for Refund Issued
+                                                            : "bg-[#D1D5DB]" // Default gray for N/A
+                                                    }`}
+                                                >
+                                                    {refundStatus}
+                                                </span>
                                             </td>
                                         </tr>
                                     );

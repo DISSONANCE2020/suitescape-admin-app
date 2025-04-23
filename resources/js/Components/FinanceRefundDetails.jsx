@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { usePage } from "@inertiajs/inertia-react"; // Import usePage
+import { Inertia } from "@inertiajs/inertia"; // Import Inertia for server-side refresh
 import PayoutsModal from "./PayoutsModal";
 
 const FinanceRefundDetails = ({
@@ -9,6 +11,7 @@ const FinanceRefundDetails = ({
     onClose,
 }) => {
     const [showPayoutsModal, setShowPayoutsModal] = useState(false);
+    const { props } = usePage(); // Access Inertia props for real-time updates
 
     if (!booking) return null;
 
@@ -18,9 +21,9 @@ const FinanceRefundDetails = ({
 
     const refundStatus = booking.invoice
         ? booking.invoice.payment_status === "paid"
-            ? "Refund Pending"
+            ? "REFUND PENDING"
             : booking.invoice.payment_status === "refunded"
-            ? "Refund Issued"
+            ? "REFUND ISSUED"
             : "N/A"
         : "N/A";
 
@@ -28,7 +31,12 @@ const FinanceRefundDetails = ({
         setShowPayoutsModal(true);
     };
 
-    const isRefundProcessable = refundStatus === "Refund Pending";
+    const handleRefundComplete = () => {
+        setShowPayoutsModal(false);
+        Inertia.reload(); // Trigger a server-side refresh to update data
+    };
+
+    const isRefundProcessable = refundStatus === "REFUND PENDING";
 
     const hostPayoutMethods =
         host && payoutMethods
@@ -39,22 +47,41 @@ const FinanceRefundDetails = ({
 
     return (
         <div>
-            <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
+            <h2 className="pb-4 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
-            <p className="m-2 text-2xl capitalize font-poppins">
+            <p className="text-2xl capitalize font-poppins">
                 {listing?.name || "Unknown"}
             </p>
             <div className="mt-6 mb-6 border border-gray-300"></div>
             <div>
                 <div>
-                    <h3 className="mb-6 ml-2 text-2xl font-semibold text-gray-500 capitalize">
+                    <h3 className="mb-6 text-2xl font-semibold text-gray-500 capitalize">
                         Refund Details
                     </h3>
                     <table className="w-full">
                         <tbody>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
+                                    Refund Status:
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    <span
+                                        className={`px-3 py-1 text-white font-bold rounded-md ${
+                                            refundStatus === "REFUND PENDING"
+                                                ? "bg-[#EF4444]" // Red for Refund Pending
+                                                : refundStatus ===
+                                                  "REFUND ISSUED"
+                                                ? "bg-[#10B981]" // Green for Refund Issued
+                                                : "bg-[#D1D5DB]" // Default gray for N/A
+                                        }`}
+                                    >
+                                        {refundStatus}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 text-xl font-semibold">
                                     Booking Reference No:
                                 </td>
                                 <td className="pb-4 text-xl">
@@ -62,7 +89,7 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
                                     Guest Name:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
@@ -72,7 +99,7 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
                                     Booking Date:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
@@ -97,17 +124,15 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
                                     Mode of Payment:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
-                                    {guest
-                                        ? `${guest.firstname} ${guest.lastname}`
-                                        : "N/A"}
+                                    TO BE ADDED
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
                                     Refund Amount:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
@@ -115,7 +140,7 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                <td className="pb-4 text-xl font-semibold">
                                     Company Commission:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
@@ -127,10 +152,10 @@ const FinanceRefundDetails = ({
                 </div>
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex gap-4 mt-6 justify-end">
                 <button
                     onClick={onClose}
-                    className="px-6 py-3 font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
+                    className="px-4 py-3 text-sm font-medium text-black bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 drop-shadow-sm"
                 >
                     Close
                 </button>
@@ -138,7 +163,7 @@ const FinanceRefundDetails = ({
                     <button
                         onClick={handleProcessRefund}
                         disabled={!isRefundProcessable}
-                        className={`px-4 py-2 rounded-lg ${
+                        className={`px-4 py-3 text-sm rounded-md ${
                             isRefundProcessable
                                 ? "bg-blue-500 text-white hover:bg-blue-600"
                                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -154,6 +179,7 @@ const FinanceRefundDetails = ({
                     payoutMethods={hostPayoutMethods}
                     bookingId={booking.id}
                     onClose={() => setShowPayoutsModal(false)}
+                    onRefundComplete={handleRefundComplete} // Pass callback for refund completion
                 />
             )}
         </div>
