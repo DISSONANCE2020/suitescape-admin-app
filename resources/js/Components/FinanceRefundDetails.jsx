@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { usePage } from "@inertiajs/inertia-react"; // Import usePage
-import { Inertia } from "@inertiajs/inertia"; // Import Inertia for server-side refresh
+import { usePage} from "@inertiajs/react";
 import PayoutsModal from "./PayoutsModal";
 
 const FinanceRefundDetails = ({
