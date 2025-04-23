@@ -184,50 +184,6 @@ class PayoutMethodController extends Controller
         }
     }
 
-    public function transferPayout(Request $request, PayoutMethod $payoutMethod)
-    {
-        // ✅ Authorization: Only allow users with roles 'finance-admin' or 'super-admin'
-        // or the owner of the payout method to proceed. Others get 403 Forbidden.
-        if (!auth()->user()->hasRole(['finance-admin', 'super-admin']) && auth()->id() !== $payoutMethod->user_id) {
-            abort(403, 'Unauthorized action');
-        }
-
-        // ✅ Validate the incoming request data
-        $validated = $request->validate([
-            'amount' => 'required|numeric|min:100', // Amount is required, must be numeric and at least 100
-            'description' => 'nullable|string|max:255', // Optional description, max 255 characters
-        ]);
-
-        // ✅ Convert amount to cents (PHP smallest unit is centavo)
-        $amountInCents = (int) round($validated['amount'] * 100, 0);
-
-        try {
-            // ✅ Note: Since PayMongo does not currently support payouts directly,
-            // this is a simulated payout action
-
-            // 🔄 Simulate the logic as if the transfer was successful
-            \Log::info('Simulated PayMongo Payout', [
-                'user_id' => auth()->id(), // Log the current user's ID
-                'payout_method_id' => $payoutMethod->id, // Log the payout method being used
-                'amount' => $validated['amount'], // Log the amount requested
-            ]);
-
-            // ✅ Update the transfer status of the payout method to "sent"
-            $payoutMethod->update([
-                'transfer_status' => 'sent',
-            ]);
-
-            // ✅ Redirect back with a success message
-            return back()->with('success', 'Simulated payout successful. Status updated to SENT.');
-        } catch (\Exception $e) {
-            // ❌ Handle any unexpected errors and log the message
-            $this->logError('Transfer error', $e);
-
-            // 🔁 Redirect back with error message
-            return back()->with('error', 'Transfer failed: ' . $e->getMessage());
-        }
-    }
-
     /**
      * Validate and retrieve the invoice by booking ID.
      *
