@@ -13,80 +13,80 @@ use Illuminate\Validation\ValidationException;
 
 class PayoutMethodController extends Controller
 {
-    public function store(Request $request)
-    {
-        return DB::transaction(function () use ($request) {
-            $validated = $request->validate([
-                'payoutable_type' => 'required|string',
-                'payoutable_id' => 'required|string',
-                'transfer_status' => 'nullable|string',
-                'is_default' => 'nullable|boolean',
-            ]);
+    // public function store(Request $request)
+    // {
+    //     return DB::transaction(function () use ($request) {
+    //         $validated = $request->validate([
+    //             'payoutable_type' => 'required|string',
+    //             'payoutable_id' => 'required|string',
+    //             'transfer_status' => 'nullable|string',
+    //             'is_default' => 'nullable|boolean',
+    //         ]);
 
-            try {
-                $payoutMethod = auth()->user()->payoutMethods()->create([
-                    'id' => \Str::uuid(),
-                    'payoutable_type' => $validated['payoutable_type'],
-                    'payoutable_id' => $validated['payoutable_id'],
-                    'transfer_status' => $validated['transfer_status'] ?? 'Pending',
-                    'is_default' => $validated['is_default'] ?? false,
-                ]);
+    //         try {
+    //             $payoutMethod = auth()->user()->payoutMethods()->create([
+    //                 'id' => \Str::uuid(),
+    //                 'payoutable_type' => $validated['payoutable_type'],
+    //                 'payoutable_id' => $validated['payoutable_id'],
+    //                 'transfer_status' => $validated['transfer_status'] ?? 'Pending',
+    //                 'is_default' => $validated['is_default'] ?? false,
+    //             ]);
 
-                if ($payoutMethod->is_default) {
-                    $payoutMethod->setAsDefault();
-                }
+    //             if ($payoutMethod->is_default) {
+    //                 $payoutMethod->setAsDefault();
+    //             }
 
-                return back()->with('success', 'Payout method added successfully');
-            } catch (\Exception $e) {
-                \Log::error('Payout Method Creation Failed: ' . $e->getMessage());
+    //             return back()->with('success', 'Payout method added successfully');
+    //         } catch (\Exception $e) {
+    //             \Log::error('Payout Method Creation Failed: ' . $e->getMessage());
 
-                throw ValidationException::withMessages([
-                    'general' => 'Failed to create payout method. Please try again.',
-                ]);
-            }
-        });
-    }
+    //             throw ValidationException::withMessages([
+    //                 'general' => 'Failed to create payout method. Please try again.',
+    //             ]);
+    //         }
+    //     });
+    // }
 
-    public function update(PayoutMethod $payoutMethod, Request $request)
-    {
-        if (auth()->id() !== $payoutMethod->user_id) {
-            abort(403, 'Unauthorized action');
-        }
+    // public function update(PayoutMethod $payoutMethod, Request $request)
+    // {
+    //     if (auth()->id() !== $payoutMethod->user_id) {
+    //         abort(403, 'Unauthorized action');
+    //     }
 
-        $validated = $request->validate([
-            'transfer_status' => 'required|string',
-            'is_default' => 'nullable|boolean',
-        ]);
+    //     $validated = $request->validate([
+    //         'transfer_status' => 'required|string',
+    //         'is_default' => 'nullable|boolean',
+    //     ]);
 
 
-        return DB::transaction(function () use ($payoutMethod, $validated, $request) {
-            $payoutMethod->update([
-                'transfer_status' => $validated['transfer_status'] ?? $payoutMethod->transfer_status,
-                'is_default' => $validated['is_default'] ?? $payoutMethod->is_default,
-            ]);
+    //     return DB::transaction(function () use ($payoutMethod, $validated, $request) {
+    //         $payoutMethod->update([
+    //             'transfer_status' => $validated['transfer_status'] ?? $payoutMethod->transfer_status,
+    //             'is_default' => $validated['is_default'] ?? $payoutMethod->is_default,
+    //         ]);
 
-            if ($request->input('is_default')) {
-                $payoutMethod->setAsDefault();
-            }
+    //         if ($request->input('is_default')) {
+    //             $payoutMethod->setAsDefault();
+    //         }
 
-            return back()->with('success', 'Payout method updated successfully');
-        });
-    }
+    //         return back()->with('success', 'Payout method updated successfully');
+    //     });
+    // }
 
-    public function destroy(PayoutMethod $payoutMethod)
-    {
-        if (auth()->id() !== $payoutMethod->user_id) {
-            abort(403, 'Unauthorized action');
-        }
+    // public function destroy(PayoutMethod $payoutMethod)
+    // {
+    //     if (auth()->id() !== $payoutMethod->user_id) {
+    //         abort(403, 'Unauthorized action');
+    //     }
 
-        try {
-            $payoutMethod->delete();
-            return back()->with('success', 'Payout method deleted successfully');
-        } catch (\Exception $e) {
-            \Log::error('Payout Method Deletion Failed: ' . $e->getMessage());
-            return back()->with('error', 'Failed to delete payout method');
-        }
-    }
+    //     try {
+    //         $payoutMethod->delete();
+    //         return back()->with('success', 'Payout method deleted successfully');
+    //     } catch (\Exception $e) {
+    //         \Log::error('Payout Method Deletion Failed: ' . $e->getMessage());
+    //         return back()->with('error', 'Failed to delete payout method');
+    //     }
+    // }
 
     public function index()
     {

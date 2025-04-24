@@ -42,7 +42,7 @@ const FinanceRefundDetails = ({
 
     const handleRefundComplete = () => {
         setShowPayoutsModal(false);
-        Inertia.reload(); // Trigger a server-side refresh to update data
+        Inertia.reload();
     };
 
     const isRefundProcessable = refundStatus === "REFUND PENDING";
@@ -50,7 +50,7 @@ const FinanceRefundDetails = ({
     const hostPayoutMethods =
         host && payoutMethods
             ? payoutMethods.filter(
-                  (method) => method.user_id === host.id && method.payoutable // Ensure payoutable exists
+                  (method) => method.user_id === host.id && method.payoutable
               )
             : [];
 
@@ -148,9 +148,6 @@ const FinanceRefundDetails = ({
                                     ₱{booking?.amount || "N/A"}
                                 </td>
                             </tr>
-                            <br />
-                            <br />
-                            <br />
                         </tbody>
                     </table>
                 </div>
@@ -180,10 +177,11 @@ const FinanceRefundDetails = ({
 
             {showPayoutsModal && host && (
                 <PayoutsModal
+                    amount={booking.amount}
                     payoutMethods={hostPayoutMethods}
                     bookingId={booking.id}
                     onClose={() => setShowPayoutsModal(false)}
-                    onRefundComplete={handleRefundComplete} // Pass callback for refund completion
+                    onRefundComplete={handleRefundComplete}
                 />
             )}
         </div>
