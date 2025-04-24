@@ -19,7 +19,7 @@ class PayoutMethodController extends Controller
             $validated = $request->validate([
                 'payoutable_type' => 'required|string',
                 'payoutable_id' => 'required|string',
-                'status' => 'nullable|string',
+                'transfer_status' => 'nullable|string',
                 'is_default' => 'nullable|boolean',
             ]);
 
@@ -28,7 +28,7 @@ class PayoutMethodController extends Controller
                     'id' => \Str::uuid(),
                     'payoutable_type' => $validated['payoutable_type'],
                     'payoutable_id' => $validated['payoutable_id'],
-                    'status' => $validated['status'] ?? 'active',
+                    'transfer_status' => $validated['transfer_status'] ?? 'Pending',
                     'is_default' => $validated['is_default'] ?? false,
                 ]);
 
@@ -54,13 +54,14 @@ class PayoutMethodController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'nullable|string',
+            'transfer_status' => 'required|string',
             'is_default' => 'nullable|boolean',
         ]);
 
+
         return DB::transaction(function () use ($payoutMethod, $validated, $request) {
             $payoutMethod->update([
-                'status' => $validated['status'] ?? $payoutMethod->status,
+                'transfer_status' => $validated['transfer_status'] ?? $payoutMethod->transfer_status,
                 'is_default' => $validated['is_default'] ?? $payoutMethod->is_default,
             ]);
 
@@ -180,50 +181,6 @@ class PayoutMethodController extends Controller
             }
         } catch (\Exception $e) {
             \Log::error("Failed to update invoice status for booking {$bookingId}: " . $e->getMessage());
-        }
-    }
-
-    public function transferPayout(Request $request, PayoutMethod $payoutMethod)
-    {
-        // ✅ Authorization: Only allow users with roles 'finance-admin' or 'super-admin'
-        // or the owner of the payout method to proceed. Others get 403 Forbidden.
-        if (!auth()->user()->hasRole(['finance-admin', 'super-admin']) && auth()->id() !== $payoutMethod->user_id) {
-            abort(403, 'Unauthorized action');
-        }
-
-        // ✅ Validate the incoming request data
-        $validated = $request->validate([
-            'amount' => 'required|numeric|min:100', // Amount is required, must be numeric and at least 100
-            'description' => 'nullable|string|max:255', // Optional description, max 255 characters
-        ]);
-
-        // ✅ Convert amount to cents (PHP smallest unit is centavo)
-        $amountInCents = (int) round($validated['amount'] * 100, 0);
-
-        try {
-            // ✅ Note: Since PayMongo does not currently support payouts directly,
-            // this is a simulated payout action
-
-            // 🔄 Simulate the logic as if the transfer was successful
-            \Log::info('Simulated PayMongo Payout', [
-                'user_id' => auth()->id(), // Log the current user's ID
-                'payout_method_id' => $payoutMethod->id, // Log the payout method being used
-                'amount' => $validated['amount'], // Log the amount requested
-            ]);
-
-            // ✅ Update the transfer status of the payout method to "sent"
-            $payoutMethod->update([
-                'transfer_status' => 'sent',
-            ]);
-
-            // ✅ Redirect back with a success message
-            return back()->with('success', 'Simulated payout successful. Status updated to SENT.');
-        } catch (\Exception $e) {
-            // ❌ Handle any unexpected errors and log the message
-            $this->logError('Transfer error', $e);
-
-            // 🔁 Redirect back with error message
-            return back()->with('error', 'Transfer failed: ' . $e->getMessage());
         }
     }
 
@@ -371,5 +328,6 @@ class PayoutMethodController extends Controller
         }
         return 'Payment processing error - please try again';
     }
+
 }
 
