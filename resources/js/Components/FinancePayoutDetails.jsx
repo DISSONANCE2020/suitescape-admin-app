@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
-
+import PaymongoLinkModal from "./PaymongoLinkModal";
 const FinancePayoutDetails = ({
     booking,
     users,
@@ -8,7 +8,7 @@ const FinancePayoutDetails = ({
     listings,
     payoutMethods,
     onClose,
-    onGeneratePayoutLink, // Optional callback if you need to notify parent
+    onGeneratePayoutLink,
 }) => {
     if (!booking) return null;
 
@@ -24,7 +24,7 @@ const FinancePayoutDetails = ({
     const payoutAmount = amountPaid - suitescapeFee;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [showLinkModal, setShowLinkModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedLink, setGeneratedLink] = useState("");
 
@@ -49,7 +49,7 @@ const FinancePayoutDetails = ({
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector(
                         'meta[name="csrf-token"]'
-                    )?.content, // Add CSRF if using Laravel
+                    )?.content,
                 },
                 body: JSON.stringify({
                     booking_id: booking.id,
@@ -57,15 +57,14 @@ const FinancePayoutDetails = ({
                 }),
             });
 
-            if (!response.ok) {
+            if (!response.ok)
                 throw new Error("Failed to generate PayMongo link");
-            }
 
             const data = await response.json();
             const paymentLink = data.link;
 
             setGeneratedLink(paymentLink);
-            setShowModal(true); // Show the modal after the link is generated
+            setShowLinkModal(true); // Show modal instead of inline link
         } catch (error) {
             console.error("Failed to generate PayMongo link:", error);
             alert("Something went wrong generating the payment link.");
@@ -76,7 +75,6 @@ const FinancePayoutDetails = ({
 
     return (
         <div>
-            {/* Header */}
             <h2 className="pb-2 m-2 text-4xl font-semibold capitalize">
                 {listing?.facility_type || "N/A"}
             </h2>
@@ -85,9 +83,7 @@ const FinancePayoutDetails = ({
             </p>
             <div className="mt-6 mb-6 border border-gray-300"></div>
 
-            {/* Details Grid */}
             <div className="grid grid-flow-col grid-cols-2">
-                {/* Payout Details */}
                 <div>
                     <h3 className="mb-6 ml-2 text-2xl font-semibold text-gray-500">
                         Payout Details
@@ -168,7 +164,6 @@ const FinancePayoutDetails = ({
                     </table>
                 </div>
 
-                {/* Booking Details */}
                 <div>
                     <h3 className="mb-6 ml-2 text-2xl font-semibold text-gray-500">
                         Booking Details
@@ -255,7 +250,6 @@ const FinancePayoutDetails = ({
                 </div>
             </div>
 
-            {/* Button Actions */}
             <div className="flex flex-col gap-3 p-3 mt-4 sm:flex-row">
                 <button
                     onClick={onClose}
@@ -265,28 +259,28 @@ const FinancePayoutDetails = ({
                 </button>
                 {host && (
                     <button
-                        onClick={handleSendPayout}
-                        disabled={isGenerating}
-                        className="px-6 py-3 font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:opacity-50"
+                        onClick={() => handleSendPayout(booking)}
+                        disabled={
+                            isGenerating ||
+                            payoutMethod?.transfer_status === "sent"
+                        }
+                        className={`px-6 py-3 font-medium text-white rounded-md ${
+                            isGenerating ||
+                            payoutMethod?.transfer_status === "sent"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600"
+                        }`}
                     >
                         {isGenerating ? "Generating..." : "Send Payout"}
                     </button>
                 )}
             </div>
 
-            {/* Show generated link if available */}
-            {generatedLink && (
-                <div className="mt-4 text-lg text-green-600">
-                    ✅ Payout Link:{" "}
-                    <a
-                        href={generatedLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline"
-                    >
-                        {generatedLink}
-                    </a>
-                </div>
+            {showLinkModal && (
+                <PaymongoLinkModal
+                    link={generatedLink}
+                    onClose={() => setShowLinkModal(false)}
+                />
             )}
 
             {isModalOpen && (

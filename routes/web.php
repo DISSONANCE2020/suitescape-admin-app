@@ -59,7 +59,6 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
         ->name('payout.transfer');
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PaymongoController::class, 'transferPayout'])->name('finance.transferpayout');
     Route::post('/generate-paymongo-link', [PaymongoController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
-
 });
 
 
