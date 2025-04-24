@@ -57,10 +57,10 @@ const FinanceRefundDetails = ({
     return (
         <div>
             <h2 className="pb-4 text-4xl font-semibold capitalize">
-                {listing?.facility_type || "N/A"}
+                {listing?.name || "Unknown"}{" "}
             </h2>
             <p className="text-2xl capitalize font-poppins">
-                {listing?.name || "Unknown"}
+                {listing?.facility_type || "N/A"}
             </p>
             <div className="mt-6 mb-6 border border-gray-300"></div>
             <div>
@@ -148,12 +148,9 @@ const FinanceRefundDetails = ({
                                     ₱{booking?.amount || "N/A"}
                                 </td>
                             </tr>
-                            <tr>
-                                <td className="pb-4 text-xl text-white font-semibold">
-                                    ""
-                                </td>
-                                <td className="pb-4 text-xl text-white capitalize">"" </td>
-                            </tr>
+                            <br />
+                            <br />
+                            <br />
                         </tbody>
                     </table>
                 </div>
