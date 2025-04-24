@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import Pagination from "./Pagination";
 
 const UserTable = ({ user, onRowClick, currentPage, setCurrentPage }) => {
     const [filteredUsers, setFilteredUsers] = useState([]);
-    const itemsPerPage = 9;
+    const itemsPerPage = 8;
 
     const roleNames = {
         1: "Super Admin",
@@ -33,9 +34,9 @@ const UserTable = ({ user, onRowClick, currentPage, setCurrentPage }) => {
     );
 
     return (
-        <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
-            <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full table-fixed border border-[#D1D5DB] min-w-[600px]">
+        <div className="flex flex-col h-[67.5vh] w-full">
+            <div className="flex-grow overflow-x-auto">
+                <table className="w-full table-fixed border border-[#D1D5DB] bg-transparent">
                     <thead>
                         <tr className="text-center">
                             <th className="p-2 border border-[#D1D5DB] w-[150px]">
@@ -50,23 +51,25 @@ const UserTable = ({ user, onRowClick, currentPage, setCurrentPage }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentUsers
-                            .map((user, index) => {
-                                const formattedDate = user.created_at
+                        {currentUsers.map((user, index) => {
+                            const formattedDate = user.created_at
                                 ? new Date(user.created_at).toLocaleString(
-                                    "en-US",
-                                    {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                    })
-                                    : "N/A";
-                                const time = user.created_at ? user.created_at.slice(11, 19) : "";
-                                
-                                return(
+                                      "en-US",
+                                      {
+                                          month: "short",
+                                          day: "numeric",
+                                          year: "numeric",
+                                      }
+                                  )
+                                : "N/A";
+                            const time = user.created_at
+                                ? user.created_at.slice(11, 19)
+                                : "";
+
+                            return (
                                 <tr
                                     key={user.id || index}
-                                    className="border border-[#D1D5DB] text-center odd:bg-[#F3F4F6] hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
+                                    className="h-12 border border-[#D1D5DB] text-center odd:bg-transparent hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
                                     onClick={() =>
                                         onRowClick && onRowClick(user)
                                     }
@@ -81,38 +84,16 @@ const UserTable = ({ user, onRowClick, currentPage, setCurrentPage }) => {
                                         {formattedDate} at {time}
                                     </td>
                                 </tr>
-                            )})}
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
-
-            <div className="mt-auto flex justify-between items-center pt-4 px-2">
-                <button
-                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                    onClick={() =>
-                        setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-                    }
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-
-                <span className="text-lg font-medium">
-                    Page {currentPage} of {totalPages}
-                </span>
-
-                <button
-                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                    onClick={() =>
-                        setCurrentPage((prev) =>
-                            prev < totalPages ? prev + 1 : prev
-                        )
-                    }
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredUsers.length / itemsPerPage)}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 };

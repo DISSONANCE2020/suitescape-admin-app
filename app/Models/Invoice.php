@@ -20,6 +20,7 @@ class Invoice extends Model
         'user_id', 
         'booking_id', 
         'payment_status',
+        'payment_method',
         'reference_number',
     ];
 

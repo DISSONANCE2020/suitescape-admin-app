@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Pagination from "./Pagination";
 
 const VideoTable = ({
     videos,
@@ -10,7 +11,7 @@ const VideoTable = ({
     setCurrentPage,
 }) => {
     const [filteredVideos, setFilteredVideos] = useState([]);
-    const itemsPerPage = 7;
+    const itemsPerPage = 8;
 
     useEffect(() => {
         if (!Array.isArray(videos)) return;
@@ -49,10 +50,14 @@ const VideoTable = ({
         startIndex + itemsPerPage
     );
 
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
     return (
-        <div className="rounded-lg pt-2 h-[67.5vh] flex flex-col w-full max-w-full">
-            <div className="overflow-x-auto w-full max-w-full">
-                <table className="w-full table-fixed border border-[#D1D5DB] min-w-[600px]">
+        <div className="flex flex-col h-[67.5vh] w-full">
+            <div className="flex-grow overflow-x-auto">
+                <table className="w-full table-fixed border border-[#D1D5DB] bg-transparent">
                     <thead>
                         <tr className="text-center">
                             <th className="p-2 border border-[#D1D5DB] w-[150px]">
@@ -104,7 +109,7 @@ const VideoTable = ({
                             return (
                                 <tr
                                     key={video.id || index}
-                                    className="border border-[#D1D5DB] text-center odd:bg-[#F3F4F6] hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
+                                    className="h-12 border border-[#D1D5DB] text-center odd:bg-transparent hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
                                     onClick={() => onRowClick(video)}
                                 >
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap">
@@ -153,34 +158,11 @@ const VideoTable = ({
                     </tbody>
                 </table>
             </div>
-
-            <div className="mt-auto flex justify-between items-center pt-4 px-2">
-                <button
-                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                    onClick={() =>
-                        setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-                    }
-                    disabled={currentPage === 1}
-                >
-                    Previous
-                </button>
-
-                <span className="text-lg font-medium">
-                    Page {currentPage} of {totalPages}
-                </span>
-
-                <button
-                    className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                    onClick={() =>
-                        setCurrentPage((prev) =>
-                            prev < totalPages ? prev + 1 : prev
-                        )
-                    }
-                    disabled={currentPage === totalPages}
-                >
-                    Next
-                </button>
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 };

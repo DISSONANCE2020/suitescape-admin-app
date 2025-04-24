@@ -31,7 +31,7 @@ const UserManagement = () => {
     return (
         <div className="flex flex-col h-full">
             {/* Header with current user count and sorting dropdown */}
-            <div className="flex justify-between items-center mb-4 border-b border-[#D1D5DB] pb-4">
+            <div className="flex h-[58px] justify-between items-center mb-4 border-b border-[#D1D5DB] pb-4">
                 <div>
                     <h2 className="text-lg font-semibold">Users</h2>
                 </div>
