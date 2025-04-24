@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage} from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import PayoutsModal from "./PayoutsModal";
 
 const FinanceRefundDetails = ({
@@ -17,6 +17,16 @@ const FinanceRefundDetails = ({
     const listing = listings?.find((l) => l.id === booking?.listing_id);
     const host = users?.find((u) => u.id === listing?.user_id);
     const guest = users?.find((u) => u.id === booking?.user_id);
+
+    const paymentMethod = booking.invoice.payment_method
+        ? booking.invoice.payment_method === "gcash"
+            ? "GCash"
+            : booking.invoice.payment_method === "bank_transfer"
+            ? "Bank Transfer"
+            : booking.invoice.payment_method === "credit_card"
+            ? "Credit Card"
+            : "N/A"
+        : "N/A";
 
     const refundStatus = booking.invoice
         ? booking.invoice.payment_status === "paid"
@@ -127,7 +137,7 @@ const FinanceRefundDetails = ({
                                     Mode of Payment:
                                 </td>
                                 <td className="pb-4 text-xl capitalize">
-                                    TO BE ADDED
+                                    {paymentMethod}
                                 </td>
                             </tr>
                             <tr>
@@ -139,12 +149,10 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
-                                    Company Commission:
+                                <td className="pb-4 text-xl text-white font-semibold">
+                                    ""
                                 </td>
-                                <td className="pb-4 text-xl capitalize">
-                                    ₱{booking?.amount || "N/A"}
-                                </td>
+                                <td className="pb-4 text-xl text-white capitalize">"" </td>
                             </tr>
                         </tbody>
                     </table>
