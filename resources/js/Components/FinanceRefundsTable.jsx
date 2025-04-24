@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import FinanceRefundDetails from "./FinanceRefundDetails"; // Import the component to show detailed refund info
+import Pagination from "./Pagination";
 
 const FinanceRefundsTable = ({
     refunds,
@@ -38,12 +39,16 @@ const FinanceRefundsTable = ({
         setSelectedBooking(null);
     };
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     return (
-        <div className="rounded-lg pt-2 h-full flex flex-col w-full max-w-full">
+        <div className="flex flex-col h-[67.5vh] w-full">
             {!selectedBooking && (
                 <>
-                    <div className="overflow-x-auto w-full max-w-full">
-                        <table className="w-full table-fixed border border-[#D1D5DB] min-w-[600px]">
+                    <div className="flex-grow overflow-x-auto">
+                        <table className="w-full table-fixed border border-[#D1D5DB] bg-transparent">
                             <thead>
                                 <tr className="text-center">
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
@@ -91,7 +96,7 @@ const FinanceRefundsTable = ({
                                     return (
                                         <tr
                                             key={booking.id || index}
-                                            className="text-center border border-[#D1D5DB] odd:bg-[#F3F4F6] hover:bg-[#E5E7EB] transition duration-200 cursor-pointer"
+                                            className="h-12 border border-[#D1D5DB] text-center odd:bg-transparent hover:bg-[#E5E7EB] cursor-pointer transition duration-200"
                                             onClick={() =>
                                                 handleRowClick(booking)
                                             }
@@ -166,35 +171,11 @@ const FinanceRefundsTable = ({
                             </tbody>
                         </table>
                     </div>
-
-                    {/* Pagination Controls */}
-                    <div className="mt-auto flex justify-between items-center pt-4 px-2">
-                        <button
-                            className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                            onClick={() =>
-                                setCurrentPage((prev) =>
-                                    prev > 1 ? prev - 1 : prev
-                                )
-                            }
-                            disabled={currentPage === 1}
-                        >
-                            Previous
-                        </button>
-                        <span className="text-lg font-medium">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
-                            onClick={() =>
-                                setCurrentPage((prev) =>
-                                    prev < totalPages ? prev + 1 : prev
-                                )
-                            }
-                            disabled={currentPage === totalPages}
-                        >
-                            Next
-                        </button>
-                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </>
             )}
 
