@@ -67,7 +67,7 @@ const FinancePayoutDetails = ({
             setShowLinkModal(true); // Show modal instead of inline link
         } catch (error) {
             console.error("Failed to generate PayMongo link:", error);
-            alert("Something went wrong generating the payment link.");
+            alert("Payment generation failed: Amount must be at least 100.");
         } finally {
             setIsGenerating(false);
         }
@@ -109,6 +109,39 @@ const FinancePayoutDetails = ({
                                 </td>
                                 <td className="pb-4 text-xl">
                                     {host?.email || "N/A"}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    Account Name:
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    {payoutMethod?.payoutable?.account_name ||
+                                        "N/A"}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    Payout Method:
+                                </td>
+                                <td className="pb-4 text-xl capitalize">
+                                    {payoutMethod?.payoutable_type_key || "N/A"}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 pl-4 text-xl font-semibold">
+                                    {payoutMethod?.payoutable_type_key ===
+                                    "gcash"
+                                        ? "Phone Number:"
+                                        : "Account Number:"}
+                                </td>
+                                <td className="pb-4 text-xl">
+                                    {payoutMethod?.payoutable_type_key ===
+                                    "gcash"
+                                        ? payoutMethod?.payoutable
+                                              ?.phone_number || "N/A"
+                                        : payoutMethod?.payoutable
+                                              ?.account_number || "N/A"}
                                 </td>
                             </tr>
                             <tr>
@@ -259,11 +292,17 @@ const FinancePayoutDetails = ({
                 </button>
                 {host && (
                     <button
-                        onClick={() => handleSendPayout(booking)}
-                        disabled={
-                            isGenerating ||
-                            payoutMethod?.transfer_status === "sent"
-                        }
+                        onClick={() => {
+                            // Check the transfer status before proceeding
+                            if (payoutMethod?.transfer_status === "sent") {
+                                alert(
+                                    "This payout has already been sent. You cannot send the payment again."
+                                );
+                            } else {
+                                handleSendPayout(booking); // Proceed with sending payout if not already sent
+                            }
+                        }}
+                        disabled={isGenerating}
                         className={`px-6 py-3 font-medium text-white rounded-md ${
                             isGenerating ||
                             payoutMethod?.transfer_status === "sent"

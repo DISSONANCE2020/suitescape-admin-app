@@ -8,7 +8,7 @@ const PaymongoLinkModal = ({ link, onClose }) => {
             <div className="relative w-full max-w-3xl p-6 bg-white rounded-lg shadow-lg">
                 <button
                     onClick={onClose}
-                    className="absolute top-2 right-2 text-gray-600 hover:text-black"
+                    className="absolute text-2xl text-gray-700 top-6 right-7 hover:text-black"
                 >
                     ✕
                 </button>
