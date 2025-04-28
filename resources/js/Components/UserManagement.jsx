@@ -43,6 +43,7 @@ const UserManagement = () => {
             {selectedUser ? (
                 <UserDetails
                     user={selectedUser}
+                    profileImage={selectedUser.profile_image}
                     activeSessions={activeSessions}
                     userListings={listings}
                     userBookings={bookings}

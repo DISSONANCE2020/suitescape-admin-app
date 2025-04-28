@@ -7,7 +7,7 @@ use App\Http\Controllers\VideoViolationsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\FinanceController;
-use App\Http\Controllers\PayoutMethodController;
+use App\Http\Controllers\RefundController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\PaymongoController;
 
@@ -33,8 +33,7 @@ Route::middleware(['auth', 'role:super-admin'])->group(function () {
     Route::get('/super-admin', [SuperAdminController::class, 'superAdmin'])->name('super.admin');
 
     Route::get('/super-admin/finance', [FinanceController::class, 'financeDashboard'])->name('super.admin.finance');
-    Route::get('/super-admin/payouts', [PayoutMethodController::class, 'index'])->name('super.admin.payouts');
-    // Route::post('/super-admin/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds']);
+    Route::get('/super-admin/payouts', [RefundController::class, 'index'])->name('super.admin.payouts');
 });
 
 Route::get('/videos', function () {
@@ -52,15 +51,15 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
     Route::get('/finance-manager', [FinanceController::class, 'payoutdetails'])->name('finance.manager');
     Route::get('/finance-manager/dashboard', [FinanceController::class, 'financeDashboard'])->name('finance.dashboard');
 
-    Route::get('/finance-manager/payouts', [PayoutMethodController::class, 'index'])->name('finance.payouts');
-    Route::post('/finance-manager/payout-methods', [PayoutMethodController::class, 'store']);
+    Route::get('/finance-manager/payouts', [RefundController::class, 'index'])->name('finance.payouts');
+    Route::post('/finance-manager/payout-methods', [RefundController::class, 'store']);
 
-    Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
+    Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [RefundController::class, 'transferFunds'])
         ->name('payout.transfer');
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PaymongoController::class, 'transferPayout'])->name('finance.transferpayout');
     Route::post('/generate-paymongo-link', [PaymongoController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
 
-    Route::post('/finance-manager/transfer-funds', [PayoutMethodController::class, 'transferFunds'])
+    Route::post('/finance-manager/transfer-funds', [RefundController::class, 'transferFunds'])
         ->name('finance.transferFunds');
 });
 
@@ -68,5 +67,5 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 
 if (app()->environment('local', 'development')) {
-    Route::get('/debug-payouts', [PayoutMethodController::class, 'debug'])->middleware(['auth', 'role:super-admin']);
+    Route::get('/debug-payouts', [RefundController::class, 'debug'])->middleware(['auth', 'role:super-admin']);
 }

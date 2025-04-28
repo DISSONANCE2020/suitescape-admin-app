@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 
-class PayoutMethodController extends Controller
+class RefundController extends Controller
 {
 
     public function index()
