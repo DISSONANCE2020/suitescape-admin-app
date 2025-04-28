@@ -78,11 +78,11 @@ const FinanceRefundDetails = ({
                                     <span
                                         className={`px-3 py-1 text-white font-bold rounded-md ${
                                             refundStatus === "REFUND PENDING"
-                                                ? "bg-[#EF4444]" // Red for Refund Pending
+                                                ? "bg-[#EF4444]"
                                                 : refundStatus ===
                                                   "REFUND ISSUED"
-                                                ? "bg-[#10B981]" // Green for Refund Issued
-                                                : "bg-[#D1D5DB]" // Default gray for N/A
+                                                ? "bg-[#10B981]"
+                                                : "bg-[#D1D5DB]"
                                         }`}
                                     >
                                         {refundStatus}
