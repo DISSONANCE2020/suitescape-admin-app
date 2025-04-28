@@ -122,7 +122,7 @@ const VideoTable = ({
                                     </td>
 
                                     <td className="p-2 w-[150px] overflow-hidden whitespace-nowrap hidden md:table-cell">
-                                        <span className="px-3 py-1 text-white font-bold rounded-md bg-[#EF4444] block mx-auto w-[200px] overflow-hidden text-ellipsis">
+                                        <span>
                                             {host
                                                 ? `${host.firstname} ${host.lastname}`
                                                 : "Unknown"}
