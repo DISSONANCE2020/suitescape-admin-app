@@ -22,6 +22,7 @@ class Invoice extends Model
         'payment_status',
         'payment_method',
         'reference_number',
+        'updated_at',
     ];
 
     // Boot method to automatically generate UUIDs on model creation

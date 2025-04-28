@@ -10,6 +10,7 @@ const FinanceManagement = () => {
     const [currentPagePayouts, setCurrentPagePayouts] = useState(1);
     const [currentPageRefunds, setCurrentPageRefunds] = useState(1);
     const [selectedBooking, setSelectedBooking] = useState(null);
+    const [refundFilter, setRefundFilter] = useState("all");
 
     console.log(usePage().props);
 
@@ -19,6 +20,18 @@ const FinanceManagement = () => {
     );
     const refunds = bookings.filter(
         (booking) => booking.status === "cancelled"
+    );
+
+    // Filter refunds based on payment_status:
+    const filteredRefunds = refunds.filter((refund) => {
+        if (refundFilter === "all") return true;
+        const invoice = invoices.find((inv) => inv.booking_id === refund.id);
+        return invoice?.payment_status === refundFilter;
+    });
+
+    // Sort filtered refunds by updated_at in descending order:
+    const sortedRefunds = [...filteredRefunds].sort(
+        (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
     );
 
     const handleCloseDetails = () => {
@@ -34,34 +47,55 @@ const FinanceManagement = () => {
         <div className="flex-1 pb-2">
             {/* Tab Switcher */}
             {!selectedBooking && (
-                <div className="flex justify-start gap-4 mb-4 border-b border-[#D1D5DB] pb-4">
-                    <button
-                        className={`px-4 py-2 font-semibold focus:outline-none ${
-                            activeTab === "payouts"
-                                ? "border-b-2 border-blue-600 text-blue-600"
-                                : "text-gray-500"
-                        }`}
-                        onClick={() => {
-                            setActiveTab("payouts");
-                            setCurrentPagePayouts(1);
-                        }}
-                    >
-                        Payouts
-                    </button>
+                <div className="flex justify-between items-center gap-4 mb-4 border-b border-[#D1D5DB] pb-4">
+                    <div className="flex gap-4">
+                        <button
+                            className={`px-4 py-2 font-semibold focus:outline-none ${
+                                activeTab === "payouts"
+                                    ? "border-b-2 border-blue-600 text-blue-600"
+                                    : "text-gray-500"
+                            }`}
+                            onClick={() => {
+                                setActiveTab("payouts");
+                                setCurrentPagePayouts(1);
+                            }}
+                        >
+                            Payouts
+                        </button>
 
-                    <button
-                        className={`px-4 py-2 font-semibold focus:outline-none ${
-                            activeTab === "refunds"
-                                ? "border-b-2 border-red-600 text-red-600"
-                                : "text-gray-500"
-                        }`}
-                        onClick={() => {
-                            setActiveTab("refunds");
-                            setCurrentPageRefunds(1);
-                        }}
-                    >
-                        Refunds
-                    </button>
+                        <button
+                            className={`px-4 py-2 font-semibold focus:outline-none ${
+                                activeTab === "refunds"
+                                    ? "border-b-2 border-red-600 text-red-600"
+                                    : "text-gray-500"
+                            }`}
+                            onClick={() => {
+                                setActiveTab("refunds");
+                                setCurrentPageRefunds(1);
+                            }}
+                        >
+                            Refunds
+                        </button>
+                    </div>
+
+                    {/* Sorting Button for Refunds */}
+                    {activeTab === "refunds" && (
+                        <div className="flex items-center gap-2">
+                            <select
+                                id="refundFilter"
+                                value={refundFilter}
+                                onChange={(e) =>
+                                    setRefundFilter(e.target.value)
+                                }
+                                className="px-3 py-2 w-[220px] border border-[#D1D5DB] rounded-md"
+                            >
+                                <option value="all">All</option>
+                                <option value="paid">Refund Pending</option>
+                                <option value="refunded">Refund Issued</option>
+                                <option value="pending">Payment Pending</option>
+                            </select>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -79,12 +113,12 @@ const FinanceManagement = () => {
                 />
             ) : (
                 <FinanceRefundsTable
-                    refunds={refunds}
+                    refunds={sortedRefunds}
                     users={users}
                     listings={listings}
                     payoutMethods={payoutMethods}
-                    setSelectedBooking={setSelectedBooking} // Pass the prop
-                    selectedBooking={selectedBooking} // Pass the prop
+                    setSelectedBooking={setSelectedBooking}
+                    selectedBooking={selectedBooking}
                 />
             )}
         </div>

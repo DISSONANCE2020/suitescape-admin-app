@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { usePage } from "@inertiajs/react";
-import PayoutsModal from "./PayoutsModal";
+import RefundsModal from "./RefundsModal";
 
 const FinanceRefundDetails = ({
     booking,
@@ -9,8 +9,8 @@ const FinanceRefundDetails = ({
     payoutMethods,
     onClose,
 }) => {
-    const [showPayoutsModal, setShowPayoutsModal] = useState(false);
-    const { props } = usePage(); // Access Inertia props for real-time updates
+    const [showRefundsModal, setShowRefundsModal] = useState(false);
+    const { props } = usePage();
 
     if (!booking) return null;
 
@@ -37,11 +37,11 @@ const FinanceRefundDetails = ({
         : "N/A";
 
     const handleProcessRefund = () => {
-        setShowPayoutsModal(true);
+        setShowRefundsModal(true);
     };
 
     const handleRefundComplete = () => {
-        setShowPayoutsModal(false);
+        setShowRefundsModal(false);
         Inertia.reload();
     };
 
@@ -175,12 +175,12 @@ const FinanceRefundDetails = ({
                 )}
             </div>
 
-            {showPayoutsModal && host && (
-                <PayoutsModal
+            {showRefundsModal && host && (
+                <RefundsModal
                     amount={booking.amount}
                     payoutMethods={hostPayoutMethods}
                     bookingId={booking.id}
-                    onClose={() => setShowPayoutsModal(false)}
+                    onClose={() => setShowRefundsModal(false)}
                     onRefundComplete={handleRefundComplete}
                 />
             )}

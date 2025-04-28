@@ -52,13 +52,13 @@ const FinanceRefundsTable = ({
                             <thead>
                                 <tr className="text-center">
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Recipient
+                                        Guest
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Listing Name
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
-                                        Check-In/Out
+                                        Booking Date
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Refund Amount
