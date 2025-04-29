@@ -38,12 +38,17 @@ const UserDetails = ({
               })
             : "N/A";
 
-    const listingsCount = userListings.filter(
-        (listing) => listing.user_id === user.id
-    ).length;
+    const ownedListings = userListings
+        .filter((listing) => listing.user_id === user.id)
+        .map((listing) => listing.name);
 
     const bookingsCount = userBookings.filter(
         (booking) => booking.user_id === user.id
+    ).length;
+
+    const cancelledBookingsCount = userBookings.filter(
+        (booking) =>
+            booking.user_id === user.id && booking.status === "cancelled"
     ).length;
 
     const profileImage = user.profile_image;
@@ -91,15 +96,25 @@ const UserDetails = ({
                     </p>
                     <br />
                     <p className="font-semibold text-black">
-                        No. of Listings:{" "}
+                       Owned Listings:{" "}
                         <span className="font-normal">
-                            {listingsCount || "0"}
+                            {ownedListings.length > 0
+                                ? ownedListings.join(", ")
+                                : "None"}
                         </span>
                     </p>
                     <p className="font-semibold text-black">
                         No. of Bookings:{" "}
                         <span className="font-normal">
                             {bookingsCount || "0"}
+                        </span>
+                    </p>
+                    <p className="font-semibold text-red-600">
+                        <span className="font-semibold text-red-600">
+                            No. of Cancelled Bookings:{" "}
+                        </span>
+                        <span className="font-normal">
+                            {cancelledBookingsCount || "0"}
                         </span>
                     </p>
                 </div>
