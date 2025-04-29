@@ -57,7 +57,6 @@ const UserDetails = ({
                 <div className="w-full md:w-1/3 flex justify-center items-center">
                     <img
                         src={profileImage}
-                        alt="Profile"
                         className="w-full md:w-[250px] h-[250px] md:h-[450px] object-cover rounded-lg"
                         onError={(e) => {
                             e.target.onerror = null;
