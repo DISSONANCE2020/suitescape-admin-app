@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
-import PaymongoLinkModal from "./PaymongoLinkModal";
+
 const FinancePayoutDetails = ({
     booking,
     users,
@@ -23,9 +23,7 @@ const FinancePayoutDetails = ({
     const payoutAmount = amountPaid - suitescapeFee;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showLinkModal, setShowLinkModal] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [generatedLink, setGeneratedLink] = useState("");
 
     const handleListingClick = () => {
         setIsModalOpen(true);
@@ -62,8 +60,8 @@ const FinancePayoutDetails = ({
             const data = await response.json();
             const paymentLink = data.link;
 
-            setGeneratedLink(paymentLink);
-            setShowLinkModal(true); // Show modal instead of inline link
+            // Open the PayMongo link in a new tab
+            window.open(paymentLink, "_blank");
         } catch (error) {
             console.error("Failed to generate PayMongo link:", error);
             alert("Payment generation failed: Amount must be at least 100.");
@@ -148,7 +146,7 @@ const FinancePayoutDetails = ({
                                     Payout Status:
                                 </td>
                                 <td className="pb-12 text-xl capitalize">
-                                    {payoutMethod?.transfer_status || "N/A"}
+                                    {payoutMethod?.status || "N/A"}
                                 </td>
                             </tr>
                             <tr>
@@ -292,13 +290,12 @@ const FinancePayoutDetails = ({
                 {host && (
                     <button
                         onClick={() => {
-                            // Check the transfer status before proceeding
                             if (payoutMethod?.transfer_status === "sent") {
                                 alert(
                                     "This payout has already been sent. You cannot send the payment again."
                                 );
                             } else {
-                                handleSendPayout(booking); // Proceed with sending payout if not already sent
+                                handleSendPayout(booking);
                             }
                         }}
                         disabled={isGenerating}
@@ -313,13 +310,6 @@ const FinancePayoutDetails = ({
                     </button>
                 )}
             </div>
-
-            {showLinkModal && (
-                <PaymongoLinkModal
-                    link={generatedLink}
-                    onClose={() => setShowLinkModal(false)}
-                />
-            )}
 
             {isModalOpen && (
                 <FinanceListingDetailsModal

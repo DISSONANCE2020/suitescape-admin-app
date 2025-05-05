@@ -13,9 +13,9 @@ class WebhookController extends Controller
         // Verify the webhook signature
         $signature = $request->header('Paymongo-Signature');
         $payload = $request->getContent();
-        $secret = env('PAYMONGO_WEBHOOK_SECRET'); // Use environment variable
+        $webhook_secret_key = env('PAYMONGO_WEBHOOK_SECRET'); // Use environment variable
 
-        if (!$this->isValidSignature($signature, $payload, $secret)) {
+        if (!$this->isValidSignature($signature, $payload, $webhook_secret_key)) {
             Log::warning('Invalid PayMongo webhook signature.');
             return response()->json(['error' => 'Invalid signature'], 400);
         }
@@ -107,18 +107,18 @@ class WebhookController extends Controller
      *
      * @param string $signature The signature from the request header
      * @param string $payload The raw request body
-     * @param string $secret The webhook secret key
+     * @param string $webhook_secret_key The webhook secret key
      * @return bool
      */
-    private function isValidSignature($signature, $payload, $secret)
+    private function isValidSignature($signature, $payload, $webhook_secret_key)
     {
-        if (empty($signature) || empty($secret)) {
+        if (empty($signature) || empty($webhook_secret_key)) {
             return false;
         }
 
         // Implement your signature verification logic here
         // For example, using HMAC SHA256
-        $computedSignature = hash_hmac('sha256', $payload, $secret);
+        $computedSignature = hash_hmac('sha256', $payload, $webhook_secret_key);
 
         return hash_equals($signature, $computedSignature);
     }

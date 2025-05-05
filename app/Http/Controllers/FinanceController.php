@@ -20,6 +20,7 @@ class FinanceController extends Controller
         $listings = Listing::latest()->get();
         $payoutMethods = PayoutMethod::with('payoutable')->latest()->get();
         $invoices = Invoice::latest()->get();
+        $payouts = PayoutMethod::latest()->get();
 
         // Return data to the FinanceManager view
         return Inertia::render('FinanceManager', [
@@ -28,6 +29,8 @@ class FinanceController extends Controller
             'listings' => $listings,
             'payoutMethods' => $payoutMethods,
             'invoices' => $invoices,
+            'payouts' => $payouts,
+
         ]);
     }
 

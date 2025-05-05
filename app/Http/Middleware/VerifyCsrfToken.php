@@ -21,5 +21,6 @@ class VerifyCsrfToken
     protected $except = [
         'webhook/paymongo',
         'api/external/*',
+        '/paymongo-payouts',
     ];
 }
