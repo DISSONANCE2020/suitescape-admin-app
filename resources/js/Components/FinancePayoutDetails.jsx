@@ -8,7 +8,6 @@ const FinancePayoutDetails = ({
     listings,
     payoutMethods,
     onClose,
-    onGeneratePayoutLink,
 }) => {
     if (!booking) return null;
 
