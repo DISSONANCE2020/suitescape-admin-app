@@ -46,10 +46,10 @@ const FinancePayoutsTable = ({
     };
 
     return (
-        <div className="rounded-lg pt-2 h-full flex flex-col w-full max-w-full">
+        <div className="flex flex-col w-full h-full max-w-full pt-2 rounded-lg">
             {!selectedBooking && (
                 <>
-                    <div className="overflow-x-auto w-full max-w-full">
+                    <div className="w-full max-w-full overflow-x-auto">
                         <table className="w-full table-fixed border border-[#D1D5DB] min-w-[600px]">
                             <thead>
                                 <tr className="text-center">
@@ -93,15 +93,15 @@ const FinancePayoutsTable = ({
                                                 handleRowClick(booking)
                                             }
                                         >
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                            <td className="p-2 overflow-hidden capitalize whitespace-nowrap">
                                                 {host
                                                     ? `${host.firstname} ${host.lastname}`
                                                     : "Unknown"}
                                             </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize text-xs">
+                                            <td className="p-2 overflow-hidden text-xs capitalize whitespace-nowrap">
                                                 {listing?.name}
                                             </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                            <td className="p-2 overflow-hidden capitalize whitespace-nowrap">
                                                 {booking.date_start &&
                                                 booking.date_end
                                                     ? `${new Intl.DateTimeFormat(
@@ -130,7 +130,7 @@ const FinancePayoutsTable = ({
                                                     : "N/A"}
                                             </td>
 
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                            <td className="p-2 overflow-hidden capitalize whitespace-nowrap">
                                                 ₱
                                                 {Number(
                                                     booking?.amount
@@ -139,10 +139,10 @@ const FinancePayoutsTable = ({
                                                     maximumFractionDigits: 2,
                                                 })}
                                             </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                            <td className="p-2 overflow-hidden capitalize whitespace-nowrap">
                                                 {booking?.status || "N/A"}
                                             </td>
-                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                            <td className="p-2 overflow-hidden capitalize whitespace-nowrap">
                                                 {payoutMethod?.transfer_status ||
                                                     "N/A"}
                                             </td>
@@ -155,7 +155,7 @@ const FinancePayoutsTable = ({
 
                     {/* Hide pagination when a booking is selected */}
 
-                    <div className="mt-auto flex justify-between items-center pt-4 px-2">
+                    <div className="flex items-center justify-between px-2 pt-4 mt-auto">
                         <button
                             className="px-4 py-2 bg-[#E5E7EB] rounded-lg disabled:opacity-50"
                             onClick={() =>

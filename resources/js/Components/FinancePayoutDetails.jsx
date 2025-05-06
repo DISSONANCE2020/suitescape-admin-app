@@ -146,7 +146,7 @@ const FinancePayoutDetails = ({
                                     Payout Status:
                                 </td>
                                 <td className="pb-12 text-xl capitalize">
-                                    {payoutMethod?.status || "N/A"}
+                                    {payoutMethod?.transfer_status || "N/A"}
                                 </td>
                             </tr>
                             <tr>

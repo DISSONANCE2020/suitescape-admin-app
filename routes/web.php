@@ -58,10 +58,10 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transfer', [PayoutMethodController::class, 'transferFunds'])
         ->name('payout.transfer');
-    Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PaymongoController::class, 'transferPayout'])->name('finance.transferpayout');
+
     Route::post('/generate-paymongo-link', [PaymongoController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
+
     Route::post('/finance-manager/transfer-funds', [PayoutMethodController::class, 'transferFunds'])->name('finance.transferFunds');
-    Route::get('/payment-details/{linkId}', [PaymongoController::class, 'getPaymentDetails']);
 
 });
 
@@ -72,3 +72,8 @@ Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 if (app()->environment('local', 'development')) {
     Route::get('/debug-payouts', [PayoutMethodController::class, 'debug'])->middleware(['auth', 'role:super-admin']);
 }
+
+// Route::get('/payment-details/{linkId}', [PaymongoController::class, 'getPaymentDetails']);
+
+// Route::post('/payouts/{user}/{payoutMethod}/transfer', [PaymongoController::class, 'transferPayout'])
+//     ->name('payouts.transfer');
