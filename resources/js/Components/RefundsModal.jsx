@@ -81,11 +81,11 @@ const RefundsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
                 <div className="mb-4 p-2 bg-gray-50 border border-gray-100 rounded">
                     <p className="text-sm">
                         <strong>Full Refund:</strong> PHP ₱
-                        {amount || "N/A"}
+                        {amount ? Number(amount).toFixed(2) : "N/A"}
                     </p>
                     <p className="text-sm">
                         <strong>Partial Refund:</strong> PHP ₱
-                        {partialAmount || "N/A"}
+                        {partialAmount ? Number(partialAmount).toFixed(2) : "N/A"}
                     </p>
                 </div>
 
