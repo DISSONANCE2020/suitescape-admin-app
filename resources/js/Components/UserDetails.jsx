@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useMemo } from "react";
 import ProfileImageFallback from "../../assets/images/ProfileImageFallback.jpg";
 
 const UserDetails = ({
@@ -15,10 +15,6 @@ const UserDetails = ({
         3: "Guest",
     };
 
-    const userSessions = activeSessions.find(
-        (session) => session.user_id === user.id
-    );
-
     const userSince = user.created_at
         ? new Date(user.created_at).toLocaleString("en-US", {
               month: "short",
@@ -27,7 +23,9 @@ const UserDetails = ({
           })
         : "N/A";
 
-    const lastActive = userSessions ? userSessions.updated_at : "N/A";
+    const lastActive =
+        activeSessions.find((session) => session.user_id === user.id)
+            ?.updated_at || "N/A";
 
     const formattedLastActive =
         lastActive !== "N/A"
@@ -38,22 +36,37 @@ const UserDetails = ({
               })
             : "N/A";
 
-    const ownedListings = userListings
-        .filter((listing) => listing.user_id === user.id)
-        .map((listing) => listing.name);
+    const ownedListings = useMemo(
+        () =>
+            userListings
+                .filter((listing) => listing.user_id === user.id)
+                .map((listing) => listing.name),
+        [userListings, user.id]
+    );
 
-    const bookingsCount = userBookings.filter(
-        (booking) => booking.user_id === user.id
-    ).length;
+    const bookingsCount = useMemo(
+        () =>
+            userBookings.filter((booking) => booking.user_id === user.id)
+                .length,
+        [userBookings, user.id]
+    );
 
-    const cancelledBookingsCount = userBookings.filter(
-        (booking) =>
-            booking.user_id === user.id && booking.status === "cancelled"
-    ).length;
+    const cancelledBookingsCount = useMemo(
+        () =>
+            userBookings.filter(
+                (booking) =>
+                    booking.user_id === user.id &&
+                    booking.status === "cancelled"
+            ).length,
+        [userBookings, user.id]
+    );
 
     const profileImage = user.profile_image;
 
-    const fallbackImage = ProfileImageFallback;
+    const handleImageError = (e) => {
+        e.target.onerror = null;
+        e.target.src = ProfileImageFallback;
+    };
 
     return (
         <div className="w-full flex flex-col justify-center min-h-[500px]">
@@ -62,11 +75,10 @@ const UserDetails = ({
                 <div className="w-full md:w-1/3 flex justify-center items-center">
                     <img
                         src={profileImage}
+                        loading="lazy"
+                        alt="Profile"
                         className="w-full md:w-[250px] h-[250px] md:h-[450px] object-cover rounded-lg"
-                        onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = fallbackImage;
-                        }}
+                        onError={handleImageError}
                     />
                 </div>
 
@@ -76,7 +88,11 @@ const UserDetails = ({
                         {user.firstname} {user.lastname}
                     </h2>
                     <h3 className="text-lg font-medium pb-8 text-[#808080]">
-                        {roleNames[user.role_id] || "Guest"}
+                        {user.role_id === 2
+                            ? "Host"
+                            : user.role_id === 3
+                            ? "Guest"
+                            : "N/A"}
                     </h3>
                     <p className="font-semibold text-black">
                         Last Active:{" "}
@@ -96,7 +112,7 @@ const UserDetails = ({
                     </p>
                     <br />
                     <p className="font-semibold text-black">
-                       Owned Listings:{" "}
+                        Owned Listings:{" "}
                         <span className="font-normal">
                             {ownedListings.length > 0
                                 ? ownedListings.join(", ")

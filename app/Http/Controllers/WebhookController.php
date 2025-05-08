@@ -44,21 +44,21 @@ class WebhookController extends Controller
                 }
                 break;
 
-            case 'payment.failed':
-                // Handle payment failed event
-                if ($bookingId) {
-                    $this->updateInvoiceStatus($bookingId, 'failed');
-                    Log::info('Payment failed for booking', ['booking_id' => $bookingId]);
-                }
-                break;
+            // case 'payment.failed':
+            //     // Handle payment failed event
+            //     if ($bookingId) {
+            //         $this->updateInvoiceStatus($bookingId, 'failed');
+            //         Log::info('Payment failed for booking', ['booking_id' => $bookingId]);
+            //     }
+            //     break;
 
-            case 'payment.paid':
-                // Handle payment paid event
-                if ($bookingId) {
-                    $this->updateInvoiceStatus($bookingId, 'refunded');
-                    Log::info('Payment succeeded and invoice updated for booking', ['booking_id' => $bookingId]);
-                }
-                break;
+            // case 'payment.paid':
+            //     // Handle payment paid event
+            //     if ($bookingId) {
+            //         $this->updateInvoiceStatus($bookingId, 'refunded');
+            //         Log::info('Payment succeeded and invoice updated for booking', ['booking_id' => $bookingId]);
+            //     }
+            //     break;
 
             default:
                 Log::info('Unhandled PayMongo webhook event', ['event' => $event]);
