@@ -61,6 +61,7 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
 
     Route::post('/finance-manager/transfer-funds', [RefundController::class, 'transferFunds'])
         ->name('finance.transferFunds');
+    Route::post('/finance-manager/transfer-funds/partial', [RefundController::class, 'processPartialRefund']);
 });
 
 

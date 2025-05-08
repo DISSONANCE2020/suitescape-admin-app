@@ -84,6 +84,64 @@ class RefundController extends Controller
         }
     }
 
+    public function processPartialRefund(Request $request)
+    {
+        $validated = $request->validate(
+            [
+                'amount' => 'required|numeric|min:100',
+                'description' => 'nullable|string|max:255',
+                'booking_id' => 'required|string|exists:bookings,id',
+            ]
+        );
+
+        $amountInCents = (int) round($validated['amount'] * 100 * 0.8, 0);
+
+        try {
+            $invoice = $this->getInvoiceByBookingId($validated['booking_id']);
+
+            $paymentId = $this->getPaymentIdFromReferenceNumber($invoice->reference_number);
+
+            $secretKey = env('PAYMONGO_SECRET_KEY');
+
+            $response = Http::withBasicAuth($secretKey, '')
+                ->post('https://api.paymongo.com/v1/refunds', [
+                    'data' => [
+                        'attributes' => [
+                            'amount' => $amountInCents,
+                            'payment_id' => $paymentId,
+                            'reason' => 'requested_by_customer',
+                            'notes' => $validated['description'] ?? 'Partial refund payment',
+                        ],
+                    ],
+                ]);
+
+            if ($response->successful()) {
+                $refundData = $response->json()['data'];
+
+                //SUBJECT TO CHANGE (Possible change to partially_refunded)
+                $invoice->payment_status = 'refunded';
+                $invoice->save();
+
+                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'] * 0.8);
+
+                return back()->with('success', 'Partial refund initiated successfully! Refund ID: ' . $refundData['id']);
+            } else {
+                $this->logError('Partial refund processing', new \Exception('Partial refund failed'), [
+                    'booking_id' => $validated['booking_id'],
+                    'user_id' => auth()->id(),
+                    'response' => $response->body(),
+                ]);
+                return back()->with('error', 'Partial refund failed: ' . $response->json()['errors'][0]['detail'] ?? 'Unknown error');
+            }
+        } catch (\Exception $e) {
+            $this->logError('Partial refund processing exception', $e, [
+                'booking_id' => $validated['booking_id'] ?? null,
+                'user_id' => auth()->id(),
+            ]);
+            return back()->with('error', 'Partial refund failed: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Update the invoice status to "refunded" for a given booking
      *

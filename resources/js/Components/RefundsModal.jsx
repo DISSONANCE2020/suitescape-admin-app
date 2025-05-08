@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 
-const PayoutsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
+const RefundsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
     const { payoutMethods } = usePage().props;
     const [loading, setLoading] = useState(false);
+
+    const partialAmount = amount * 0.8;
 
     const handleTransfer = async () => {
         if (!amount || amount <= 0) {
@@ -34,9 +36,32 @@ const PayoutsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
         );
     };
 
-    const isValidUUID = (uuid) => {
-        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-            uuid
+    const handlePartialRefund = async () => {
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        setLoading(true);
+
+        router.post(
+            '/finance-manager/transfer-funds/partial',
+            {
+                amount: partialAmount,
+                description: "Partial Refund Transfer",
+                booking_id: bookingId,
+            },
+            {
+                onSuccess: () => {
+                    alert("Partial refund initiated successfully!");
+                    onClose();
+                    onRefundComplete();
+                },
+                onError: (errors) => {
+                    alert(Object.values(errors).join("\n"));
+                },
+                onFinish: () => setLoading(false),
+            }
         );
     };
 
@@ -55,8 +80,12 @@ const PayoutsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
 
                 <div className="mb-4 p-2 bg-gray-50 border border-gray-100 rounded">
                     <p className="text-sm">
-                        <strong>Amount to Refund:</strong> PHP ₱
+                        <strong>Full Refund:</strong> PHP ₱
                         {amount || "N/A"}
+                    </p>
+                    <p className="text-sm">
+                        <strong>Partial Refund:</strong> PHP ₱
+                        {partialAmount || "N/A"}
                     </p>
                 </div>
 
@@ -72,7 +101,14 @@ const PayoutsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
                         className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
                         disabled={loading}
                     >
-                        {loading ? "Processing..." : "Process Refund"}
+                        {loading ? "Processing..." : "Full Refund"}
+                    </button>
+                                        <button
+                        onClick={handlePartialRefund}
+                        className="px-4 py-2 text-white bg-blue-500 rounded disabled:bg-blue-300"
+                        disabled={loading}
+                    >
+                        {loading ? "Processing..." : "Partial Refund"}
                     </button>
                 </div>
             </div>
@@ -80,4 +116,4 @@ const PayoutsModal = ({ onClose, amount, bookingId, onRefundComplete }) => {
     );
 };
 
-export default PayoutsModal;
+export default RefundsModal;
