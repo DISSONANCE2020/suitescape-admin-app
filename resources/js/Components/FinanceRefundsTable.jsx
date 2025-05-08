@@ -88,8 +88,11 @@ const FinanceRefundsTable = ({
                                           "paid"
                                             ? "REFUND PENDING"
                                             : booking.invoice.payment_status ===
-                                              "refunded"
-                                            ? "REFUND ISSUED"
+                                              "fully_refunded"
+                                            ? "FULLY REFUNDED"
+                                            : booking.invoice.payment_status ===
+                                              "partially_refunded"
+                                            ? "PARTIALLY REFUNDED"
                                             : "N/A"
                                         : "N/A";
 
@@ -107,8 +110,7 @@ const FinanceRefundsTable = ({
                                                     : "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
-                                                {listing?.name ||
-                                                    "N/A"}
+                                                {listing?.name || "N/A"}
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 {booking.date_start &&
@@ -152,14 +154,17 @@ const FinanceRefundsTable = ({
                                             </td>
                                             <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
                                                 <span
-                                                    className={`px-3 py-1 text-white w-[160px] font-bold block mx-auto rounded-md ${
+                                                    className={`px-3 py-1 text-white w-[170px] font-bold text-sm block mx-auto rounded-md ${
                                                         refundStatus ===
                                                         "REFUND PENDING"
-                                                            ? "bg-[#EF4444]" 
+                                                            ? "bg-[#EF4444]"
                                                             : refundStatus ===
-                                                              "REFUND ISSUED"
-                                                            ? "bg-[#10B981]" 
-                                                            : "bg-[#D1D5DB]" 
+                                                              "FULLY REFUNDED"
+                                                            ? "bg-[#10B981]"
+                                                            : refundStatus ===
+                                                              "PARTIALLY REFUNDED"
+                                                            ? "bg-yellow-500"
+                                                            : "bg-[#D1D5DB]"
                                                     }`}
                                                 >
                                                     {refundStatus}

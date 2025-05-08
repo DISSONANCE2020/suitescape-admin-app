@@ -31,8 +31,10 @@ const FinanceRefundDetails = ({
     const refundStatus = booking.invoice
         ? booking.invoice.payment_status === "paid"
             ? "REFUND PENDING"
-            : booking.invoice.payment_status === "refunded"
-            ? "REFUND ISSUED"
+            : booking.invoice.payment_status === "fully_refunded"
+            ? "FULLY REFUNDED"
+            : booking.invoice.payment_status === "partially_refunded"
+            ? "PARTIALLY REFUNDED"
             : "N/A"
         : "N/A";
 
@@ -80,8 +82,11 @@ const FinanceRefundDetails = ({
                                             refundStatus === "REFUND PENDING"
                                                 ? "bg-[#EF4444]"
                                                 : refundStatus ===
-                                                  "REFUND ISSUED"
+                                                  "FULLY REFUNDED"
                                                 ? "bg-[#10B981]"
+                                                : refundStatus ===
+                                                  "PARTIALLY REFUNDED"
+                                                ? "bg-yellow-500"
                                                 : "bg-[#D1D5DB]"
                                         }`}
                                     >

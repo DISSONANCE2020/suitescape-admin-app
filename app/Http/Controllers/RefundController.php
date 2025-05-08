@@ -118,8 +118,7 @@ class RefundController extends Controller
             if ($response->successful()) {
                 $refundData = $response->json()['data'];
 
-                //SUBJECT TO CHANGE (Possible change to partially_refunded)
-                $invoice->payment_status = 'refunded';
+                $invoice->payment_status = 'partially_refunded';
                 $invoice->save();
 
                 $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'] * 0.8);
