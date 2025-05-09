@@ -74,7 +74,9 @@ const RefundsModal = ({
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-xl font-semibold mb-6 text-gray-800">Process Refund</h2>
+                <h2 className="text-xl font-semibold mb-6 text-gray-800">
+                    Process Refund
+                </h2>
 
                 {bookingId && (
                     <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -95,6 +97,26 @@ const RefundsModal = ({
                         </p>
                     </div>
                 )}
+
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-700">
+                        <strong>Refunds for card transactions:</strong>
+                        <div>
+                            {" "}
+                            Allowed within <strong>60 days</strong> from the
+                            date of payment.
+                        </div>
+                        <br />
+                        <strong>Refunds for GCash transactions:</strong>
+                        <div>
+                            {" "}
+                            Allowed within <strong>180 days</strong> from the
+                            date of payment.
+                        </div>
+                    </p>
+                </div>
+
+                <br />
 
                 <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                     <p className="text-sm text-gray-800">
