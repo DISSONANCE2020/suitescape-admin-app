@@ -58,25 +58,26 @@ const FinanceRefundDetails = ({
 
     return (
         <div>
-            <h2 className="pb-4 text-4xl font-semibold capitalize">
+            <div className="flex justify-between h-[60px] items-center mb-4 border-b border-[#D1D5DB] pb-4">
+                <h2 className="text-lg font-semibold">Refunds</h2>
+            </div>
+            <br />
+            <h2 className="pb-4 text-2xl font-bold capitalize">
                 {listing?.name || "Unknown"}{" "}
             </h2>
-            <p className="text-2xl capitalize font-poppins">
+            <p className="font-bold text-xl text-gray-500 capitalize font-poppins">
                 {listing?.facility_type || "N/A"}
             </p>
-            <div className="mt-6 mb-6 border border-gray-300"></div>
+            <br />
             <div>
                 <div>
-                    <h3 className="mb-6 text-2xl font-semibold text-gray-500 capitalize">
-                        Refund Details
-                    </h3>
                     <table className="w-full">
                         <tbody>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Refund Status:
                                 </td>
-                                <td className="pb-4 text-xl">
+                                <td className="pb-4">
                                     <span
                                         className={`px-3 py-1 text-white font-bold rounded-md ${
                                             refundStatus === "REFUND PENDING"
@@ -95,28 +96,26 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Booking Reference No:
                                 </td>
-                                <td className="pb-4 text-xl">
-                                    {booking?.id || "N/A"}
-                                </td>
+                                <td className="pb-4">{booking?.id || "N/A"}</td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Guest Name:
                                 </td>
-                                <td className="pb-4 text-xl capitalize">
+                                <td className="pb-4capitalize">
                                     {guest
                                         ? `${guest.firstname} ${guest.lastname}`
                                         : "N/A"}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Booking Date:
                                 </td>
-                                <td className="pb-4 text-xl capitalize">
+                                <td className="pb-4 capitalize">
                                     {booking.date_start && booking.date_end
                                         ? `${new Intl.DateTimeFormat("en-US", {
                                               month: "short",
@@ -138,18 +137,18 @@ const FinanceRefundDetails = ({
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Mode of Payment:
                                 </td>
-                                <td className="pb-4 text-xl capitalize">
+                                <td className="pb-4 capitalize">
                                     {paymentMethod}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="pb-4 text-xl font-semibold">
+                                <td className="pb-4 font-semibold">
                                     Refund Amount:
                                 </td>
-                                <td className="pb-4 text-xl capitalize">
+                                <td className="pb-4 capitalize">
                                     ₱{booking?.amount || "N/A"}
                                 </td>
                             </tr>
