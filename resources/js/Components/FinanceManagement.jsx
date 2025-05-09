@@ -14,7 +14,6 @@ const FinanceManagement = () => {
 
     console.log(usePage().props);
 
-    // Filter bookings for each tab:
     const payouts = bookings.filter(
         (booking) => booking.status === "completed"
     );
@@ -22,26 +21,15 @@ const FinanceManagement = () => {
         (booking) => booking.status === "cancelled"
     );
 
-    // Filter refunds based on payment_status:
     const filteredRefunds = refunds.filter((refund) => {
         if (refundFilter === "all") return true;
         const invoice = invoices.find((inv) => inv.booking_id === refund.id);
         return invoice?.payment_status === refundFilter;
     });
 
-    // Sort filtered refunds by updated_at in descending order:
     const sortedRefunds = [...filteredRefunds].sort(
         (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
     );
-
-    const handleCloseDetails = () => {
-        setSelectedBooking(null);
-    };
-
-    const handleUpdateStatus = (bookingId, newStatus) => {
-        // Implement your status update logic here
-        console.log(`Updating status of booking ${bookingId} to ${newStatus}`);
-    };
 
     return (
         <div className="flex-1 pb-2">
@@ -117,6 +105,7 @@ const FinanceManagement = () => {
                     users={users}
                     listings={listings}
                     payoutMethods={payoutMethods}
+                    invoices={invoices}
                     setSelectedBooking={setSelectedBooking}
                     selectedBooking={selectedBooking}
                 />

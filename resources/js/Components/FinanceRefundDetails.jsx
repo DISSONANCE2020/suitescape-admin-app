@@ -138,6 +138,23 @@ const FinanceRefundDetails = ({
                             </tr>
                             <tr>
                                 <td className="pb-4 font-semibold">
+                                    Payment Date:
+                                </td>
+                                <td className="pb-4 capitalize">
+                                    {booking.invoice?.created_at ? new Intl.DateTimeFormat(
+                                        "en-US",
+                                        {
+                                            month: "short",
+                                            day: "2-digit",
+                                            year: "numeric",
+                                        }
+                                        ).format(
+                                            new Date(booking.invoice.created_at)
+                                        ) : "N/A"}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="pb-4 font-semibold">
                                     Mode of Payment:
                                 </td>
                                 <td className="pb-4 capitalize">

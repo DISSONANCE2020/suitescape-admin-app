@@ -4,6 +4,7 @@ import Pagination from "./Pagination";
 
 const FinanceRefundsTable = ({
     refunds,
+    invoices,
     users,
     listings,
     payoutMethods,
@@ -32,7 +33,11 @@ const FinanceRefundsTable = ({
     );
 
     const handleRowClick = (booking) => {
-        setSelectedBooking(booking);
+        const invoice = invoices.find((inv) => inv.booking_id === booking.id);
+        setSelectedBooking({
+            ...booking,
+            invoice,
+        });
     };
 
     const handleCloseDetails = () => {

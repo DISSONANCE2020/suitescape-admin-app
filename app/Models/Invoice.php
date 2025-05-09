@@ -22,6 +22,7 @@ class Invoice extends Model
         'payment_status',
         'payment_method',
         'reference_number',
+        'created_at',
         'updated_at',
     ];
 
