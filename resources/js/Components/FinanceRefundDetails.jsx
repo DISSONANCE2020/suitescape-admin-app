@@ -3,6 +3,7 @@ import { usePage } from "@inertiajs/react";
 import RefundsModal from "./RefundsModal";
 
 const FinanceRefundDetails = ({
+    invoice,
     booking,
     users,
     listings,
@@ -141,16 +142,17 @@ const FinanceRefundDetails = ({
                                     Payment Date:
                                 </td>
                                 <td className="pb-4 capitalize">
-                                    {booking.invoice?.created_at ? new Intl.DateTimeFormat(
-                                        "en-US",
-                                        {
-                                            month: "short",
-                                            day: "2-digit",
-                                            year: "numeric",
-                                        }
-                                        ).format(
-                                            new Date(booking.invoice.created_at)
-                                        ) : "N/A"}
+                                    {booking.invoice?.created_at
+                                        ? new Intl.DateTimeFormat("en-US", {
+                                              month: "short",
+                                              day: "2-digit",
+                                              year: "numeric",
+                                          }).format(
+                                              new Date(
+                                                  booking.invoice.created_at
+                                              )
+                                          )
+                                        : "N/A"}
                                 </td>
                             </tr>
                             <tr>
@@ -198,6 +200,7 @@ const FinanceRefundDetails = ({
 
             {showRefundsModal && host && (
                 <RefundsModal
+                    invoice={invoice}
                     amount={booking.amount}
                     payoutMethods={hostPayoutMethods}
                     bookingId={booking.id}

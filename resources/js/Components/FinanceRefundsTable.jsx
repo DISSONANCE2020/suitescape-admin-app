@@ -191,6 +191,7 @@ const FinanceRefundsTable = ({
 
             {selectedBooking && (
                 <FinanceRefundDetails
+                    invoice={selectedBooking.invoice}
                     booking={selectedBooking}
                     users={users}
                     listings={listings}
