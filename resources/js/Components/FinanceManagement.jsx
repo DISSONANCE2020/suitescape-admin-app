@@ -79,8 +79,12 @@ const FinanceManagement = () => {
                             >
                                 <option value="all">All</option>
                                 <option value="paid">Refund Pending</option>
-                                <option value="refunded">Refund Issued</option>
-                                <option value="pending">Payment Pending</option>
+                                <option value="fully_refunded">
+                                    Fully Refunded
+                                </option>
+                                <option value="partially_refunded">
+                                    Partially Refunded
+                                </option>
                             </select>
                         </div>
                     )}
