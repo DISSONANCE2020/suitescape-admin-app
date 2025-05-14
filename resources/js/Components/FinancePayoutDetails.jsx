@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 import FinanceListingDetailsModal from "./FinanceListingDetailsModal";
-@guest
-
-@endguest
 const FinancePayoutDetails = ({
     booking,
     users,
