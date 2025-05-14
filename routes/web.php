@@ -10,6 +10,8 @@ use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\PaymongoController;
+use App\Http\Controllers\WebhookPayoutController;
+use App\Http\Controllers\PaymongoPayoutController;
 
 
 
@@ -59,11 +61,14 @@ Route::middleware(['auth', 'role:finance|super-admin'])->group(function (): void
     Route::post('/finance-manager/payout-methods/{payoutMethod}/transferpayout', [PaymongoController::class, 'transferPayout'])->name('finance.transferpayout');
     Route::post('/generate-paymongo-link', [PaymongoController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
 
+    Route::post('/generate-paymongo-link', [PaymongoPayoutController::class, 'generatePaymentLink'])->name('generate.paymongo.link');
+
     Route::post('/finance-manager/transfer-funds', [RefundController::class, 'transferFunds'])
         ->name('finance.transferFunds');
     Route::post('/finance-manager/transfer-funds/partial', [RefundController::class, 'processPartialRefund']);
 });
 
+Route::post('/paymongo-payouts', [WebhookPayoutController::class, 'handlePayout']);
 
 Route::post('/webhook/paymongo', [WebhookController::class, 'handle']);
 
