@@ -18,27 +18,50 @@ class WebhookPayoutController extends Controller
 
     public function handlePayout(Request $request)
     {
-        // Get the raw payload from the request
         $payload = $request->getContent();
-        Log::info('Raw webhook payload:', ['payload' => $payload]);
+        $signatureHeader = $request->header('Paymongo-Signature');
 
-        // Retrieve the PayMongo webhook signature from the request header
-        $signature = $request->header('Paymongo-Signature');
+        // Parse the header
+        $signatureParts = explode(',', $signatureHeader);
+        $signatures = [];
+        foreach ($signatureParts as $part) {
+            [$key, $value] = array_map('trim', explode('=', $part));
+            $signatures[$key] = $value;
+        }
 
-        // Retrieve the PayMongo webhook secret key from the environment
-        $paymongo_secret_key = env('PAYMONGO_WEBHOOK_SECRET');
+        $timestamp = $signatures['t'] ?? null;
+        $paymongoSignature = $signatures['te'] ?? null;
 
-        // Validate the signature to ensure the request is from PayMongo
-        if (!$this->isValidSignature($signature, $payload, $paymongo_secret_key)) {
+        $paymongoSecretKey = env('PAYMONGO_WEBHOOK_SECRET');
+
+        // IMPORTANT: Combine timestamp and raw body
+        $signedPayload = "{$timestamp}.{$payload}";
+        $computedSignature = hash_hmac('sha256', $signedPayload, $paymongoSecretKey);
+
+        // Debug log
+        Log::debug('Webhook Signature Check', [
+            'signature_header' => $signatureHeader,
+            'timestamp' => $timestamp,
+            'parsed_signature_te' => $paymongoSignature,
+            'signed_payload' => $signedPayload,
+            'computed_signature' => $computedSignature,
+            'payload' => $payload,
+            'using_secret' => $paymongoSecretKey
+        ]);
+
+        if (
+            empty($paymongoSignature) ||
+            empty($paymongoSecretKey) ||
+            !hash_equals($paymongoSignature, $computedSignature)
+        ) {
             Log::warning('Invalid PayMongo webhook signature.');
             return response()->json(['error' => 'Invalid signature'], 400);
         }
 
-        // Decode the webhook payload
+        // Proceed with parsing and handling webhook
         $data = json_decode($payload, true);
         $event = $data['data']['attributes']['type'] ?? null;
 
-        // Get the payment details from the webhook
         $paymentData = $data['data']['attributes'] ?? [];
         $metadata = $paymentData['metadata'] ?? [];
         $bookingId = $metadata['booking_id'] ?? null;
@@ -49,21 +72,16 @@ class WebhookPayoutController extends Controller
             'payment_id' => $data['data']['id'] ?? 'unknown'
         ]);
 
-        // Handle different PayMongo events
         switch ($event) {
             case 'payment.paid':
-                // Update status to 'sent' for successful payments
                 if ($bookingId) {
                     $this->updatePayoutMethodStatus($bookingId, 'sent');
-                    Log::info('Payment succeeded and payout method updated for booking', ['booking_id' => $bookingId]);
                 }
                 break;
 
             case 'payment.failed':
-                // Update status to 'failed' for failed payments
                 if ($bookingId) {
                     $this->updatePayoutMethodStatus($bookingId, 'failed');
-                    Log::info('Payment failed for booking', ['booking_id' => $bookingId]);
                 }
                 break;
 
@@ -74,6 +92,7 @@ class WebhookPayoutController extends Controller
 
         return response()->json(['message' => 'Webhook processed successfully'], 200);
     }
+
 
     private function updatePayoutMethodStatus(string $bookingId, string $status)
     {

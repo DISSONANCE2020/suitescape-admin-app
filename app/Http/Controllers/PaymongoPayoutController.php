@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 
 class PaymongoPayoutController extends Controller
@@ -35,10 +36,13 @@ class PaymongoPayoutController extends Controller
                         ],
                         'metadata' => [
                             'booking_id' => $request->input('booking_id'), // Include booking ID
+                        
                         ],
                     ]
                 ]
             ]);
+
+        Log::info('Received PayMongo webhook');
 
         if ($response->successful()) {
             return response()->json([
