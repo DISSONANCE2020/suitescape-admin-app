@@ -36,13 +36,11 @@ class PaymongoPayoutController extends Controller
                         ],
                         'metadata' => [
                             'booking_id' => $request->input('booking_id'), // Include booking ID
-                        
+                            'pm_reference_number' => $uuid, // Include PayMongo reference number
                         ],
                     ]
                 ]
             ]);
-
-        Log::info('Received PayMongo webhook');
 
         if ($response->successful()) {
             return response()->json([
