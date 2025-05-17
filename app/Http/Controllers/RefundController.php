@@ -103,7 +103,20 @@ class RefundController extends Controller
 
             $secretKey = env('PAYMONGO_SECRET_KEY');
 
-            
+            $paymentDetails = Http::withBasicAuth($secretKey, '')
+                ->get("https://api.paymongo.com/v1/payments/{$paymentId}");
+
+            $paymentData = $paymentDetails->json()['data']['attributes'] ?? [];
+            $paymentStatus = $paymentData['status'] ?? null;
+
+            \Log::info('Partial refund debug', [
+                'requested_amount' => $amountInCents,
+                'payment_status' => $paymentStatus,
+            ]);
+
+            if ($paymentStatus !== 'paid') {
+                return back()->with('error', 'Refunds can only be processed for completed (paid) payments.');
+            }
 
             $response = Http::withBasicAuth($secretKey, '')
                 ->post('https://api.paymongo.com/v1/refunds', [
