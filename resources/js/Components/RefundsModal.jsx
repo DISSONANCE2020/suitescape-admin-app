@@ -57,7 +57,7 @@ const RefundsModal = ({
         router.post(
             "/finance-manager/transfer-funds/partial",
             {
-                amount: partialAmount,
+                amount,
                 description: "Partial Refund Transfer",
                 booking_id: bookingId,
                 moderated_by: moderatorId,

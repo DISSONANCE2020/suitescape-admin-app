@@ -61,7 +61,7 @@ class RefundController extends Controller
                 $refundData = $response->json()['data'];
 
                 // Optionally, update the invoice status to 'refunded'
-                $invoice->payment_status = 'refunded';
+                $invoice->payment_status = 'fully_refunded';
                 $invoice->save();
 
                 $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount']);
@@ -102,6 +102,8 @@ class RefundController extends Controller
             $paymentId = $this->getPaymentIdFromReferenceNumber($invoice->reference_number);
 
             $secretKey = env('PAYMONGO_SECRET_KEY');
+
+            
 
             $response = Http::withBasicAuth($secretKey, '')
                 ->post('https://api.paymongo.com/v1/refunds', [
