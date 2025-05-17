@@ -71,7 +71,7 @@ const FinanceRefundsTable = ({
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Booking Status
                                     </th>
-                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
+                                    <th className="p-2 border border-[#D1D5DB] w-[170px]">
                                         Refund Status
                                     </th>
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
