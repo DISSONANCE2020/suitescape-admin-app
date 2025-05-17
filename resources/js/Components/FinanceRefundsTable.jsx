@@ -74,6 +74,9 @@ const FinanceRefundsTable = ({
                                     <th className="p-2 border border-[#D1D5DB] w-[150px]">
                                         Refund Status
                                     </th>
+                                    <th className="p-2 border border-[#D1D5DB] w-[150px]">
+                                        Moderated By
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -87,15 +90,25 @@ const FinanceRefundsTable = ({
                                     const guest = users?.find(
                                         (u) => u.id === booking?.user_id
                                     );
+                                    const invoice = invoices.find(
+                                        (inv) => inv.booking_id === booking.id
+                                    );
+                                    const moderator =
+                                        invoice && invoice.moderated_by
+                                            ? users?.find(
+                                                  (u) =>
+                                                      u.id ===
+                                                      invoice.moderated_by
+                                              )
+                                            : null;
 
-                                    const refundStatus = booking.invoice
-                                        ? booking.invoice.payment_status ===
-                                          "paid"
+                                    const refundStatus = invoice
+                                        ? invoice.payment_status === "paid"
                                             ? "REFUND PENDING"
-                                            : booking.invoice.payment_status ===
+                                            : invoice.payment_status ===
                                               "fully_refunded"
                                             ? "FULLY REFUNDED"
-                                            : booking.invoice.payment_status ===
+                                            : invoice.payment_status ===
                                               "partially_refunded"
                                             ? "PARTIALLY REFUNDED"
                                             : "N/A"
@@ -174,6 +187,14 @@ const FinanceRefundsTable = ({
                                                 >
                                                     {refundStatus}
                                                 </span>
+                                            </td>
+                                            <td className="p-2 overflow-hidden whitespace-nowrap capitalize">
+                                                {moderator
+                                                    ? `${moderator.firstname} ${moderator.lastname}`
+                                                    : invoice &&
+                                                      invoice.moderated_by
+                                                    ? "N/A"
+                                                    : "Pending"}
                                             </td>
                                         </tr>
                                     );

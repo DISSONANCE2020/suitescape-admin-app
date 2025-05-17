@@ -24,6 +24,7 @@ class Invoice extends Model
         'reference_number',
         'created_at',
         'updated_at',
+        'moderated_by'
     ];
 
     // Boot method to automatically generate UUIDs on model creation

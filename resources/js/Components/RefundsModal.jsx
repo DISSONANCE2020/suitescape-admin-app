@@ -11,6 +11,9 @@ const RefundsModal = ({
     const { payoutMethods } = usePage().props;
     const [loading, setLoading] = useState(false);
 
+    // Get logged-in user id for moderation tracking
+    const moderatorId = usePage().props?.auth?.user?.id;
+
     const partialAmount = amount * 0.8;
 
     const handleTransfer = async () => {
@@ -27,6 +30,7 @@ const RefundsModal = ({
                 amount,
                 description: "Refund Transfer",
                 booking_id: bookingId,
+                moderated_by: moderatorId,
             },
             {
                 onSuccess: () => {
@@ -56,6 +60,7 @@ const RefundsModal = ({
                 amount: partialAmount,
                 description: "Partial Refund Transfer",
                 booking_id: bookingId,
+                moderated_by: moderatorId,
             },
             {
                 onSuccess: () => {
