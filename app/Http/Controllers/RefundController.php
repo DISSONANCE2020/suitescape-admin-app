@@ -64,7 +64,7 @@ class RefundController extends Controller
                 $invoice->payment_status = 'fully_refunded';
                 $invoice->save();
 
-                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount']);
+                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'], $validated['moderated_by'] ?? null);
 
                 return back()->with('success', 'Refund initiated successfully! Refund ID: ' . $refundData['id']);
             } else {
@@ -136,7 +136,7 @@ class RefundController extends Controller
                 $invoice->payment_status = 'partially_refunded';
                 $invoice->save();
 
-                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'] * 0.8);
+                $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'] * 0.8, $validated['moderated_by'] ?? null);
 
                 return back()->with('success', 'Partial refund initiated successfully! Refund ID: ' . $refundData['id']);
             } else {
@@ -255,13 +255,15 @@ class RefundController extends Controller
      * @param float $amount
      * @return void
      */
-    private function logRefundDetails(array $refundData, string $bookingId, float $amount)
+    private function logRefundDetails(array $refundData, string $bookingId, float $amount, $moderatedBy = null)
     {
         \Log::info("Refund initiated successfully", [
             'booking_id' => $bookingId,
             'amount' => $amount,
             'refund_id' => $refundData['id'],
             'processed_by' => auth()->id(),
+            'moderated_by' => $moderatedBy,
+
         ]);
     }
 
