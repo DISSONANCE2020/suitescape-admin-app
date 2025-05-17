@@ -31,6 +31,7 @@ class RefundController extends Controller
             'amount' => 'required|numeric|min:100',
             'description' => 'nullable|string|max:255',
             'booking_id' => 'required|string|exists:bookings,id',
+            'moderated_by' => 'nullable|string',
         ]);
 
         $amountInCents = (int) round($validated['amount'] * 100, 0);
@@ -60,8 +61,10 @@ class RefundController extends Controller
             if ($response->successful()) {
                 $refundData = $response->json()['data'];
 
-                // Optionally, update the invoice status to 'refunded'
                 $invoice->payment_status = 'fully_refunded';
+                if (isset($validated['moderated_by'])) {
+                    $invoice->moderated_by = $validated['moderated_by'];
+                }
                 $invoice->save();
 
                 $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'], $validated['moderated_by'] ?? null);
@@ -91,6 +94,7 @@ class RefundController extends Controller
                 'amount' => 'required|numeric|min:100',
                 'description' => 'nullable|string|max:255',
                 'booking_id' => 'required|string|exists:bookings,id',
+                'moderated_by' => 'nullable|string',
             ]
         );
 
@@ -134,6 +138,9 @@ class RefundController extends Controller
                 $refundData = $response->json()['data'];
 
                 $invoice->payment_status = 'partially_refunded';
+                if (isset($validated['moderated_by'])) {
+                    $invoice->moderated_by = $validated['moderated_by'];
+                }
                 $invoice->save();
 
                 $this->logRefundDetails($refundData, $validated['booking_id'], $validated['amount'] * 0.8, $validated['moderated_by'] ?? null);
